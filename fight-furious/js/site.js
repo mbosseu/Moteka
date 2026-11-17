@@ -179,12 +179,13 @@
   }
 
   /* ================= Moteur de fond : le défilement fait monter le régime ================= */
+  let moteurCoupe = false; // passe à true en arrivant sur la section « mots »
   let ecoute = false, dernierY = scrollY, dernierT = performance.now();
   (function accelerer(t) {
     const dt = Math.max(1, t - dernierT);
     const v = Math.abs(scrollY - dernierY) / dt * 1000; // px/s
     dernierY = scrollY; dernierT = t;
-    if (lance && !ecoute) {
+    if (lance && !ecoute && !moteurCoupe) {
       const cible = 950 + Math.min(6200, v * 2.2);
       regime.rpm += (cible - regime.rpm) * (cible > regime.rpm ? .08 : .03);
       regime.charge += ((v > 400 ? .5 : 0) - regime.charge) * .05;
@@ -207,6 +208,13 @@
   });
   $$(".apparait").forEach(el => {
     gsap.fromTo(el, { opacity: 0, y: 30, filter: "blur(12px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 1, ease: EO, scrollTrigger: { trigger: el, start: "top 85%", once: true } });
+  });
+
+  /* ================= Le moteur se tait en arrivant sur les mots, repart si on remonte à l'en-tête ================= */
+  ScrollTrigger.create({
+    trigger: ".mots", start: "top 60%", end: "max", // actif jusqu'en bas : on ne peut pas « sauter » le déclencheur
+    onEnter: () => { moteurCoupe = true; gsap.killTweensOf(regime, "volume,rpm"); gsap.to(regime, { volume: 0, rpm: 0, duration: 1.4, ease: "power2.out", overwrite: "auto" }); },
+    onLeaveBack: () => { moteurCoupe = false; gsap.killTweensOf(regime, "volume"); if (demarre) gsap.to(regime, { volume: .45, duration: 1.2, overwrite: "auto" }); },
   });
 
   /* ================= Mots : machine à écrire puis quatre mots ================= */
