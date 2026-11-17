@@ -417,21 +417,8 @@
   });
   $$(".panneau > img").forEach(img => gsap.fromTo(img, { scale: 1.15 }, { scale: 1, ease: "none", scrollTrigger: { trigger: img.parentNode, start: "top bottom", end: "top top", scrub: true } }));
 
-  /* ================= Billetterie : interrupteur à pastille glissante ================= */
-  (() => {
-    const inter = $(".interrupteur"), boutons = $$("button", inter), packs = $$(".pack");
-    boutons.forEach((b, i) => b.addEventListener("click", () => {
-      if (b.getAttribute("aria-selected") === "true") return;
-      Son.clic();
-      inter.classList.toggle("est-droite", i === 1);
-      boutons.forEach(x => x.setAttribute("aria-selected", String(x === b)));
-      packs.forEach(p => {
-        const actif = p.dataset.pack === b.dataset.pack;
-        p.hidden = !actif;
-        if (actif) gsap.fromTo([p.querySelector(".pack-accroche"), ...p.querySelectorAll("li"), p.querySelector(".bouton")], { opacity: 0, x: 30, filter: "blur(8px)" }, { opacity: 1, x: 0, filter: "blur(0px)", stagger: .05, duration: .7, ease: EO });
-      });
-    }));
-  })();
+  /* ================= Billetterie : apparition du bloc unique ================= */
+  gsap.from(["#billets .pack-accroche", "#billets .pack li", "#billets .pack .bouton"], { opacity: 0, x: 30, filter: "blur(8px)", stagger: .06, duration: .8, ease: EO, scrollTrigger: { trigger: "#billets .pack", start: "top 80%", once: true } });
 
   /* ================= Fiche technique, final ================= */
   gsap.from(".fiche-grille > div", { opacity: 0, y: 24, stagger: .05, duration: .9, ease: EO, scrollTrigger: { trigger: ".fiche-grille", start: "top 85%", once: true } });
