@@ -1,2 +1,3 @@
 # Images intermédiaires du montage vidéo (régénérables avec outils/montage-film.py)
 fight-furious/affiche/flora/film/_images/
+__pycache__/
