@@ -453,7 +453,7 @@
 
   /* ================= Fiche technique, final ================= */
   gsap.from(".fiche-grille > div", { opacity: 0, y: 24, stagger: .05, duration: .9, ease: EO, scrollTrigger: { trigger: ".fiche-grille", start: "top 85%", once: true } });
-  gsap.from(".affiche-cadre", { rotate: -4, y: 80, opacity: 0, duration: 1.3, ease: EO, scrollTrigger: { trigger: ".affiche", start: "top 85%", once: true } });
+  gsap.from(".affiche-officielle", { rotate: -3, y: 80, opacity: 0, duration: 1.3, ease: EO, scrollTrigger: { trigger: ".affiche", start: "top 85%", once: true } });
   gsap.fromTo(".final-image img", { scale: 1.25 }, { scale: 1, ease: "none", scrollTrigger: { trigger: ".final", start: "top bottom", end: "bottom bottom", scrub: true } });
   gsap.from(".pied-titre .ligne", { yPercent: 100, opacity: 0, filter: "blur(14px)", stagger: .12, duration: 1.2, ease: EO, scrollTrigger: { trigger: ".pied", start: "top 80%", once: true } });
 

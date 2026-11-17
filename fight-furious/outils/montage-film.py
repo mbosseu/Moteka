@@ -65,6 +65,29 @@ def poussee(src, p, z0, z1, c0, c1):
     y0 = min(max(cy - bh / 2, 0), sh - bh)
     return src.transform((W, H), Image.EXTENT, (x0, y0, x0 + bw, y0 + bh), Image.BICUBIC)
 
+def cadre(src, centre, p, larg0, larg1, pos0, pos1):
+    """Gros plan : le point « centre » de l'image source est placé à la position pos (fraction du cadre),
+    largeur du cadre source interpolée de larg0 à larg1 (poussée + glissé), au sous-pixel."""
+    sw, sh = src.size
+    e = ease(p)
+    bw = larg0 + (larg1 - larg0) * e
+    bh = bw * H / W
+    px, py = pos0[0] + (pos1[0] - pos0[0]) * e, pos0[1] + (pos1[1] - pos0[1]) * e
+    x0 = min(max(centre[0] - px * bw, 0), sw - bw)
+    y0 = min(max(centre[1] - py * bh, 0), sh - bh)
+    return src.transform((W, H), Image.EXTENT, (x0, y0, x0 + bw, y0 + bh), Image.BICUBIC)
+
+def reflet(img, p):
+    """Reflet de lumière qui balaie le logo et la carrosserie, comme dans une pub automobile :
+    une bande diagonale douce, plus forte sur les zones claires (lettres blanches, reflets de vernis)."""
+    bande = Image.new("L", (W, H), 0)
+    x = -0.1 * W + p * 1.35 * W
+    ImageDraw.Draw(bande).polygon([(x, 0), (x + 0.12 * W, 0), (x - 0.18 * W, H), (x - 0.30 * W, H)], fill=255)
+    bande = bande.filter(ImageFilter.GaussianBlur(60))
+    clair = img.convert("L").point(lambda v: min(255, int(v * 1.6)))
+    masque = ImageChops.multiply(bande, clair)
+    return ajoute(img, masque, (255, 248, 240), 1.25)
+
 def effets_arene(img, i, n, flashs=8, faisceaux=True):
     t = i / FPS
     if faisceaux:
@@ -151,17 +174,32 @@ def main():
     if os.path.isdir(TMP):
         shutil.rmtree(TMP)
     os.makedirs(os.path.join(TMP, "p1"))
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", "0.15", "-t", "4.6", "-i", os.path.join(FILM, "plan-1-voiture.mp4"),
-                    "-vf", f"scale={W}:{H}:flags=lanczos", "-q:v", "2", os.path.join(TMP, "p1", "%04d.jpg")], check=True)
+    # plan 1 : on garde le passage où le flocage MOTEKA est visible (0,1 → 3,0 s), en léger ralenti fluide
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", "0.1", "-t", "2.9", "-i", os.path.join(FILM, "plan-1-voiture.mp4"),
+                    "-vf", f"setpts=PTS/0.72,minterpolate=fps={FPS}:mi_mode=mci:mc_mode=aobmc:vsbmc=1,scale={W}:{H}:flags=lanczos",
+                    "-q:v", "2", os.path.join(TMP, "p1", "%04d.jpg")], check=True)
     p1 = sorted(os.listdir(os.path.join(TMP, "p1")))
     arene = Image.open(os.path.join(FILM, "cle-2-arene.png")).convert("RGB")
     boxeur = Image.open(os.path.join(FILM, "cle-3b-boxeur.png")).convert("RGB")
 
-    N2, N3, NC, NT = int(3.2 * FPS), int(3.8 * FPS), int(3.2 * FPS), 12
-    plans = []  # (nom, fonction qui rend l'image k)
+    voiture = Image.open(os.path.join(FILM, "cle-1b-voiture.png")).convert("RGB")
+    # version longue (~25 s) : le flocage MOTEKA de la voiture est présent sur chaque plan
+    d = lambda s: int(s * FPS)
+    NV, NL1, NA, NL2, N3, NC, NT = d(2.6), d(2.4), d(4.2), d(2.2), d(4.6), d(3.8), 12
+    # centre du flocage MOTEKA mesuré sur les images clés (2752×1536)
+    LOGO_ROUTE, LOGO_ARENE, LOGO_PORTE = (907, 835), (1578, 1022), (1114, 1368)
+    plans = []  # (nom, nombre d'images, fonction qui rend l'image k)
     plans.append(("voiture", len(p1), lambda k: Image.open(os.path.join(TMP, "p1", p1[k])).convert("RGB")))
-    plans.append(("arene", N2, lambda k: effets_arene(poussee(arene, k / (N2 - 1), 1.0, 1.18, (0.5, 0.55), (0.47, 0.58)), k, N2)))
-    plans.append(("boxeur", N3, lambda k: effets_arene(poussee(boxeur, k / (N3 - 1), 1.05, 1.42, (0.5, 0.5), (0.55, 0.42)), k, N3, flashs=12, faisceaux=False)))
+    # la voiture entière, la caméra glisse vers la portière floquée
+    plans.append(("voiture-large", NV, lambda k: reflet(cadre(voiture, LOGO_ROUTE, k / (NV - 1), 2300, 1650, (0.36, 0.55), (0.46, 0.55)), k / (NV - 1))))
+    # gros plan du logo avec reflet de lumière
+    plans.append(("logo-route", NL1, lambda k: reflet(cadre(voiture, LOGO_ROUTE, k / (NL1 - 1), 1150, 900, (0.66, 0.55), (0.56, 0.55)), k / (NL1 - 1))))
+    # l'arène : du plan large jusqu'au logo sur la portière
+    plans.append(("arene", NA, lambda k: effets_arene(cadre(arene, LOGO_ARENE, k / (NA - 1), 2700, 1150, (0.573, 0.665), (0.6, 0.6)), k, NA)))
+    # la portière ouverte, logo en gros plan
+    plans.append(("logo-porte", NL2, lambda k: reflet(effets_arene(cadre(boxeur, LOGO_PORTE, k / (NL2 - 1), 1050, 880, (0.62, 0.7), (0.56, 0.7)), k, NL2, flashs=6, faisceaux=False), k / (NL2 - 1))))
+    # le champion, cadré pour garder la portière floquée dans l'image
+    plans.append(("boxeur", N3, lambda k: effets_arene(poussee(boxeur, k / (N3 - 1), 1.0, 1.22, (0.5, 0.55), (0.52, 0.58)), k, N3, flashs=12, faisceaux=False)))
 
     images = []  # chaque image du film sans carton
     for nom, n, rendu in plans:
@@ -198,16 +236,17 @@ def main():
                 idx += 1
         return idx
 
-    coupe2, coupe3 = debuts["arene"], debuts["boxeur"]
     total = len(images)
-    # le changement de plan a lieu quand les bandes couvrent l'écran (q = 0,5)
+    # bandes Moteka sur les grands changements de lieu ; éclair blanc sur les coupes vers les gros plans du logo
+    bandes_film = [debuts["arene"], total]
+    flashs = [debuts["voiture-large"], debuts["logo-route"], debuts["logo-porte"], debuts["boxeur"]]
     film = os.path.join(TMP, "film")
-    ecrire(film, images, [coupe2, coupe3, total], [coupe3], True, True)
+    ecrire(film, images, bandes_film, flashs, True, True)
     heros = os.path.join(TMP, "heros")
-    ecrire(heros, images, [coupe2, coupe3, total, 0], [coupe3], False, False)
+    ecrire(heros, images, bandes_film + [0], flashs, False, False)
 
     sortie = os.path.join(RACINE, "assets", "video")
-    barres = "drawbox=x=0:y=0:w=iw:h=132:color=black:t=fill,drawbox=x=0:y=ih-132:w=iw:h=132:color=black:t=fill"
+    barres = "drawbox=x=0:y=0:w=iw:h=56:color=black:t=fill,drawbox=x=0:y=ih-132:w=iw:h=56:color=black:t=fill"
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", str(FPS), "-i", os.path.join(film, "%04d.jpg"), "-vf", barres + ",format=yuv420p",
                     "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-movflags", "+faststart", os.path.join(sortie, "film-fight-furious.mp4")], check=True)
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", str(FPS), "-i", os.path.join(heros, "%04d.jpg"), "-vf", "scale=1600:-2,format=yuv420p",
