@@ -112,6 +112,18 @@
   derriere.forEach(el => { el.inert = true; });
   let demarre = false, lance = false;
   bouton.addEventListener("click", demarrer);
+  // Sur l'écran d'allumage, défiler équivaut à cliquer sur FIGHT : molette, glissé au doigt, touches de défilement
+  (() => {
+    let toucheY = null;
+    const declencher = () => { if (!demarre) demarrer(); };
+    allumage.addEventListener("wheel", e => { if (Math.abs(e.deltaY) > 2) declencher(); }, { passive: true });
+    allumage.addEventListener("touchstart", e => { toucheY = e.touches[0].clientY; }, { passive: true });
+    allumage.addEventListener("touchmove", e => { if (toucheY !== null && Math.abs(e.touches[0].clientY - toucheY) > 24) declencher(); }, { passive: true });
+    addEventListener("keydown", e => { if (!demarre && ["ArrowDown", "PageDown", " ", "End"].includes(e.key) && e.target !== bouton) { e.preventDefault(); declencher(); } });
+    // La molette ne compte pas comme un geste pour le navigateur : le son reste bloqué jusqu'au premier clic ou toucher
+    const reveillerSon = () => { if (Son.pret && !Son.coupe) Son.init(); };
+    ["pointerdown", "keydown", "touchend"].forEach(ev => addEventListener(ev, reveillerSon, { passive: true }));
+  })();
   bouton.focus({ preventScroll: true });
 
   function demarrer() {
