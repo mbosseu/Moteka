@@ -121,7 +121,21 @@
     allumage.addEventListener("touchmove", e => { if (toucheY !== null && Math.abs(e.touches[0].clientY - toucheY) > 24) declencher(); }, { passive: true });
     addEventListener("keydown", e => { if (!demarre && ["ArrowDown", "PageDown", " ", "End"].includes(e.key) && e.target !== bouton) { e.preventDefault(); declencher(); } });
     // La molette ne compte pas comme un geste pour le navigateur : le son reste bloqué jusqu'au premier clic ou toucher
-    const reveillerSon = () => { if (Son.pret && !Son.coupe) Son.init(); };
+    // Si l'on est entré à la molette, le navigateur a gardé le son bloqué : au premier clic (ou toucher, ou touche),
+    // on le débloque et le moteur donne un vrai coup d'accélérateur, comme au clic sur FIGHT.
+    const reveillerSon = () => {
+      if (!Son.pret || Son.coupe || Son.actif) return;
+      Son.init().then(() => {
+        removeEventListener("pointerdown", reveillerSon); removeEventListener("keydown", reveillerSon); removeEventListener("touchend", reveillerSon);
+        if (moteurCoupe || ecoute) return; // plus bas que l'en-tête, le moteur reste éteint
+        gsap.killTweensOf(regime);
+        gsap.timeline()
+          .to(regime, { volume: 1, duration: .15 }, 0)
+          .to(regime, { rpm: 8400, charge: 1, duration: .5, ease: "power2.in" }, 0)
+          .to(regime, { rpm: 1000, charge: 0, duration: 1.1, ease: "power2.out" }, .55)
+          .to(regime, { volume: .45, duration: 1.4 }, .7);
+      }).catch(() => {});
+    };
     ["pointerdown", "keydown", "touchend"].forEach(ev => addEventListener(ev, reveillerSon, { passive: true }));
   })();
   bouton.focus({ preventScroll: true });

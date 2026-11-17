@@ -101,5 +101,5 @@ window.Son = (() => {
     return a;
   }
 
-  return { init, etat, cloche, clic, couper, niveau, get pret() { return !!ctx; }, get coupe() { return coupe; } };
+  return { init, etat, cloche, clic, couper, niveau, get pret() { return !!ctx; }, get actif() { return !!ctx && ctx.state === "running"; }, get coupe() { return coupe; } };
 })();
