@@ -306,7 +306,7 @@
     const visibles = () => Math.max(1, Math.floor(($(".carrousel").clientWidth) / (cartes[0].offsetWidth + 18)));
     const maxK = () => Math.max(0, cartes.length - visibles());
     function aller(n, anime = true) {
-      if (html.classList.contains("programme-defile")) return;
+      if (html.classList.contains("programme-defile") || html.classList.contains("programme-pile")) return;
       k = clamp(n, 0, maxK());
       const x = -(cartes[k].offsetLeft);
       gsap.to(piste, { x, duration: anime ? .9 : 0, ease: EO });
@@ -322,7 +322,7 @@
     addEventListener("pointerup", e => { if (x0 === null) return; const dx = e.clientX - x0; x0 = null; if (Math.abs(dx) > 50) aller(k + (dx < 0 ? 1 : -1)); });
     addEventListener("resize", () => aller(k, false));
     aller(0, false);
-    gsap.from(cartes, { x: 120, opacity: 0, duration: 1.1, stagger: .08, ease: EO, scrollTrigger: { trigger: ".carrousel", start: "top 80%", once: true } });
+    if (!mobile.matches) gsap.from(cartes, { x: 120, opacity: 0, duration: 1.1, stagger: .08, ease: EO, scrollTrigger: { trigger: ".carrousel", start: "top 80%", once: true } });
   })();
 
   /* ================= Programme : les cartes avancent au défilement (ordinateur) ================= */
@@ -341,6 +341,14 @@
       },
     });
     return () => { html.classList.remove("programme-defile"); barre.removeAttribute("style"); }; // gsap.matchMedia annule lui-même l'animation et le pin
+  });
+
+  /* ================= Programme sur téléphone : cartes empilées, qui apparaissent une à une ================= */
+  gsap.matchMedia().add("(max-width: 860px)", () => {
+    html.classList.add("programme-pile");
+    gsap.set(".carrousel-piste", { x: 0 });
+    $$(".carte").forEach(c => gsap.fromTo(c, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: .8, ease: EO, scrollTrigger: { trigger: c, start: "top 88%", once: true } }));
+    return () => html.classList.remove("programme-pile");
   });
 
   /* ================= Disciplines : trois états au défilement ================= */

@@ -489,3 +489,13 @@ em { font-style: normal; }
 .panneau-texte { bottom: max(110px, 8vh); }
 .disc-ecran, .compte-ecran { padding-bottom: 90px; }
 @media (max-width: 860px) { .barre-chapitre { min-width: 0; flex: 1; } .barre { right: var(--marge); } }
+
+/* programme sur téléphone : pile verticale, pleine largeur, sans flèches */
+@media (max-width: 860px) {
+  .programme-pile .carrousel { overflow: visible; margin-right: 0; }
+  .programme-pile .carrousel-piste { flex-direction: column; gap: 14px; transform: none !important; }
+  .programme-pile .carte { width: 100%; min-height: 0; padding: 26px 22px 24px; gap: 12px; }
+  .programme-pile .carte h3 { font-size: clamp(36px, 11vw, 48px); }
+  .programme-pile .carte-pied { margin-top: 8px !important; }
+  .programme-pile .carrousel-commandes { display: none; }
+}
