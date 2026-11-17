@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Affiche FIGHT &amp; Furious</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet">
+<!--
+  Affiche FIGHT & Furious, Boxing Center × Moteka.
+  Export : ?format=post (1080×1350) ou ?format=story (1080×1920), capture en headless Chrome.
+  Concept : face-à-face. Le ring (Boxing Center) et l'atelier (Moteka) à part égale,
+  séparés par les trois bandes du logo Moteka.
+-->
+<style>
+  :root { --rouge: #d11414; --vif: #ff2323; --blanc: #f4f2ef; --gris: #9a9aa2; --t: "Barlow Condensed", "Arial Narrow", sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #000; }
+  .affiche { position: relative; width: 1080px; height: 1350px; overflow: hidden; background: #050506; color: var(--blanc); font-family: var(--t); }
+  .story .affiche { height: 1920px; }
+
+  /* ---------- les deux mondes ---------- */
+  .monde { position: absolute; left: 0; right: 0; top: 0; overflow: hidden; }
+  .monde img { position: absolute; display: block; }
+  .post .monde { height: 1230px; }
+  .story .monde { height: 1710px; }
+
+  /* ring : Boxing Center */
+  .ring img { filter: contrast(1.1) saturate(1.08); }
+  .post .ring { clip-path: polygon(0 0, 70% 0, 50% 100%, 0 100%); }
+  .post .ring img { content: url(photo-gala-face.jpg); width: 1500px; left: -442px; top: 400px; }
+  .story .ring { clip-path: polygon(0 1040px, 100% 900px, 100% 100%, 0 100%); }
+  .story .ring img { width: 1420px; left: -230px; top: 800px; }
+
+  /* atelier : Moteka (voiture rouge conservée, le reste en noir et blanc) */
+  .atelier img { filter: contrast(1.05); }
+  .post .atelier { clip-path: polygon(70% 0, 100% 0, 100% 100%, 50% 100%); }
+  .post .atelier img { height: 1230px; right: -260px; top: 40px; }
+  .story .atelier { clip-path: polygon(0 0, 100% 0, 100% 900px, 0 1040px); }
+  .story .atelier img { height: 1010px; right: -230px; top: 170px; }
+  .atelier::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 75%, rgba(209,20,20,.25), transparent 60%); }
+
+  /* voiles de lisibilité */
+  .voile { position: absolute; inset: 0; pointer-events: none; }
+  .post .voile { background:
+      linear-gradient(180deg, rgba(5,5,6,.92) 0%, rgba(5,5,6,.6) 24%, rgba(5,5,6,0) 44%),
+      linear-gradient(0deg, #050506 9%, rgba(5,5,6,.85) 20%, rgba(5,5,6,0) 40%); }
+  .story .voile { background:
+      linear-gradient(180deg, rgba(5,5,6,.95) 0%, rgba(5,5,6,.7) 22%, rgba(5,5,6,0) 36%),
+      linear-gradient(0deg, #050506 11%, rgba(5,5,6,.85) 22%, rgba(5,5,6,0) 38%); }
+
+  /* les trois bandes Moteka sur la ligne de partage */
+  .bandes { position: absolute; display: flex; gap: 16px; }
+  .bandes i { display: block; background: linear-gradient(180deg, var(--vif), var(--rouge)); box-shadow: 0 0 40px rgba(255,35,35,.55); }
+  .post .bandes { left: 599px; top: -20px; height: 1270px; transform: skewX(-10deg); transform-origin: 50% 50%; }
+  .post .bandes i { width: 22px; height: 100%; }
+  .post .bandes i:nth-child(1) { opacity: .55; } .post .bandes i:nth-child(3) { opacity: .55; }
+  .story .bandes { left: -40px; top: 930px; width: 1160px; flex-direction: column; transform: rotate(-7.4deg); transform-origin: 50% 50%; }
+  .story .bandes i { height: 20px; width: 100%; }
+  .story .bandes i:nth-child(1) { opacity: .55; } .story .bandes i:nth-child(3) { opacity: .55; }
+
+  /* ---------- tête ---------- */
+  .tete { position: absolute; top: 54px; left: 64px; right: 64px; display: flex; justify-content: space-between; align-items: center; }
+  .story .tete { top: 86px; }
+  .logos { display: flex; align-items: center; gap: 18px; color: #666; font-size: 26px; }
+  .logos .bc { height: 54px; }
+  .logos .mk { height: 32px; }
+  .edition { font-weight: 600; font-size: 20px; letter-spacing: .3em; color: var(--gris); text-transform: uppercase; }
+
+  /* ---------- titre ---------- */
+  .titre { position: absolute; left: 58px; top: 142px; }
+  .story .titre { top: 200px; }
+  .surtitre { font-weight: 600; font-size: 22px; letter-spacing: .36em; text-transform: uppercase; color: var(--gris); margin: 0 0 12px 6px; }
+  .surtitre b { color: var(--blanc); } .surtitre em { color: var(--vif); font-style: normal; }
+  h1 { font-weight: 800; line-height: .8; text-transform: uppercase; text-shadow: 0 8px 40px rgba(0,0,0,.6); }
+  h1 .l1 { display: block; font-size: 190px; }
+  h1 .l2 { display: block; font-size: 228px; font-style: italic; color: var(--vif); margin-left: 34px; text-shadow: 0 0 60px rgba(255,35,35,.4); }
+  .story h1 .l1 { font-size: 236px; }
+  .story h1 .l2 { font-size: 270px; }
+
+  /* ---------- compte-tours + dates ---------- */
+  .compteur { position: absolute; width: 300px; height: 300px; right: 40px; top: 150px; }
+  .story .compteur { right: auto; left: 34px; top: 690px; }
+  .compteur .piste { fill: rgba(5,5,6,.55); stroke: rgba(255,255,255,.18); stroke-width: 3; }
+  .compteur .zone { fill: none; stroke: var(--vif); stroke-width: 6; }
+  .compteur line { stroke: rgba(255,255,255,.55); stroke-width: 2; }
+  .compteur line.rouge { stroke: var(--vif); stroke-width: 3; }
+  .compteur .aiguille { stroke: var(--vif); stroke-width: 5; stroke-linecap: round; filter: drop-shadow(0 0 8px var(--vif)); }
+  .dates { position: absolute; width: 300px; right: 40px; top: 238px; text-align: center; text-shadow: 0 4px 30px rgba(0,0,0,.8); }
+  .story .dates { right: auto; left: 34px; top: 778px; }
+  .dates .jours { font-weight: 800; font-size: 78px; line-height: .9; }
+  .dates .mois { font-weight: 700; font-size: 26px; letter-spacing: .16em; color: var(--vif); margin-top: 4px; }
+  .dates .ville { font-weight: 600; font-size: 17px; letter-spacing: .3em; color: var(--gris); margin-top: 6px; }
+
+  /* ---------- étiquettes des deux coins ---------- */
+  .coin { position: absolute; display: grid; gap: 8px; }
+  .coin small { font-weight: 600; font-size: 18px; letter-spacing: .34em; text-transform: uppercase; color: var(--gris); }
+  .coin strong { font-weight: 800; font-size: 40px; text-transform: uppercase; line-height: 1; }
+  .coin img { height: 44px; }
+  .coin-ring { left: 64px; }
+  .coin-atelier { right: 64px; text-align: right; justify-items: end; }
+  .post .coin { top: 806px; }
+  .story .coin-atelier { top: 640px; }
+  .story .coin-ring { top: 1100px; left: auto; right: 64px; text-align: right; justify-items: end; }
+
+  /* ---------- programme : trois vitesses ---------- */
+  .programme { position: absolute; left: 64px; right: 64px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .post .programme { top: 958px; }
+  .story .programme { top: 1372px; grid-template-columns: 1fr; gap: 10px; }
+  .vitesse { padding: 16px 18px 16px; background: rgba(5,5,6,.78); border-top: 5px solid var(--rouge); }
+  .vitesse:first-child { background: var(--rouge); border-color: #fff; }
+  .vitesse small { display: block; font-weight: 700; font-size: 20px; letter-spacing: .22em; text-transform: uppercase; color: rgba(255,255,255,.75); }
+  .vitesse b { display: block; font-weight: 800; font-size: 38px; text-transform: uppercase; line-height: 1.05; margin-top: 4px; }
+  .vitesse span { display: block; font-weight: 600; font-size: 21px; letter-spacing: .06em; color: rgba(255,255,255,.8); margin-top: 2px; }
+  .story .vitesse { display: grid; grid-template-columns: 170px 1fr; align-items: center; column-gap: 18px; padding: 10px 20px; border-top: 0; border-left: 6px solid var(--rouge); }
+  .story .vitesse:first-child { border-color: #fff; }
+  .story .vitesse small { grid-row: span 2; font-size: 28px; letter-spacing: .04em; color: #fff; font-weight: 800; }
+  .story .vitesse b { font-size: 40px; margin: 0; }
+  .story .vitesse span { margin: 0; }
+  .vitesse small i { font-style: normal; }
+  .story .vitesse small i { display: block; font-size: 20px; letter-spacing: .14em; color: rgba(255,255,255,.8); }
+
+  /* ---------- pied ---------- */
+  .damier { position: absolute; left: 0; right: 0; bottom: 120px; height: 16px; background: conic-gradient(#fff 25%, #000 0 50%, #fff 0 75%, #000 0) 0 0 / 16px 16px; }
+  .story .damier { bottom: 210px; }
+  .pied { position: absolute; left: 0; right: 0; bottom: 0; height: 120px; display: flex; align-items: center; justify-content: space-between; padding: 0 64px; background: #0b0b0d; border-top: 4px solid var(--rouge); }
+  .story .pied { height: 210px; }
+  .pied p { font-weight: 700; font-size: 28px; letter-spacing: .1em; text-transform: uppercase; }
+  .pied p small { display: block; font-weight: 600; font-size: 16px; letter-spacing: .3em; color: var(--gris); margin-bottom: 4px; }
+  .pied .droite { text-align: right; }
+  .pied .x { font-weight: 800; font-size: 44px; color: var(--vif); }
+  .story .pied p { font-size: 32px; }
+  .credit { position: absolute; left: 22px; bottom: 150px; font-weight: 500; font-size: 14px; letter-spacing: .14em; color: rgba(255,255,255,.5); writing-mode: vertical-rl; transform: rotate(180deg); text-transform: uppercase; }
+  .story .credit { bottom: 240px; }
+</style>
+</head>
+<body>
+<div class="affiche">
+  <div class="monde ring"><img src="photo-gala.jpg" alt=""></div>
+  <div class="monde atelier"><img src="garage-voiture.jpg" alt=""></div>
+  <div class="voile"></div>
+  <div class="bandes" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <div class="tete">
+    <div class="logos">
+      <img class="bc" src="../assets/logo/boxing-center.png" alt="Boxing Center">
+      <span>×</span>
+      <img class="mk" src="../assets/logo/moteka-blanc.svg" alt="Moteka">
+    </div>
+    <p class="edition">Toulouse · 2026</p>
+  </div>
+
+  <div class="titre">
+    <p class="surtitre"><b>Boxing Center</b> <em>×</em> <b>Moteka</b> présentent</p>
+    <h1><span class="l1">Fight &amp;</span><span class="l2">Furious</span></h1>
+  </div>
+
+  <svg class="compteur" viewBox="0 0 200 200" aria-hidden="true"></svg>
+  <div class="dates">
+    <p class="jours">11·12·13</p>
+    <p class="mois">Décembre 2026</p>
+  </div>
+
+  <div class="coin coin-ring">
+    <small>Le ring</small>
+    <img src="../assets/logo/boxing-center.png" alt="Boxing Center">
+  </div>
+  <div class="coin coin-atelier">
+    <small>L'atelier</small>
+    <img src="../assets/logo/moteka-blanc.svg" alt="Moteka">
+  </div>
+
+  <div class="programme">
+    <div class="vitesse"><small>Ven. 11 <i>· dès 19h</i></small><b>Gala Élites</b><span>Pleine puissance</span></div>
+    <div class="vitesse"><small>Sam. 12</small><b>Boxe Loisirs</b><span>Régime de croisière</span></div>
+    <div class="vitesse"><small>Dim. 13</small><b>Boxe Éducative</b><span>Le rodage · enfants</span></div>
+  </div>
+
+  <p class="credit">Photo B.M Photographie</p>
+  <div class="damier"></div>
+  <div class="pied">
+    <p><small>Infos &amp; réservations</small>boxingcenter.fr</p>
+    <span class="x">×</span>
+    <p class="droite"><small>Partenaire officiel</small>moteka.fr</p>
+  </div>
+</div>
+<script>
+  // compte-tours : graduations, zone rouge, pointe d'aiguille
+  (() => {
+    const svg = document.querySelector(".compteur"), ns = "http://www.w3.org/2000/svg";
+    const pt = (v, r) => { const a = (-135 + v * 270) * Math.PI / 180; return [100 + r * Math.sin(a), 100 - r * Math.cos(a)]; };
+    const arc = (a, b, r) => { const [x1, y1] = pt(a, r), [x2, y2] = pt(b, r); return `M${x1} ${y1}A${r} ${r} 0 ${(b - a) * 270 > 180 ? 1 : 0} 1 ${x2} ${y2}`; };
+    const el = (t, at) => { const e = document.createElementNS(ns, t); for (const k in at) e.setAttribute(k, at[k]); svg.append(e); return e; };
+    el("circle", { cx: 100, cy: 100, r: 92, class: "piste" });
+    el("path", { d: arc(.8, 1, 92), class: "zone" });
+    for (let i = 0; i <= 20; i++) { const v = i / 20, [x1, y1] = pt(v, i % 2 ? 84 : 78), [x2, y2] = pt(v, 88); el("line", { x1, y1, x2, y2, class: v >= .8 ? "rouge" : "" }); }
+    { const [x1, y1] = pt(.9, 62), [x2, y2] = pt(.9, 80); el("line", { x1, y1, x2, y2, class: "aiguille" }); }
+  })();
+  document.body.className = new URLSearchParams(location.search).get("format") === "story" ? "story" : "post";
+</script>
+</body>
+</html>

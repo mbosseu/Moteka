@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Affiche FIGHT &amp; Furious · affiche de film</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@300;400;500;600;700&family=Oswald:wght@300;400&display=swap" rel="stylesheet">
+<!--
+  Affiche « film » : visage en grand, titre dans le tiers bas, bloc de crédits façon cinéma.
+  Image : scene.jpg (photo du boxeur replacée dans l'atelier via Flora, puis étalonnée).
+  ?format=post (1080×1350) ou ?format=story (1080×1920)
+-->
+<style>
+  :root { --rouge: #d8141a; --blanc: #f1efea; --gris: #a9a7a2; --titre: "Anton", "Impact", sans-serif; --t: "Barlow Condensed", "Arial Narrow", sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #000; }
+  .affiche { position: relative; width: 1080px; height: 1350px; overflow: hidden; background: #060607; color: var(--blanc); font-family: var(--t); }
+  .story .affiche { height: 1920px; }
+
+  .scene { position: absolute; inset: 0; background: url(scene.jpg) no-repeat; background-size: 1188px auto; background-position: center -360px; }
+  .story .scene { background-size: 1320px auto; background-position: center -150px; }
+  .voile { position: absolute; inset: 0; background:
+      linear-gradient(180deg, rgba(0,0,0,.7) 0%, rgba(0,0,0,0) 20%),
+      linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(0,0,0,.94) 22%, rgba(0,0,0,.55) 38%, rgba(0,0,0,0) 54%),
+      radial-gradient(ellipse at 50% 40%, transparent 50%, rgba(0,0,0,.5) 100%); }
+  .story .voile { background:
+      linear-gradient(180deg, rgba(0,0,0,.75) 0%, rgba(0,0,0,0) 18%),
+      linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(0,0,0,.94) 24%, rgba(0,0,0,.5) 40%, rgba(0,0,0,0) 55%),
+      radial-gradient(ellipse at 50% 40%, transparent 50%, rgba(0,0,0,.5) 100%); }
+  .grain { position: absolute; inset: 0; opacity: .09; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+  /* haut : accroche, comme un « teaser » de film */
+  .haut { position: absolute; top: 58px; left: 0; right: 0; text-align: center; }
+  .story .haut { top: 120px; }
+  .presentent { font-weight: 500; font-size: 19px; letter-spacing: .55em; text-transform: uppercase; color: var(--gris); padding-left: .55em; }
+  .presentent b { color: var(--blanc); font-weight: 600; }
+  .accroche { margin-top: 14px; font-family: "Oswald", var(--t); font-weight: 300; font-size: 30px; letter-spacing: .18em; text-transform: uppercase; }
+  .accroche em { font-style: normal; color: var(--rouge); }
+
+  /* bloc titre */
+  .bloc { position: absolute; left: 0; right: 0; bottom: 70px; text-align: center; }
+  .story .bloc { bottom: 150px; }
+  h1 { font-family: var(--titre); font-weight: 400; text-transform: uppercase; line-height: .82; }
+  h1 .l1 { display: block; font-size: 150px; letter-spacing: .04em;
+    background: linear-gradient(180deg, #ffffff 0%, #d9d9dc 46%, #8e9096 54%, #e6e6e8 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent; }
+  h1 .l2 { display: block; font-size: 204px; letter-spacing: .02em; color: var(--rouge);
+    text-shadow: 0 0 1px rgba(255,80,80,.6), 0 10px 40px rgba(216,20,26,.35); }
+  .story h1 .l1 { font-size: 170px; }
+  .story h1 .l2 { font-size: 232px; }
+
+  .date { margin-top: 26px; font-family: "Oswald", var(--t); font-weight: 400; font-size: 40px; letter-spacing: .32em; text-transform: uppercase; padding-left: .32em; }
+  .date i { font-style: normal; color: var(--rouge); margin: 0 .2em; }
+
+  /* bloc de crédits « cinéma » */
+  .credits { width: 860px; margin: 30px auto 0; font-weight: 400; font-size: 21px; line-height: 1.25; letter-spacing: .06em; text-transform: uppercase; color: var(--gris);
+    transform: scaleY(1.35); transform-origin: top; }
+  .credits b { font-weight: 600; color: var(--blanc); }
+  .logos { margin-top: 44px; display: flex; justify-content: center; align-items: center; gap: 46px; }
+  .story .logos { margin-top: 50px; }
+  .logos img { height: 44px; opacity: .95; }
+  .logos .mk { height: 30px; }
+  .logos span { width: 1px; height: 40px; background: rgba(255,255,255,.3); }
+  .site { margin-top: 22px; font-weight: 500; font-size: 18px; letter-spacing: .4em; text-transform: uppercase; color: var(--gris); padding-left: .4em; }
+</style>
+</head>
+<body>
+<div class="affiche">
+  <div class="scene"></div>
+  <div class="voile"></div>
+  <div class="grain"></div>
+
+  <div class="haut">
+    <p class="presentent"><b>Boxing Center</b> &amp; <b>Moteka</b> présentent</p>
+    <p class="accroche">Le ring. L'atelier. <em>Un seul moteur.</em></p>
+  </div>
+
+  <div class="bloc">
+    <h1><span class="l1">Fight &amp;</span><span class="l2">Furious</span></h1>
+    <p class="date">11 <i>—</i> 13 décembre · Toulouse</p>
+    <p class="credits">
+      Un week-end de boxe <b>Boxing Center</b> · <b>Gala Élites</b> vendredi 11 dès 19h ·
+      <b>Boxe Loisirs</b> anglaise et pieds-poings samedi 12 · <b>Boxe Éducative</b> dimanche 13 ·
+      en partenariat avec <b>Moteka centre automobile</b> · Fenouillet
+    </p>
+    <div class="logos">
+      <img src="../assets/logo/boxing-center.png" alt="Boxing Center">
+      <span></span>
+      <img class="mk" src="../assets/logo/moteka-blanc.svg" alt="Moteka">
+    </div>
+    <p class="site">boxingcenter.fr · moteka.fr</p>
+  </div>
+</div>
+<script>
+  document.body.className = new URLSearchParams(location.search).get("format") === "story" ? "story" : "post";
+</script>
+</body>
+</html>

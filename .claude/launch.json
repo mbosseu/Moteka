@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "fight-furious",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "5178", "--directory", "C:/Users/PC/Desktop/moteka/fight-furious"],
+      "port": 5178
+    }
+  ]
+}

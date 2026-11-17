@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="fr" class="verrou">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FIGHT &amp; Furious · Boxing Center × Moteka · 11–13 décembre 2026</title>
+<meta name="description" content="FIGHT & Furious : le week-end de boxe Boxing Center propulsé par Moteka. Gala Élites, Boxe Loisirs et Boxe Éducative, du 11 au 13 décembre 2026.">
+<meta name="theme-color" content="#0a0a0b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===================== ÉCRAN D'ALLUMAGE ===================== -->
+<div id="allumage" class="allumage" role="dialog" aria-label="Démarrer l'expérience FIGHT & Furious">
+  <canvas class="allumage-fond" aria-hidden="true"></canvas>
+  <div class="allumage-logos entre">
+    <img src="assets/logo/boxing-center.png" alt="Boxing Center">
+    <span>×</span>
+    <img src="assets/logo/moteka-blanc.svg" alt="Moteka" class="logo-moteka">
+  </div>
+  <div class="allumage-centre">
+    <span class="allumage-mot allumage-gauche entre">FIGHT</span>
+    <div class="compte-tours entre">
+      <svg class="compte-tours-svg" viewBox="0 0 440 440" aria-hidden="true">
+        <path class="ct-piste"/>
+        <path class="ct-rouge"/>
+        <path class="ct-aiguille"/>
+        <g class="ct-graduations"></g>
+        <g class="ct-chiffres"></g>
+      </svg>
+      <button class="demarrer" type="button"><span>FIGHT</span></button>
+      <div class="ct-lecture"><b class="ct-regime">0</b> TR/MIN</div>
+    </div>
+    <span class="allumage-mot allumage-droite entre">FURIOUS</span>
+  </div>
+  <p class="allumage-mention entre">[ Boxing Center × Moteka · Son conseillé ]</p>
+</div>
+
+<!-- ===================== NAVIGATION ===================== -->
+<div class="progression" aria-hidden="true"><i></i></div>
+<header class="nav">
+  <a href="#haut" class="nav-logos" aria-label="Retour en haut">
+    <img src="assets/logo/boxing-center.png" alt="Boxing Center">
+    <span>×</span>
+    <img src="assets/logo/moteka-blanc.svg" alt="Moteka" class="logo-moteka">
+  </a>
+  <a href="#billets" class="bouton bouton-contour nav-cta">Réserver <span aria-hidden="true">→</span></a>
+</header>
+
+<div class="barre">
+  <button class="barre-chapitre" type="button" aria-expanded="false" aria-controls="tiroir">
+    <span class="barre-marque" aria-hidden="true"><svg viewBox="0 0 30 20"><path d="M0 20 9 0h5L5 20zM8 20 17 0h5l-9 20zM16 20 25 0h5v20h-5V9l-5 11z"/></svg></span>
+    <span class="barre-nom">Démarrage</span>
+    <span class="barre-fleche" aria-hidden="true">⌃</span>
+  </button>
+  <button class="son" type="button" aria-pressed="true" aria-label="Couper le son">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/></svg>
+    <span class="son-barres" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+  </button>
+  <nav id="tiroir" class="tiroir" hidden>
+    <a href="#haut">Démarrage</a>
+    <a href="#gala"><em>01</em> Le gala</a>
+    <a href="#programme"><em>02</em> Programme</a>
+    <a href="#disciplines"><em>03</em> Disciplines</a>
+    <a href="#compte"><em>04</em> Compte à rebours</a>
+    <a href="#stand"><em>05</em> Arrêt au stand</a>
+    <a href="#billets"><em>06</em> Billetterie</a>
+    <a href="#fiche"><em>07</em> Fiche technique</a>
+  </nav>
+</div>
+
+<div class="curseur" aria-hidden="true"></div>
+<div class="pastille" aria-hidden="true">Lire</div>
+
+<main>
+  <!-- ===================== HÉROS ===================== -->
+  <section id="haut" class="heros" data-chapitre="Démarrage">
+    <div class="heros-cadre">
+      <video class="heros-video heros-relais est-visible" muted playsinline loop autoplay preload="auto" poster="assets/img/voiture-poster.jpg" aria-hidden="true">
+        <source src="assets/video/voiture.mp4" type="video/mp4">
+      </video>
+      <div class="relais-partenaires" aria-hidden="true">
+        <span>Partenaires officiels</span>
+        <img src="assets/logo/boxing-center.png" alt="">
+        <i></i>
+        <img src="assets/logo/moteka-blanc.svg" alt="" class="relais-moteka">
+      </div>
+      <div class="heros-voile"></div>
+    </div>
+    <div class="heros-contenu">
+      <div class="heros-logos">
+        <span class="etiquette">Boxing Center <b>×</b> Moteka</span>
+      </div>
+      <h1 class="heros-titre" tabindex="-1">
+        <span class="ligne">FIGHT &amp;</span>
+        <span class="ligne"><em>Furious</em></span>
+      </h1>
+      <p class="heros-texte">Trois jours de boxe, trois vitesses. Le week-end Boxing Center, propulsé par le garage Moteka.</p>
+      <button class="bouton bouton-blanc heros-film" type="button" data-film><span aria-hidden="true">▶</span> Voir le film du gala</button>
+    </div>
+    <dl class="heros-chiffres">
+      <div><dt>Dates</dt><dd>11 — 13 déc. 2026</dd></div>
+      <div><dt>Ouverture</dt><dd>Ven. 19h00</dd></div>
+      <div><dt>Ville</dt><dd>Toulouse</dd></div>
+    </dl>
+    <p class="perimetre"><span class="damier" aria-hidden="true"></span>Conçu pour le <b>ring</b><br>Propulsé par <b>Moteka</b></p>
+    <a class="heros-defiler" href="#mots">Défiler pour découvrir <span aria-hidden="true">→</span></a>
+  </section>
+
+  <!-- ===================== MOTS ===================== -->
+  <section id="mots" class="mots" data-chapitre="Démarrage">
+    <div class="mots-ecran">
+      <p class="mots-tape" aria-hidden="true"></p>
+      <p class="sr">Tout ce qu'il faut pour un week-end de combat : puissance, précision, endurance, respect.</p>
+      <div class="mots-pile" aria-hidden="true">
+        <span class="mot">PUISSANCE</span>
+        <span class="mot">PRÉCISION</span>
+        <span class="mot">ENDURANCE</span>
+        <span class="mot">RESPECT</span>
+      </div>
+      <div class="mots-points" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    </div>
+  </section>
+
+  <!-- ===================== FILM ===================== -->
+  <section class="film" data-chapitre="Démarrage">
+    <button class="film-carte" type="button" data-film aria-label="Lire le film du gala">
+      <video class="film-apercu" muted playsinline loop preload="metadata" poster="assets/img/gala/impact.jpg">
+        <source src="assets/video/clip-2.mp4" type="video/mp4">
+      </video>
+      <span class="film-legende">
+        <small>Les galas Boxing Center · En images</small>
+        <strong>Sous les projecteurs</strong>
+      </span>
+      <span class="film-duree">▶ Lecture</span>
+    </button>
+  </section>
+
+  <!-- ===================== 01 LE GALA ===================== -->
+  <section id="gala" class="bloc gala" data-chapitre="Le gala">
+    <header class="bloc-tete">
+      <p class="numero"><em>01</em> Le gala</p>
+      <h2 class="balaye">Trois jours. Un seul moteur.</h2>
+    </header>
+    <div class="deux-colonnes apparait">
+      <p>Du vendredi au dimanche, le Boxing Center fait monter le régime : le gala des Élites sous les projecteurs, la boxe loisirs pour tous les pratiquants, puis la boxe éducative pour les plus jeunes.</p>
+      <p>Pour ce week-end, Moteka, centre automobile multimarques au nord de Toulouse, prend place dans le coin du ring. Même exigence, même précision : un boxeur se prépare comme on règle un moteur.</p>
+    </div>
+    <div class="ecoute apparait">
+      <div class="ecoute-texte">
+        <blockquote>« Un boxeur se prépare comme on règle un moteur : au millimètre, round après round. »</blockquote>
+        <p class="ecoute-spec"><b>3 jours · 3 vitesses</b><br>Élites · Loisirs · Éducative</p>
+        <button class="ecoute-bouton" type="button">
+          <span class="ecoute-rond" aria-hidden="true">▶</span>
+          <canvas class="ecoute-onde" width="240" height="40" aria-hidden="true"></canvas>
+          <span>Maintenir pour faire rugir</span>
+        </button>
+      </div>
+      <div class="ecoute-image"><img src="assets/img/atelier.jpg" alt="L'atelier d'un garage automobile, véhicule sur pont élévateur" loading="lazy"></div>
+    </div>
+  </section>
+
+  <!-- ===================== 02 PROGRAMME ===================== -->
+  <section id="programme" class="bloc programme" data-chapitre="Programme">
+    <header class="bloc-tete">
+      <p class="numero"><em>02</em> Programme</p>
+      <h2 class="balaye">Trois vitesses, un week-end.</h2>
+    </header>
+    <div class="carrousel">
+      <div class="carrousel-piste">
+        <article class="carte carte-rouge">
+          <p class="carte-jour">Vendredi 11 déc. · Dès 19h</p>
+          <h3>Pleine<br>puissance.</h3>
+          <p>Le Gala Boxe Amateur Élites. Les meilleurs boxeurs amateurs montent sur le ring, l'aiguille dans le rouge.</p>
+          <p class="carte-pied">Gala Élites</p>
+        </article>
+        <article class="carte">
+          <p class="carte-jour">Samedi 12 déc. · <span class="a-confirmer">Horaires à confirmer</span></p>
+          <h3>Régime de<br>croisière.</h3>
+          <p>L'événement Boxe Loisirs : boxe anglaise et boxe pieds-poings, pour celles et ceux qui boxent pour le plaisir.</p>
+          <p class="carte-pied">Boxe Loisirs</p>
+        </article>
+        <article class="carte">
+          <p class="carte-jour">Dimanche 13 déc. · <span class="a-confirmer">Horaires à confirmer</span></p>
+          <h3>Le<br>rodage.</h3>
+          <p>La Boxe Éducative pour les enfants : on touche sans frapper, on juge la technique. Les moteurs de demain apprennent à tourner rond.</p>
+          <p class="carte-pied">Boxe Éducative</p>
+        </article>
+        <article class="carte">
+          <p class="carte-jour">Tout le week-end</p>
+          <h3>Le coin<br>Moteka.</h3>
+          <p>Entre deux rounds, le boxeur rejoint son coin comme une voiture rentre au stand. Moteka, partenaire officiel, accompagne chaque combat.</p>
+          <p class="carte-pied">Partenaire officiel</p>
+        </article>
+        <article class="carte">
+          <p class="carte-jour">Encadrement</p>
+          <h3>Sécurité<br>d'abord.</h3>
+          <p>Coachs diplômés, arbitres expérimentés et un club affilié à la FFBoxe et à la FFKMDA : un cadre structuré pour chaque discipline.</p>
+          <p class="carte-pied">Boxing Center</p>
+        </article>
+      </div>
+      <div class="carrousel-commandes">
+        <div class="carrousel-barre"><i></i></div>
+        <button class="fleche" type="button" data-sens="-1" aria-label="Carte précédente">←</button>
+        <button class="fleche" type="button" data-sens="1" aria-label="Carte suivante">→</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 03 DISCIPLINES ===================== -->
+  <section id="disciplines" class="bloc disciplines" data-chapitre="Disciplines">
+    <header class="bloc-tete">
+      <p class="numero"><em>03</em> Disciplines</p>
+      <h2 class="balaye">Deux styles, un seul ring.</h2>
+    </header>
+    <div class="disc-defile">
+      <div class="disc-ecran">
+        <div class="disc-textes">
+          <div class="disc-etat est-actif">
+            <p class="disc-label">01 · Boxe anglaise</p>
+            <p class="disc-phrase">Le noble art. Poings uniquement : technique, puissance et stratégie dans les règles classiques.</p>
+          </div>
+          <div class="disc-etat">
+            <p class="disc-label">02 · Boxe pieds-poings</p>
+            <p class="disc-phrase">La frappe intégrale. Poings et pieds en jeu, pour des échanges rapides et spectaculaires.</p>
+          </div>
+          <div class="disc-etat">
+            <p class="disc-label">03 · Boxe éducative</p>
+            <p class="disc-phrase">Pour les enfants : on touche, on ne frappe pas. La technique avant la force.</p>
+          </div>
+          <dl class="disc-chiffres">
+            <div><dt data-compte="5">0</dt><dd>Clubs Boxing Center à Toulouse</dd></div>
+            <div><dt data-compte="175" data-suffixe="+">0</dt><dd>Cours chaque semaine</dd></div>
+          </dl>
+        </div>
+        <div class="disc-image">
+          <img src="assets/img/gala/anglaise.jpg" alt="Échange de coups en boxe anglaise lors d'un gala Boxing Center" class="est-actif">
+          <img src="assets/img/gala/echange.jpg" alt="Échange de directs pendant un gala Boxing Center" loading="lazy">
+          <img src="assets/img/gala/jeunes.jpg" alt="Deux jeunes boxeurs casqués pendant un gala Boxing Center" loading="lazy">
+          <div class="disc-points" aria-hidden="true"><i class="est-actif"></i><i></i><i></i></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 04 COMPTE À REBOURS ===================== -->
+  <section id="compte" class="compte" data-chapitre="Compte à rebours">
+    <div class="compte-ecran">
+      <img class="compte-photo" src="assets/img/gala/ring-large.jpg" alt="" aria-hidden="true">
+      <div class="compte-voile"></div>
+      <p class="numero compte-numero"><em>04</em> Compte à rebours</p>
+      <svg class="ring" viewBox="0 0 400 400" aria-hidden="true">
+        <path class="ring-corde ring-corde-3" d="M60 60H340V340H60Z"/>
+        <path class="ring-corde ring-corde-2" d="M75 75H325V325H75Z"/>
+        <path class="ring-trace" d="M90 90H310V310H90Z"/>
+        <circle class="ring-poteau rouge" cx="60" cy="60" r="9"/>
+        <circle class="ring-poteau bleu" cx="340" cy="340" r="9"/>
+        <circle class="ring-poteau" cx="340" cy="60" r="9"/>
+        <circle class="ring-poteau" cx="60" cy="340" r="9"/>
+        <circle class="ring-point" r="6"/>
+      </svg>
+      <div class="compte-centre">
+        <p class="compte-mot">Coin rouge</p>
+        <h2 class="compte-titre">FIGHT &amp; Furious</h2>
+        <p class="compte-sous">Avant le premier gong</p>
+        <p class="chrono" aria-live="off"><span data-j>00</span><small>j</small> <span data-h>00</span><small>h</small> <span data-m>00</span><small>m</small> <span data-s>00</span><small>s</small></p>
+        <p class="compte-legende">Vendredi 11 décembre 2026 · 19h00 · Gala Élites</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PHRASE ===================== -->
+  <section class="reveur" data-chapitre="Compte à rebours">
+    <p class="reveur-1">Les champions le savent : la victoire se prépare bien avant le premier round.</p>
+    <p class="reveur-2">Au gymnase comme à l'atelier, <b>chaque réglage compte.</b></p>
+  </section>
+
+  <!-- ===================== 05 ARRÊT AU STAND (MOTEKA) ===================== -->
+  <section id="stand" class="bloc stand" data-chapitre="Arrêt au stand">
+    <header class="bloc-tete">
+      <p class="numero"><em>05</em> Arrêt au stand · Moteka</p>
+      <h2 class="balaye">Le coin du boxeur. Le stand du pilote.</h2>
+    </header>
+    <div class="stand-pile">
+      <article class="panneau">
+        <img src="assets/img/atelier.jpg" alt="Atelier Moteka" loading="lazy" class="img-atelier">
+        <div class="panneau-texte">
+          <p class="panneau-num">Moteka · Centre automobile</p>
+          <h3>Votre garage au nord de Toulouse.</h3>
+          <p>Centre automobile multimarques à Fenouillet, accès direct depuis la rocade. Devis gratuit, chiffré par écrit avant toute intervention.</p>
+        </div>
+      </article>
+      <article class="panneau">
+        <img src="assets/img/gala/coin-coach.jpg" alt="Un coach parle à son boxeur dans le coin du ring" loading="lazy">
+        <div class="panneau-texte">
+          <p class="panneau-num">Mécanique · Révision · Entretien</p>
+          <h3>Le diagnostic entre deux rounds.</h3>
+          <p>Comme le coach lit un combat, l'atelier lit votre véhicule : mécanique, révision et entretien, sans mauvaise surprise.</p>
+        </div>
+      </article>
+      <article class="panneau">
+        <img src="assets/img/gala/appuis.jpg" alt="Deux boxeurs au corps à corps pendant un gala" loading="lazy">
+        <div class="panneau-texte">
+          <p class="panneau-num">Pneumatique · Pare-brise · Dépannage</p>
+          <h3>Des appuis solides, toujours.</h3>
+          <p>Pneus, pare-brise, dépannage, pièces auto : tout ce qu'il faut pour rester debout jusqu'au dernier round.</p>
+        </div>
+      </article>
+      <article class="panneau panneau-moteka">
+        <div class="panneau-texte">
+          <img src="assets/logo/moteka-blanc.svg" alt="Moteka, centre automobile" class="panneau-logo">
+          <h3>Partenaire officiel de FIGHT &amp; Furious.</h3>
+          <ul class="coordonnees">
+            <li><span>Atelier</span>14 rue Seveso, 31150 Fenouillet</li>
+            <li><span>Téléphone</span><a href="tel:+33516472035">05 16 47 20 35</a></li>
+            <li><span>Réseaux</span><a href="https://www.instagram.com/moteka.auto/" target="_blank" rel="noopener">@moteka.auto</a></li>
+          </ul>
+          <div class="panneau-actions">
+            <a class="bouton bouton-rouge" href="https://www.moteka.fr" target="_blank" rel="noopener">Découvrir moteka.fr <span aria-hidden="true">→</span></a>
+            <a class="bouton bouton-contour" href="https://www.moteka.fr/contact" target="_blank" rel="noopener">Devis gratuit</a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===================== 06 BILLETTERIE ===================== -->
+  <section id="billets" class="bloc billets" data-chapitre="Billetterie">
+    <header class="bloc-tete">
+      <p class="numero"><em>06</em> Billetterie</p>
+      <h2 class="balaye">Choisissez votre place.</h2>
+    </header>
+    <div class="interrupteur" role="tablist" aria-label="Type de participation">
+      <span class="interrupteur-pastille" aria-hidden="true"></span>
+      <button type="button" role="tab" aria-selected="true" data-pack="spectateur">Spectateur</button>
+      <button type="button" role="tab" aria-selected="false" data-pack="combattant">Combattant</button>
+    </div>
+    <div class="pack est-actif" data-pack="spectateur">
+      <p class="pack-accroche">Une salle comble pour porter chaque combattant.</p>
+      <ul>
+        <li>Accès au gala du vendredi soir, dès 19h00</li>
+        <li>Événements Boxe Loisirs et Boxe Éducative du week-end</li>
+        <li>Buvette et stands partenaires</li>
+        <li>Tarifs : <span class="a-confirmer">à confirmer</span></li>
+      </ul>
+      <a class="bouton bouton-rouge" href="https://boxingcenter.fr/contactez-le-boxing-center-toulouse/" target="_blank" rel="noopener">Contacter le club <span aria-hidden="true">→</span></a>
+    </div>
+    <div class="pack" data-pack="combattant" hidden>
+      <p class="pack-accroche">Un vrai ring, un vrai public, un vrai encadrement.</p>
+      <ul>
+        <li>Combats appariés par niveau, poids, sexe et discipline</li>
+        <li>Coachs certifiés et arbitres expérimentés</li>
+        <li>Boxe anglaise et boxe pieds-poings</li>
+        <li>Inscriptions : <span class="a-confirmer">modalités à confirmer</span></li>
+      </ul>
+      <a class="bouton bouton-rouge" href="https://boxingcenter.fr/contactez-le-boxing-center-toulouse/" target="_blank" rel="noopener">Demander l'inscription <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <!-- ===================== 07 FICHE TECHNIQUE ===================== -->
+  <section id="fiche" class="fiche" data-chapitre="Fiche technique">
+    <div class="fiche-interieur">
+      <header class="bloc-tete">
+        <p class="numero"><em>07</em> Fiche technique</p>
+        <h2 class="balaye">Tous les détails de l'événement.</h2>
+      </header>
+      <div class="affiche">
+        <div class="affiche-cadre">
+          <!-- Affiche provisoire : à remplacer par l'affiche d'Eddy si besoin (même nom de fichier) -->
+          <img src="assets/img/affiche.jpg" alt="Affiche FIGHT & Furious, 11 au 13 décembre à Toulouse" loading="lazy">
+        </div>
+      </div>
+      <dl class="fiche-grille">
+        <div><dt>Événement</dt><dd>FIGHT &amp; Furious</dd></div>
+        <div><dt>Dates</dt><dd>11, 12 et 13 décembre 2026</dd></div>
+        <div><dt>Vendredi</dt><dd>Gala Boxe Amateur Élites · dès 19h</dd></div>
+        <div><dt>Samedi</dt><dd>Boxe Loisirs · <span class="a-confirmer">horaires à confirmer</span></dd></div>
+        <div><dt>Dimanche</dt><dd>Boxe Éducative · <span class="a-confirmer">horaires à confirmer</span></dd></div>
+        <div><dt>Lieu</dt><dd><span class="a-confirmer">Salle à confirmer</span>, Toulouse</dd></div>
+        <div><dt>Disciplines</dt><dd>Boxe anglaise · Pieds-poings · Éducative</dd></div>
+        <div><dt>Organisateur</dt><dd>Boxing Center, depuis 2016</dd></div>
+        <div><dt>Partenaire officiel</dt><dd>Moteka, centre automobile</dd></div>
+        <div><dt>Affiliations</dt><dd>FFBoxe · FFKMDA</dd></div>
+        <div><dt>Entrée</dt><dd><span class="a-confirmer">Tarif à confirmer</span></dd></div>
+        <div><dt>Contact</dt><dd><a href="tel:0939036748">09 39 03 67 48</a></dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ===================== FINAL ===================== -->
+  <section class="final" data-chapitre="Fiche technique">
+    <div class="final-image"><img src="assets/img/gala/victoire.jpg" alt="L'arbitre lève le bras de la gagnante à la fin du combat" loading="lazy"></div>
+    <div class="final-texte">
+      <p class="etiquette">11 — 13 décembre 2026</p>
+      <h2 class="balaye">Rendez-vous sur le ring.</h2>
+      <a class="bouton bouton-blanc" href="#billets">Réserver ma place <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+</main>
+
+<footer class="pied">
+  <div class="pied-titre"><span class="ligne">FIGHT &amp;</span> <span class="ligne"><em>Furious</em></span></div>
+  <div class="pied-colonnes">
+    <div>
+      <img src="assets/logo/boxing-center.png" alt="Boxing Center" class="pied-logo">
+      <p>Club de boxe à Toulouse, 5 salles, plus de 175 cours par semaine.</p>
+      <p class="pied-liens">
+        <a href="https://boxingcenter.fr/" target="_blank" rel="noopener">boxingcenter.fr</a>
+        <a href="https://www.instagram.com/boxingcentertoulouse/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.facebook.com/BoxingCenterToulouse/" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://www.youtube.com/@boxingcentertoulouse6983/featured" target="_blank" rel="noopener">YouTube</a>
+      </p>
+    </div>
+    <div>
+      <img src="assets/logo/moteka-blanc.svg" alt="Moteka" class="pied-logo pied-logo-moteka">
+      <p>Partenaire officiel. Centre automobile multimarques, 14 rue Seveso, 31150 Fenouillet.</p>
+      <p class="pied-liens">
+        <a href="https://www.moteka.fr" target="_blank" rel="noopener">moteka.fr</a>
+        <a href="https://www.instagram.com/moteka.auto/" target="_blank" rel="noopener">@moteka.auto</a>
+        <a href="tel:+33516472035">05 16 47 20 35</a>
+      </p>
+    </div>
+  </div>
+  <p class="pied-mention">© 2026 Boxing Center · FIGHT &amp; Furious · Propulsé par Moteka</p>
+</footer>
+
+<!-- ===================== LECTEUR FILM ===================== -->
+<div class="lecteur" role="dialog" aria-modal="true" aria-label="Film du gala" hidden>
+  <video class="lecteur-video" controls playsinline preload="none">
+    <source src="assets/video/clip-5.mp4" type="video/mp4">
+  </video>
+  <button class="lecteur-fermer" type="button" aria-label="Fermer le film">✕</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="js/son.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>
