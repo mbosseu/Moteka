@@ -240,7 +240,10 @@
   ScrollTrigger.create({ trigger: ".film", start: "top bottom", end: "bottom top", onToggle: st => apercus.forEach(v => st.isActive ? v.play().catch(() => {}) : v.pause()) });
   const lecteur = $(".lecteur"), lecteurVideo = $(".lecteur-video");
   let volumeAvant = .45;
-  function ouvrirFilm() {
+  function ouvrirFilm(e) {
+    // chaque bouton indique sa vidéo (data-film) : le film FIGHT & Furious ou les images du gala
+    const src = e && e.currentTarget && e.currentTarget.dataset.film;
+    if (src && !lecteurVideo.currentSrc.endsWith(src)) { lecteurVideo.src = src; lecteurVideo.load(); }
     lecteur.hidden = false; volumeAvant = regime.volume;
     gsap.to(regime, { volume: 0, duration: .4 });
     gsap.fromTo(lecteur, { opacity: 0 }, { opacity: 1, duration: .4 });
