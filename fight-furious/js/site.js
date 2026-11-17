@@ -234,10 +234,10 @@
   carteFilm.addEventListener("pointerleave", () => { pastille.classList.remove("est-visible"); curseur.classList.remove("sur-pastille"); });
 
   /* ================= Film : aperçu muet, lecteur plein écran ================= */
-  const apercu = $(".film-apercu");
+  const apercus = $$(".film-apercu");
   gsap.fromTo(carteFilm, { clipPath: "inset(18% 22% 18% 22%)" }, { clipPath: "inset(0% 0% 0% 0%)", ease: "none", scrollTrigger: { trigger: ".film", start: "top bottom", end: "center center", scrub: true } });
-  gsap.to(apercu, { scale: 1, ease: "none", scrollTrigger: { trigger: ".film", start: "top bottom", end: "bottom top", scrub: true } });
-  ScrollTrigger.create({ trigger: ".film", start: "top bottom", end: "bottom top", onToggle: st => st.isActive ? apercu.play().catch(() => {}) : apercu.pause() });
+  gsap.to(apercus, { scale: 1, ease: "none", scrollTrigger: { trigger: ".film", start: "top bottom", end: "bottom top", scrub: true } });
+  ScrollTrigger.create({ trigger: ".film", start: "top bottom", end: "bottom top", onToggle: st => apercus.forEach(v => st.isActive ? v.play().catch(() => {}) : v.pause()) });
   const lecteur = $(".lecteur"), lecteurVideo = $(".lecteur-video");
   let volumeAvant = .45;
   function ouvrirFilm() {
@@ -306,6 +306,7 @@
     const visibles = () => Math.max(1, Math.floor(($(".carrousel").clientWidth) / (cartes[0].offsetWidth + 18)));
     const maxK = () => Math.max(0, cartes.length - visibles());
     function aller(n, anime = true) {
+      if (html.classList.contains("programme-defile")) return;
       k = clamp(n, 0, maxK());
       const x = -(cartes[k].offsetLeft);
       gsap.to(piste, { x, duration: anime ? .9 : 0, ease: EO });
@@ -323,6 +324,24 @@
     aller(0, false);
     gsap.from(cartes, { x: 120, opacity: 0, duration: 1.1, stagger: .08, ease: EO, scrollTrigger: { trigger: ".carrousel", start: "top 80%", once: true } });
   })();
+
+  /* ================= Programme : les cartes avancent au défilement (ordinateur) ================= */
+  gsap.matchMedia().add("(min-width: 861px)", () => {
+    const zone = $(".carrousel"), piste = $(".carrousel-piste"), barre = $(".carrousel-barre i");
+    html.classList.add("programme-defile");
+    gsap.set(piste, { x: 0 });
+    barre.style.width = "100%"; barre.style.transformOrigin = "left";
+    const distance = () => Math.max(0, piste.scrollWidth - zone.clientWidth + 24);
+    const t = gsap.to(piste, {
+      x: () => -distance(), ease: "none",
+      scrollTrigger: {
+        trigger: zone, start: "center 52%", end: () => "+=" + Math.max(distance() * 2.4, innerHeight * 2),
+        pin: true, scrub: .7, invalidateOnRefresh: true,
+        onUpdate: st => { barre.style.transform = `scaleX(${Math.max(.04, st.progress)})`; },
+      },
+    });
+    return () => { html.classList.remove("programme-defile"); barre.removeAttribute("style"); }; // gsap.matchMedia annule lui-même l'animation et le pin
+  });
 
   /* ================= Disciplines : trois états au défilement ================= */
   (() => {
@@ -350,25 +369,22 @@
     });
   })();
 
-  /* ================= Compte à rebours : le ring se trace, le chrono tourne ================= */
+  /* ================= Compte à rebours : les cordes du ring se tendent, le chrono tourne ================= */
   (() => {
-    const trace = $(".ring-trace"), pt = $(".ring-point"), L = trace.getTotalLength();
-    const mot = $(".compte-mot"), coins = ["Coin rouge", "Coin neutre", "Coin bleu", "Coin neutre", "Au centre du ring"];
-    let motCourant = -1;
-    gsap.set(trace, { strokeDasharray: L, strokeDashoffset: L });
-    ScrollTrigger.create({
-      trigger: ".compte", start: "top top", end: "bottom bottom",
-      onUpdate(st) {
-        const p = clamp(st.progress / .85);
-        trace.style.strokeDashoffset = L * (1 - p);
-        const q = trace.getPointAtLength(L * p);
-        pt.setAttribute("cx", q.x); pt.setAttribute("cy", q.y);
-        const i = p >= 1 ? 4 : Math.min(3, Math.floor(p * 4));
-        if (i !== motCourant) { motCourant = i; gsap.fromTo(mot, { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: .4 }); mot.textContent = coins[i]; }
-      },
-    });
+    const cordes = $$(".compte-cadre .corde"), poteaux = $$(".compte-cadre .poteau");
+    gsap.set(cordes, { scaleX: 0, scaleY: 0 });
+    gsap.set(poteaux, { scale: 0 });
+    const t = gsap.timeline({ scrollTrigger: { trigger: ".compte", start: "top 60%", end: "center center", scrub: .6 } });
+    t.to(poteaux[0], { scale: 1, duration: .1 })
+      .to(cordes[0], { scaleX: 1, scaleY: 1, duration: .25, ease: "none" })
+      .to(poteaux[1], { scale: 1, duration: .1 }, "<.2")
+      .to(cordes[1], { scaleX: 1, scaleY: 1, duration: .25, ease: "none" })
+      .to(poteaux[2], { scale: 1, duration: .1 }, "<.2")
+      .to(cordes[2], { scaleX: 1, scaleY: 1, duration: .25, ease: "none" })
+      .to(poteaux[3], { scale: 1, duration: .1 }, "<.2")
+      .to(cordes[3], { scaleX: 1, scaleY: 1, duration: .25, ease: "none" });
     gsap.fromTo(".compte-photo", { scale: 1.2 }, { scale: 1, ease: "none", scrollTrigger: { trigger: ".compte", start: "top bottom", end: "bottom top", scrub: true } });
-    gsap.from(".compte-centre > *", { opacity: 0, y: 30, filter: "blur(10px)", stagger: .08, duration: 1, ease: EO, scrollTrigger: { trigger: ".compte", start: "top 40%", once: true } });
+    gsap.from([".compte-etiquette", ".chrono > div", ".compte-quand", ".compte-cadre .bouton"], { opacity: 0, y: 30, filter: "blur(10px)", stagger: .08, duration: 1, ease: EO, scrollTrigger: { trigger: ".compte-cadre", start: "top 75%", once: true } });
 
     const cible = new Date("2026-12-11T19:00:00+01:00").getTime();
     const champs = { j: $("[data-j]"), h: $("[data-h]"), m: $("[data-m]"), s: $("[data-s]") };

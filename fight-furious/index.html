@@ -128,9 +128,11 @@
   <!-- ===================== FILM ===================== -->
   <section class="film" data-chapitre="Démarrage">
     <button class="film-carte" type="button" data-film aria-label="Lire le film du gala">
-      <video class="film-apercu" muted playsinline loop preload="metadata" poster="assets/img/gala/impact.jpg">
-        <source src="assets/video/clip-2.mp4" type="video/mp4">
-      </video>
+      <span class="film-triptyque" aria-hidden="true">
+        <video class="film-apercu" muted playsinline loop preload="metadata" poster="assets/img/gala/impact.jpg"><source src="assets/video/hd-clip-2.mp4" type="video/mp4"></video>
+        <video class="film-apercu" muted playsinline loop preload="metadata"><source src="assets/video/hd-clip-3.mp4" type="video/mp4"></video>
+        <video class="film-apercu" muted playsinline loop preload="metadata"><source src="assets/video/hd-clip-6.mp4" type="video/mp4"></video>
+      </span>
       <span class="film-legende">
         <small>Les galas Boxing Center · En images</small>
         <strong>Sous les projecteurs</strong>
@@ -252,22 +254,25 @@
       <img class="compte-photo" src="assets/img/gala/ring-large.jpg" alt="" aria-hidden="true">
       <div class="compte-voile"></div>
       <p class="numero compte-numero"><em>04</em> Compte à rebours</p>
-      <svg class="ring" viewBox="0 0 400 400" aria-hidden="true">
-        <path class="ring-corde ring-corde-3" d="M60 60H340V340H60Z"/>
-        <path class="ring-corde ring-corde-2" d="M75 75H325V325H75Z"/>
-        <path class="ring-trace" d="M90 90H310V310H90Z"/>
-        <circle class="ring-poteau rouge" cx="60" cy="60" r="9"/>
-        <circle class="ring-poteau bleu" cx="340" cy="340" r="9"/>
-        <circle class="ring-poteau" cx="340" cy="60" r="9"/>
-        <circle class="ring-poteau" cx="60" cy="340" r="9"/>
-        <circle class="ring-point" r="6"/>
-      </svg>
-      <div class="compte-centre">
-        <p class="compte-mot">Coin rouge</p>
-        <h2 class="compte-titre">FIGHT &amp; Furious</h2>
-        <p class="compte-sous">Avant le premier gong</p>
-        <p class="chrono" aria-live="off"><span data-j>00</span><small>j</small> <span data-h>00</span><small>h</small> <span data-m>00</span><small>m</small> <span data-s>00</span><small>s</small></p>
-        <p class="compte-legende">Vendredi 11 décembre 2026 · 19h00 · Gala Élites</p>
+      <div class="compte-cadre">
+        <!-- les quatre cordes du ring se tendent au défilement -->
+        <i class="corde corde-haut" aria-hidden="true"></i>
+        <i class="corde corde-droite" aria-hidden="true"></i>
+        <i class="corde corde-bas" aria-hidden="true"></i>
+        <i class="corde corde-gauche" aria-hidden="true"></i>
+        <span class="poteau poteau-rouge" aria-hidden="true"></span>
+        <span class="poteau poteau-neutre-1" aria-hidden="true"></span>
+        <span class="poteau poteau-bleu" aria-hidden="true"></span>
+        <span class="poteau poteau-neutre-2" aria-hidden="true"></span>
+        <p class="compte-etiquette">Le premier gong sonne dans</p>
+        <div class="chrono" role="timer" aria-live="off">
+          <div><span data-j>00</span><small>jours</small></div>
+          <div><span data-h>00</span><small>heures</small></div>
+          <div><span data-m>00</span><small>minutes</small></div>
+          <div><span data-s>00</span><small>secondes</small></div>
+        </div>
+        <p class="compte-quand"><b>Vendredi 11 décembre 2026 · 19h00</b><br>Gala Boxe Amateur Élites · Toulouse</p>
+        <a class="bouton bouton-rouge" href="#billets">Réserver ma place <span aria-hidden="true">→</span></a>
       </div>
     </div>
   </section>

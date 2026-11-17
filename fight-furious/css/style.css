@@ -282,24 +282,33 @@ em { font-style: normal; }
 .disc-points i.est-actif { width: 22px; background: #fff; }
 
 /* ---------- Compte à rebours ---------- */
-.compte { height: 260vh; position: relative; }
-.compte-ecran { position: sticky; top: 0; height: 100vh; overflow: hidden; display: grid; place-items: center; }
-.compte-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) brightness(.35); }
-.compte-voile { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(10, 10, 11, .4), rgba(10, 10, 11, .95) 75%); }
+.compte { position: relative; }
+.compte-ecran { position: relative; min-height: 100vh; overflow: hidden; display: grid; place-items: center; padding: 120px var(--marge) 140px; }
+.compte-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) brightness(.32); }
+.compte-voile { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(10, 10, 11, .55), rgba(10, 10, 11, .96) 75%); }
 .compte-numero { position: absolute; top: 90px; left: var(--marge); }
-.ring { position: absolute; width: min(78vh, 92vw); height: auto; left: 50%; top: 50%; transform: translate(-50%, -50%); overflow: visible; }
-.ring-corde { fill: none; stroke: rgba(255, 255, 255, .1); stroke-width: 1.5; }
-.ring-trace { fill: none; stroke: var(--blanc); stroke-width: 2.5; stroke-linecap: round; filter: drop-shadow(0 0 6px rgba(255, 255, 255, .5)); }
-.ring-poteau { fill: #3a3a42; }
-.ring-poteau.rouge { fill: var(--rouge-vif); } .ring-poteau.bleu { fill: var(--bleu); }
-.ring-point { fill: var(--rouge-vif); filter: drop-shadow(0 0 8px var(--rouge-vif)); }
-.compte-centre { position: relative; text-align: center; padding: 0 var(--marge); }
-.compte-mot { margin: 0 0 14px; font: 600 12px var(--titre); letter-spacing: .3em; text-transform: uppercase; color: var(--rouge-vif); min-height: 1.2em; }
-.compte-titre { font-size: clamp(46px, 7vw, 96px); text-transform: uppercase; }
-.compte-sous { margin: 14px 0 6px; font: 600 12px var(--titre); letter-spacing: .3em; text-transform: uppercase; color: var(--gris); }
-.chrono { margin: 0; font: 700 clamp(40px, 6vw, 80px)/1 var(--titre); font-variant-numeric: tabular-nums; }
-.chrono small { font-size: .38em; color: var(--gris); margin: 0 .25em 0 .05em; }
-.compte-legende { margin: 18px 0 0; font: 500 12px var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--gris); }
+.compte-cadre { position: relative; width: min(860px, 100%); padding: clamp(40px, 6vw, 70px) clamp(20px, 5vw, 70px); text-align: center; display: grid; justify-items: center; gap: 26px; }
+/* cordes : lignes fines, posées sur le bord du cadre, jamais sur le texte */
+.corde { position: absolute; background: var(--blanc); box-shadow: 0 0 10px rgba(255, 255, 255, .35); }
+.corde-haut, .corde-bas { left: 0; right: 0; height: 2px; }
+.corde-gauche, .corde-droite { top: 0; bottom: 0; width: 2px; }
+.corde-haut { top: 0; transform-origin: left center; }
+.corde-droite { right: 0; transform-origin: center top; }
+.corde-bas { bottom: 0; transform-origin: right center; }
+.corde-gauche { left: 0; transform-origin: center bottom; }
+.poteau { position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #4a4a52; margin: -7px; }
+.poteau-rouge { left: 0; top: 0; background: var(--rouge-vif); box-shadow: 0 0 14px var(--rouge-vif); }
+.poteau-neutre-1 { right: 0; top: 0; }
+.poteau-bleu { right: 0; bottom: 0; background: var(--bleu); box-shadow: 0 0 14px var(--bleu); }
+.poteau-neutre-2 { left: 0; bottom: 0; }
+.compte-etiquette { margin: 0; font: 600 clamp(15px, 1.6vw, 20px) var(--titre); letter-spacing: .32em; text-transform: uppercase; color: var(--rouge-vif); }
+.chrono { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(8px, 1.6vw, 18px); width: 100%; margin: 0; }
+.chrono > div { display: grid; gap: 6px; padding: clamp(14px, 2vw, 22px) 6px; border-radius: 6px; background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .1); backdrop-filter: blur(6px); }
+.chrono span { font: 700 clamp(44px, 7vw, 96px)/1 var(--titre); font-variant-numeric: tabular-nums; }
+.chrono small { font: 600 clamp(11px, 1.1vw, 14px) var(--titre); letter-spacing: .26em; text-transform: uppercase; color: var(--gris); }
+.compte-quand { margin: 0; font: 500 clamp(15px, 1.5vw, 19px)/1.6 var(--titre); letter-spacing: .12em; text-transform: uppercase; color: var(--gris); }
+.compte-quand b { color: var(--blanc); font-weight: 700; }
+@media (max-width: 560px) { .chrono { grid-template-columns: repeat(2, 1fr); } }
 
 /* ---------- Phrase ---------- */
 .reveur { min-height: 120vh; display: grid; place-content: center; gap: 30px; padding: 0 var(--marge); text-align: center; }
@@ -448,3 +457,18 @@ em { font-style: normal; }
 .relais-partenaires .relais-moteka { height: 22px; }
 .relais-partenaires i { width: 1px; height: 30px; background: rgba(255, 255, 255, .25); }
 @media (max-width: 860px) { .relais-partenaires { left: 16px; right: 16px; bottom: auto; top: 84px; justify-content: center; gap: 14px; padding: 10px 14px; } .relais-partenaires span { display: none; } }
+
+/* film : trois clips verticaux côte à côte, affichés près de leur taille réelle (pas d'étirement) */
+.film-triptyque { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background: #000; }
+.film-triptyque .film-apercu { width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); filter: contrast(1.04); }
+.film-carte { aspect-ratio: 16 / 8; }
+@media (max-width: 860px) {
+  .film-carte { aspect-ratio: 4 / 5; }
+  .film-triptyque { grid-template-columns: 1fr; }
+  .film-triptyque .film-apercu:not(:first-child) { display: none; }
+}
+
+/* programme piloté par le défilement : plus de flèches, la barre suit la lecture */
+.programme-defile .carrousel-commandes .fleche { display: none; }
+.programme-defile .carrousel-barre i { transition: none; }
+@media (min-width: 861px) { .carte { min-height: min(460px, 60vh); } }
