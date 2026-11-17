@@ -446,6 +446,19 @@
     trigger: s, start: "top 55%", end: "bottom 55%",
     onToggle: st => { if (st.isActive && nom.textContent !== s.dataset.chapitre) { gsap.fromTo(nom, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: .4 }); nom.textContent = s.dataset.chapitre; } },
   }));
+  // la barre se cache quand on descend (lecture), revient quand on remonte ou qu'on s'arrête
+  (() => {
+    const barre = $(".barre");
+    let avant = scrollY, minuterie = 0;
+    addEventListener("scroll", () => {
+      const d = scrollY - avant; avant = scrollY;
+      if (menu.getAttribute("aria-expanded") === "true") return;
+      if (d > 3 && scrollY > 300) barre.classList.add("est-cachee");
+      else if (d < -3) barre.classList.remove("est-cachee");
+      clearTimeout(minuterie);
+      minuterie = setTimeout(() => barre.classList.remove("est-cachee"), 1400);
+    }, { passive: true });
+  })();
   const menu = $(".barre-chapitre"), tiroir = $("#tiroir");
   const fermerMenu = () => { menu.setAttribute("aria-expanded", "false"); tiroir.hidden = true; };
   menu.addEventListener("click", () => {
