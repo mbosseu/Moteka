@@ -472,3 +472,11 @@ em { font-style: normal; }
 .programme-defile .carrousel-commandes .fleche { display: none; }
 .programme-defile .carrousel-barre i { transition: none; }
 @media (min-width: 861px) { .carte { min-height: min(460px, 60vh); } }
+
+/* bandeau partenaires : hors du cadre vidéo, au-dessus du voile, bien contrasté */
+.relais-partenaires { z-index: 3; opacity: 1; transform: none; background: rgba(8, 8, 9, .86); border-color: rgba(255, 255, 255, .18);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .55); animation: partenaires-entree 1s ease 1.2s both; }
+.relais-partenaires span { color: #d9d7d3; }
+.relais-partenaires img { height: 40px; image-rendering: auto; filter: drop-shadow(0 0 1px rgba(255, 255, 255, .25)); }
+.relais-partenaires .relais-moteka { height: 26px; }
+@keyframes partenaires-entree { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
