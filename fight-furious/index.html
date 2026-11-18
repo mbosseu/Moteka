@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261118143945">
+<link rel="stylesheet" href="css/style.css?v=20261118160000">
 </head>
 <body>
 
@@ -71,8 +71,9 @@
     <a href="#disciplines"><em>03</em> Disciplines</a>
     <a href="#compte"><em>04</em> Compte à rebours</a>
     <a href="#stand"><em>05</em> Arrêt au stand</a>
-    <a href="#billets"><em>06</em> Billetterie</a>
-    <a href="#fiche"><em>07</em> Fiche technique</a>
+    <a href="#concours"><em>06</em> Jeu concours</a>
+    <a href="#billets"><em>07</em> Billetterie</a>
+    <a href="#fiche"><em>08</em> Fiche technique</a>
   </nav>
 </div>
 
@@ -336,28 +337,123 @@
     </div>
   </section>
 
-  <!-- ===================== 06 BILLETTERIE ===================== -->
+  <!-- ===================== 06 JEU CONCOURS ===================== -->
+  <section id="concours" class="bloc concours" data-chapitre="Jeu concours">
+    <header class="bloc-tete">
+      <p class="numero"><em>06</em> Jeu concours</p>
+      <h2 class="balaye">Un tirage au sort chaque jour.</h2>
+    </header>
+    <div class="concours-grille">
+      <div class="concours-infos apparait">
+        <p class="concours-accroche">Tirage au sort tous les jours à partir du <b>lundi 23 novembre 2026</b>, jusqu'au gala du vendredi 11 décembre.</p>
+        <div class="concours-tickets">
+          <div class="ticket"><small>Inscription</small><b>1</b><span>ticket</span></div>
+          <div class="ticket ticket-fort"><small>+ Avis Google Moteka</small><b>2</b><span>tickets</span></div>
+        </div>
+        <h3 class="lots-titre">5 lots à gagner</h3>
+        <!-- Lots : pour annoncer un lot, remplacer son texte et retirer la classe lot-bientot -->
+        <ol class="lots">
+          <li class="lot"><span class="lot-num">01</span><span class="lot-nom">Location 24 h d'une grosse voiture</span><span class="lot-par">Moteka</span></li>
+          <li class="lot"><span class="lot-num">02</span><span class="lot-nom">Révision complète de votre voiture</span><span class="lot-par">Moteka</span></li>
+          <li class="lot lot-bientot"><span class="lot-num">03</span><span class="lot-nom">Lot annoncé très bientôt</span><span class="lot-par">Surprise</span></li>
+          <li class="lot lot-bientot"><span class="lot-num">04</span><span class="lot-nom">Lot annoncé très bientôt</span><span class="lot-par">Surprise</span></li>
+          <li class="lot lot-bientot"><span class="lot-num">05</span><span class="lot-nom">Lot annoncé très bientôt</span><span class="lot-par">Surprise</span></li>
+        </ol>
+        <details class="reglement" id="reglement">
+          <summary>Règlement du jeu</summary>
+          <ol>
+            <li>Jeu gratuit et sans obligation d'achat, organisé par Boxing Center (Toulouse) avec le garage Moteka (14 rue Seveso, 31150 Fenouillet).</li>
+            <li>Ouvert à toute personne majeure résidant en France. Une seule participation par personne (même téléphone ou même email).</li>
+            <li>L'inscription donne 1 ticket. Un avis Google laissé sur la fiche du garage Moteka donne 1 ticket supplémentaire, soit 2 tickets au maximum.</li>
+            <li>Un tirage au sort a lieu chaque jour du lundi 23 novembre 2026 au vendredi 11 décembre 2026. Un même participant ne peut gagner qu'un seul lot.</li>
+            <li>Les gagnants sont prévenus par téléphone ou par email. Un lot non réclamé sous 7 jours est remis en jeu. Les lots ne sont ni échangeables ni remboursables.</li>
+            <li>Les données servent uniquement à l'organisation du jeu et au contact des gagnants, puis sont supprimées à la fin de l'opération. Pour toute demande : boxingcenter31@gmail.com.</li>
+            <li>Les ami(e)s invité(e)s reçoivent un seul email d'information. Leur adresse n'est pas réutilisée ensuite.</li>
+          </ol>
+        </details>
+      </div>
+
+      <div class="concours-carte apparait">
+        <form class="concours-form" novalidate>
+          <p class="concours-form-titre">Je participe</p>
+          <div class="champs-duo">
+            <label class="champ"><span>Prénom</span><input name="prenom" type="text" autocomplete="given-name" maxlength="80" required></label>
+            <label class="champ"><span>Nom</span><input name="nom" type="text" autocomplete="family-name" maxlength="80" required></label>
+          </div>
+          <label class="champ"><span>Téléphone</span><input name="telephone" type="tel" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78" maxlength="20" required></label>
+          <label class="champ"><span>Email</span><input name="email" type="email" inputmode="email" autocomplete="email" maxlength="120" required></label>
+          <fieldset class="concours-amis">
+            <legend>Invitez vos ami(e)s <small>facultatif</small></legend>
+            <p>Ils reçoivent un petit mail pour tenter leur chance eux aussi.</p>
+            <label class="champ"><span>Email d'un(e) ami(e)</span><input name="ami1" type="email" inputmode="email" autocomplete="off" maxlength="120"></label>
+            <label class="champ"><span>Email d'un(e) autre ami(e)</span><input name="ami2" type="email" inputmode="email" autocomplete="off" maxlength="120"></label>
+          </fieldset>
+          <label class="champ-piege" aria-hidden="true">Site web <input name="site_web" type="text" tabindex="-1" autocomplete="off"></label>
+          <label class="case"><input name="reglement" type="checkbox" required><span>J'accepte le <a href="#reglement" class="lien-reglement">règlement du jeu</a> et je confirme être majeur(e).</span></label>
+          <p class="concours-erreur" role="alert" hidden></p>
+          <button class="bouton bouton-rouge concours-envoyer" type="submit">Valider mon inscription</button>
+        </form>
+
+        <div class="concours-merci" tabindex="-1" hidden>
+          <p class="concours-form-titre">C'est noté</p>
+          <p class="concours-merci-texte"></p>
+          <p class="concours-compteur"><b data-tickets>1</b> <span data-tickets-mot>ticket</span> pour le tirage</p>
+        </div>
+
+        <div class="concours-avis">
+          <p class="concours-avis-titre">Ticket bonus</p>
+          <p class="concours-avis-texte">Laissez un avis Google sur la fiche du garage Moteka, puis revenez sur cette page : votre avis est compté et vous passez à 2 tickets.</p>
+          <button class="bouton bouton-contour concours-avis-bouton" type="button">Laisser un avis Google</button>
+          <button class="concours-avis-confirmer" type="button" hidden>J'ai publié mon avis</button>
+          <p class="concours-avis-etat" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 07 BILLETTERIE ===================== -->
   <section id="billets" class="bloc billets" data-chapitre="Billetterie">
     <header class="bloc-tete">
-      <p class="numero"><em>06</em> Billetterie</p>
+      <p class="numero"><em>07</em> Billetterie</p>
       <h2 class="balaye">Réservez votre place.</h2>
     </header>
     <div class="pack est-actif" data-pack="spectateur">
       <p class="pack-accroche">Une salle comble pour porter chaque combattant.</p>
       <p class="tarifs-titre">Accès à partir de <b>5&nbsp;€</b></p>
-      <div class="tarifs">
-        <div class="tarif"><small>Accès</small><b>15&nbsp;€</b></div>
-        <div class="tarif"><small>Accès</small><b>10&nbsp;€</b></div>
-        <div class="tarif"><small>Accès</small><b>5&nbsp;€</b></div>
+      <div class="offres">
+        <article class="offre">
+          <p class="offre-jour">Vendredi 11 déc.</p>
+          <h3>Gala Élites</h3>
+          <p class="offre-prix">15&nbsp;€</p>
+          <a class="bouton bouton-contour" href="https://boutique.boxingcenter.fr/billetterie?produit=vendredi" target="_blank" rel="noopener">Réserver</a>
+        </article>
+        <article class="offre">
+          <p class="offre-jour">Samedi 12 déc.</p>
+          <h3>Boxing Trophy 20</h3>
+          <p class="offre-prix">10&nbsp;€</p>
+          <a class="bouton bouton-contour" href="https://boutique.boxingcenter.fr/billetterie?produit=samedi" target="_blank" rel="noopener">Réserver</a>
+        </article>
+        <article class="offre">
+          <p class="offre-jour">Dimanche 13 déc.</p>
+          <h3>Boxe éducative <small>Place enfant</small></h3>
+          <p class="offre-prix">5&nbsp;€</p>
+          <a class="bouton bouton-contour" href="https://boutique.boxingcenter.fr/billetterie?produit=dimanche" target="_blank" rel="noopener">Réserver</a>
+        </article>
+        <article class="offre offre-forte">
+          <p class="offre-jour">Les 3 jours</p>
+          <h3>Pack week-end complet</h3>
+          <p class="offre-prix">20&nbsp;€</p>
+          <a class="bouton bouton-blanc" href="https://boutique.boxingcenter.fr/billetterie?produit=weekend" target="_blank" rel="noopener">Réserver le pack</a>
+        </article>
       </div>
+      <p class="offres-paiement">Paiement sécurisé par PayPal ou carte bancaire. Votre billet avec QR code vous est envoyé par mail.</p>
       <ul>
         <li>Chaque soir dès 19h00, du vendredi 11 au dimanche 13 décembre</li>
         <li>Au garage Moteka, 14 rue Seveso, 31150 Fenouillet (accès direct rocade)</li>
-        <li>Boxing Trophy 20 et compétition de Boxe Éducative du week-end</li>
+        <li>Gala Élites le vendredi, Boxing Trophy 20 le samedi, compétition de Boxe Éducative le dimanche</li>
         <li>Inauguration du garage Moteka</li>
         <li>Buvette et stands partenaires</li>
       </ul>
-      <a class="bouton bouton-rouge" href="https://boxingcenter.fr/contactez-le-boxing-center-toulouse/" target="_blank" rel="noopener">Contacter le club <span aria-hidden="true">→</span></a>
     </div>
   </section>
 
@@ -365,7 +461,7 @@
   <section id="fiche" class="fiche" data-chapitre="Fiche technique">
     <div class="fiche-interieur">
       <header class="bloc-tete">
-        <p class="numero"><em>07</em> Fiche technique</p>
+        <p class="numero"><em>08</em> Fiche technique</p>
         <h2 class="balaye">Tous les détails de l'événement.</h2>
       </header>
       <div class="affiche">
@@ -392,7 +488,7 @@
         <div><dt>Partenaire officiel</dt><dd>Moteka, centre automobile</dd></div>
         <div><dt>Inauguration</dt><dd>Garage Moteka, pendant le gala</dd></div>
         <div><dt>Affiliations</dt><dd>FFBoxe · FFKMDA</dd></div>
-        <div><dt>Entrée</dt><dd>15 € · 10 € · 5 €</dd></div>
+        <div><dt>Entrée</dt><dd>15 € · 10 € · 5 € · pack 3 jours 20 €</dd></div>
         <div><dt>Contact</dt><dd><a href="tel:0939036748">09 39 03 67 48</a></dd></div>
       </dl>
     </div>
@@ -455,7 +551,7 @@
       <p class="pub-modale-sur">Avant de partir</p>
       <h2 id="pub-modale-titre">Le premier gong sonne dans <span data-pub-jours>—</span>&nbsp;jours.</h2>
       <p>Chaque soir dès 19h au garage Moteka, à Fenouillet : Gala Élites le vendredi, Boxing Trophy 20 le samedi, compétition de boxe éducative le dimanche. Et l'inauguration du garage.</p>
-      <p class="pub-modale-prix">Accès dès <b>5&nbsp;€</b> <span>· 15 € · 10 € · 5 €</span></p>
+      <p class="pub-modale-prix">Accès dès <b>5&nbsp;€</b> <span>· 15 € · 10 € · 5 € · pack 20 €</span></p>
       <div class="pub-modale-actions">
         <a class="bouton bouton-rouge pub-reserver" href="#billets">Réserver ma place <span aria-hidden="true">→</span></a>
         <button class="pub-plus-tard" type="button">Plus tard</button>
@@ -474,7 +570,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="js/son.js?v=20261118143945"></script>
-<script src="js/site.js?v=20261118143945"></script>
+<script src="js/son.js?v=20261118160000"></script>
+<script src="js/site.js?v=20261118160000"></script>
+<script src="js/concours.js?v=20261118160000"></script>
 </body>
 </html>

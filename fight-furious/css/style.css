@@ -600,3 +600,76 @@ em { font-style: normal; }
   .pub-modale-visuel { height: 220px; object-position: center 20%; }
 }
 @media (prefers-reduced-motion: reduce) { .pub-toast, .pub-modale, .pub-modale-carte { transition: none; } .pub-toast-temps { display: none; } }
+
+/* ---------- Jeu concours ---------- */
+.concours-grille { display: grid; grid-template-columns: 1fr; gap: 40px; max-width: 1200px; }
+.concours-accroche { font: 600 clamp(24px, 2.6vw, 34px)/1.15 var(--titre); margin: 0 0 26px; max-width: 30ch; }
+.concours-accroche b { color: var(--rouge-vif); }
+.concours-tickets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 34px; }
+.ticket { display: grid; gap: 4px; padding: 16px 18px; background: var(--carte); border-radius: 4px;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%); }
+.ticket small { font: 600 11px/1.3 var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--gris); }
+.ticket b { font: 700 clamp(40px, 5vw, 56px)/1 var(--titre); }
+.ticket span { font: 600 13px var(--titre); letter-spacing: .14em; text-transform: uppercase; color: #d6d3cf; }
+.ticket-fort { background: var(--rouge); }
+.ticket-fort small, .ticket-fort span { color: rgba(255, 255, 255, .85); }
+.lots-titre { font-size: clamp(26px, 3vw, 36px); margin: 0 0 14px; text-transform: uppercase; }
+.lots { list-style: none; padding: 0; margin: 0 0 28px; }
+.lot { display: grid; grid-template-columns: 34px 1fr auto; align-items: baseline; gap: 12px; padding: 14px 0; border-top: 1px solid var(--trait); }
+.lot:last-child { border-bottom: 1px solid var(--trait); }
+.lot-num { font: 700 14px var(--titre); color: var(--rouge-vif); letter-spacing: .1em; }
+.lot-nom { font: 600 19px/1.25 var(--titre); }
+.lot-par { font: 600 11px var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--gris); }
+.lot-bientot .lot-nom { color: var(--gris); font-style: italic; }
+.reglement { border: 1px solid var(--trait); border-radius: 4px; padding: 0 18px; font-size: 14px; color: #c9c6c1; }
+.reglement summary { cursor: pointer; padding: 14px 0; font: 600 13px var(--titre); letter-spacing: .18em; text-transform: uppercase; color: var(--blanc); }
+.reglement ol { margin: 0 0 16px; padding-left: 20px; display: grid; gap: 8px; }
+
+.concours-carte { background: var(--noir-2); border: 1px solid var(--trait); border-radius: 6px; padding: clamp(20px, 3vw, 36px); display: grid; gap: 28px; align-self: start; }
+.concours-form { display: grid; gap: 14px; }
+.concours-form-titre, .concours-avis-titre { margin: 0; font: 700 clamp(26px, 3vw, 34px)/1 var(--titre); text-transform: uppercase; }
+.champs-duo { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.champ { display: grid; gap: 6px; }
+.champ > span { font: 600 12px var(--titre); letter-spacing: .18em; text-transform: uppercase; color: var(--gris); }
+.champ input { width: 100%; font: 400 16px var(--texte); color: var(--blanc); background: var(--carte); border: 1px solid var(--trait); border-radius: 3px; padding: 13px 14px; transition: border-color .2s; }
+.champ input:focus { outline: none; border-color: var(--rouge-vif); }
+.champ input[aria-invalid="true"] { border-color: var(--rouge-vif); }
+.concours-amis { border: 0; padding: 0; margin: 6px 0 0; display: grid; gap: 12px; }
+.concours-amis legend { padding: 0; margin-bottom: 4px; font: 700 18px var(--titre); text-transform: uppercase; }
+.concours-amis legend small { font: 600 11px var(--titre); letter-spacing: .18em; color: var(--gris); margin-left: 6px; }
+.concours-amis p { margin: 0; font-size: 14px; color: #c9c6c1; }
+.champ-piege { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.case { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; font-size: 14px; color: #d6d3cf; cursor: pointer; }
+.case input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--rouge); }
+.case a { color: var(--blanc); }
+.concours-erreur { margin: 0; padding: 12px 14px; border-left: 3px solid var(--rouge-vif); background: rgba(209, 20, 20, .12); font-size: 14px; }
+.concours-envoyer { justify-self: start; }
+.concours-envoyer[disabled] { opacity: .6; pointer-events: none; }
+.concours-merci { display: grid; gap: 10px; outline: none; }
+.concours-merci-texte { margin: 0; color: #d6d3cf; }
+.concours-compteur { margin: 0; font: 600 14px var(--titre); letter-spacing: .16em; text-transform: uppercase; color: var(--gris); }
+.concours-compteur b { font-size: 48px; line-height: 1; color: var(--rouge-vif); margin-right: 6px; vertical-align: middle; }
+.concours-avis { display: grid; gap: 12px; padding-top: 24px; border-top: 1px solid var(--trait); }
+.concours-avis-texte { margin: 0; font-size: 15px; color: #c9c6c1; }
+.concours-avis-bouton { justify-self: start; }
+.concours-avis-confirmer { justify-self: start; font: 600 13px var(--titre); letter-spacing: .14em; text-transform: uppercase; border-bottom: 1px solid var(--rouge-vif); padding: 4px 0; }
+.concours-avis-etat { margin: 0; font-size: 14px; color: var(--blanc); min-height: 1em; }
+.concours-avis.est-fait .concours-avis-bouton { display: none; }
+@media (min-width: 560px) { .champs-duo { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 980px) { .concours-grille { grid-template-columns: 1fr 1fr; gap: 64px; } }
+
+/* ---------- Billetterie : quatre offres ---------- */
+.billets .pack { max-width: 1100px; }
+.offres { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 0 0 18px; }
+.offre { display: grid; gap: 6px; align-content: start; padding: 20px 20px 22px; background: var(--carte); border-radius: 4px;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%); }
+.offre-jour { margin: 0; font: 600 12px var(--titre); letter-spacing: .22em; text-transform: uppercase; color: var(--gris); }
+.offre h3 { font-size: 26px; line-height: 1.05; text-transform: uppercase; }
+.offre h3 small { display: block; font: 600 12px var(--titre); letter-spacing: .18em; color: #d6d3cf; margin-top: 4px; }
+.offre-prix { margin: 4px 0 10px; font: 700 clamp(44px, 5vw, 60px)/1 var(--titre); }
+.offre .bouton { justify-self: start; }
+.offre-forte { background: var(--rouge); }
+.offre-forte .offre-jour, .offre-forte h3 small { color: rgba(255, 255, 255, .85); }
+.offres-paiement { margin: 0 0 30px; font-size: 14px; color: #c9c6c1; }
+@media (min-width: 600px) { .offres { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .offres { grid-template-columns: repeat(4, 1fr); } }

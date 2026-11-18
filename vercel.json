@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     { "source": "/", "destination": "/fight-furious/index.html" },
-    { "source": "/:chemin((?!fight-furious/).*)", "destination": "/fight-furious/:chemin" }
+    { "source": "/:chemin((?!fight-furious/|api/).*)", "destination": "/fight-furious/:chemin" }
   ],
   "headers": [
     {

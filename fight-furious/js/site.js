@@ -466,7 +466,7 @@
   $$(".panneau > img").forEach(img => gsap.fromTo(img, { scale: 1.15 }, { scale: 1, ease: "none", scrollTrigger: { trigger: img.parentNode, start: "top bottom", end: "top top", scrub: true } }));
 
   /* ================= Billetterie : apparition du bloc unique ================= */
-  gsap.from(["#billets .pack-accroche", "#billets .tarif", "#billets .pack li", "#billets .pack .bouton"], { opacity: 0, x: 30, filter: "blur(8px)", stagger: .06, duration: .8, ease: EO, scrollTrigger: { trigger: "#billets .pack", start: "top 80%", once: true } });
+  gsap.from(["#billets .pack-accroche", "#billets .offre", "#billets .offres-paiement", "#billets .pack li"], { opacity: 0, x: 30, filter: "blur(8px)", stagger: .06, duration: .8, ease: EO, scrollTrigger: { trigger: "#billets .pack", start: "top 80%", once: true } });
 
   /* ================= Fiche technique, final ================= */
   gsap.from(".fiche-grille > div", { opacity: 0, y: 24, stagger: .05, duration: .9, ease: EO, scrollTrigger: { trigger: ".fiche-grille", start: "top 85%", once: true } });
