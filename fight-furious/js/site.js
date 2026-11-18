@@ -297,45 +297,6 @@
   lecteur.addEventListener("click", e => { if (e.target === lecteur) fermerFilm(); });
   addEventListener("keydown", e => { if (e.key === "Escape" && !lecteur.hidden) fermerFilm(); });
 
-  /* ================= Écoute : maintenir pour faire rugir ================= */
-  (() => {
-    const b = $(".ecoute-bouton"), onde = $(".ecoute-onde"), g = onde.getContext("2d");
-    let volAvant = .45, anime = false;
-    function dessiner() {
-      const d = Son.niveau();
-      g.clearRect(0, 0, onde.width, onde.height);
-      const n = 40, larg = onde.width / n;
-      for (let i = 0; i < n; i++) {
-        const v = d.length ? Math.abs(d[Math.floor(i / n * d.length)] - 128) / 128 : 0;
-        const hBar = Math.max(3, (ecoute ? v * 2.4 : .08 + Math.sin(i * .7) * .04) * onde.height);
-        g.fillStyle = ecoute ? "#ff2a2a" : "rgba(244,242,239,.45)";
-        g.fillRect(i * larg + 1, (onde.height - hBar) / 2, larg - 2, Math.min(onde.height, hBar));
-      }
-      if (anime) requestAnimationFrame(dessiner);
-    }
-    ScrollTrigger.create({ trigger: ".ecoute", start: "top bottom", end: "bottom top", onToggle: st => { anime = st.isActive; if (anime) dessiner(); } });
-    function debut(e) {
-      e.preventDefault();
-      if (!Son.pret) Son.init();
-      ecoute = true; b.classList.add("est-actif");
-      volAvant = regime.volume;
-      gsap.killTweensOf(regime);
-      gsap.to(regime, { volume: 1, charge: 1, duration: .2 });
-      gsap.to(regime, { rpm: 8800, duration: 2.2, ease: "power2.in" });
-    }
-    function fin() {
-      if (!ecoute) return;
-      b.classList.remove("est-actif");
-      gsap.killTweensOf(regime);
-      gsap.to(regime, { rpm: 950, charge: 0, duration: 1.2, ease: "power2.out", onComplete: () => { ecoute = false; } });
-      gsap.to(regime, { volume: volAvant, duration: 1.4 });
-    }
-    b.addEventListener("pointerdown", debut);
-    ["pointerup", "pointerleave", "pointercancel"].forEach(ev => b.addEventListener(ev, fin));
-    b.addEventListener("keydown", e => { if ((e.key === " " || e.key === "Enter") && !e.repeat) debut(e); });
-    b.addEventListener("keyup", e => { if (e.key === " " || e.key === "Enter") fin(); });
-    b.addEventListener("contextmenu", e => e.preventDefault());
-  })();
   gsap.fromTo(".ecoute-image img", { scale: 1.2 }, { scale: 1, ease: "none", scrollTrigger: { trigger: ".ecoute", start: "top bottom", end: "bottom top", scrub: true } });
 
   /* ================= Carrousel du programme ================= */
@@ -456,12 +417,14 @@
   gsap.matchMedia().add("(min-width: 861px)", () => {
     const panneaux = $$(".panneau");
     panneaux.forEach((p, i) => {
-      gsap.set(p, { position: "sticky", top: `${9 + i * 1.5}vh` });
       const suivant = panneaux[i + 1];
+      // temps de pose : chaque panneau reste plein écran pendant ~70 % d'écran de défilement avant l'arrivée du suivant
+      gsap.set(p, { position: "sticky", top: `${9 + i * 1.5}vh`, marginBottom: suivant ? "70vh" : 0 });
+      gsap.from(p.querySelectorAll(".panneau-texte > *"), { y: 36, opacity: 0, filter: "blur(8px)", stagger: .1, duration: .9, ease: EO, scrollTrigger: { trigger: p, start: "top 45%", once: true } });
       if (!suivant) return;
       gsap.to(p, { scale: .92, filter: "brightness(.45)", ease: "none", scrollTrigger: { trigger: suivant, start: "top bottom", end: "top 12%", scrub: true } });
     });
-    return () => panneaux.forEach(p => gsap.set(p, { clearProps: "position,top,scale,filter" }));
+    return () => panneaux.forEach(p => gsap.set(p, { clearProps: "position,top,scale,filter,marginBottom" }));
   });
   $$(".panneau > img").forEach(img => gsap.fromTo(img, { scale: 1.15 }, { scale: 1, ease: "none", scrollTrigger: { trigger: img.parentNode, start: "top bottom", end: "top top", scrub: true } }));
 
@@ -522,7 +485,7 @@
   // la vidéo du héros ne tourne que lorsqu'elle se voit
   ScrollTrigger.create({ trigger: ".heros", start: "top bottom", end: "bottom top", onToggle: st => { if (!lance) return; if (!herosVideo.play) return; st.isActive ? herosVideo.play().catch(() => {}) : herosVideo.pause(); } });
 
-  /* ================= Incitations à réserver : 2 notifications au plus, une fenêtre de sortie, jamais insistantes ================= */
+  /* ================= Incitations à réserver : 4 pop-ups variés au plus, une fenêtre de sortie, jamais insistantes ================= */
   (() => {
     const toast = $(".pub-toast"), modale = $(".pub-modale");
     if (!toast || !modale) return;
@@ -535,19 +498,37 @@
     let minuterie = 0, toastOuvert = false;
 
     function cacherToast() {
-      toast.classList.remove("est-visible"); toastOuvert = false; clearTimeout(minuterie);
+      toast.classList.remove("est-visible"); toastOuvert = false; clearTimeout(minuterie); clearInterval(chronoMinuterie);
       setTimeout(() => { if (!toastOuvert) toast.hidden = true; }, 500);
     }
-    function montrerToast(message, duree = 9000) {
-      // pendant l'intro, ou si une autre incitation est affichée, on réessaie un peu plus tard au lieu de perdre le message
-      if (!lance || toastOuvert || !modale.hidden) { setTimeout(() => montrerToast(message, duree), 2500); return; }
-      if (fini() || (lire().toasts || 0) >= 2) return;
-      const { sur, titre, cta } = message;
+    const MAX_TOASTS = 4, ECART = 18000; // 4 pop-ups au plus par visite, au moins 18 s entre deux
+    let dernier = 0, chronoMinuterie = 0;
+    const deux = n => String(n).padStart(2, "0");
+    function remplirChrono(zone) {
+      const tic = () => {
+        let d = Math.max(0, Math.floor((new Date("2026-12-11T19:00:00+01:00") - Date.now()) / 1000));
+        const j = Math.floor(d / 86400); d %= 86400;
+        zone.innerHTML = '<div class="pub-chrono">' + [[j, "jours"], [Math.floor(d / 3600), "h"], [Math.floor(d % 3600 / 60), "min"], [d % 60, "s"]]
+          .map(([v, u]) => '<span>' + deux(v) + '<small>' + u + '</small></span>').join("") + '</div>';
+      };
+      tic(); chronoMinuterie = setInterval(tic, 1000);
+    }
+    function montrerToast(message, duree = 9000, essais = 0) {
+      if (fini() || (lire().toasts || 0) >= MAX_TOASTS || essais > 12) return;
+      // pendant l'intro, si une autre incitation est affichée, ou trop tôt après la précédente : on patiente un peu
+      const attente = !lance || toastOuvert || !modale.hidden ? 2500 : Math.max(0, ECART - (Date.now() - dernier));
+      if (attente > 0) { setTimeout(() => montrerToast(message, duree, essais + 1), attente); return; }
+      const { sur, titre, cta, variante = "", extra = "" } = message;
+      toast.dataset.variante = variante;
       toast.querySelector(".pub-toast-sur").textContent = sur;
       toast.querySelector(".pub-toast-titre").textContent = titre;
+      const zone = toast.querySelector(".pub-toast-extra");
+      clearInterval(chronoMinuterie);
+      if (extra === "chrono") remplirChrono(zone);
+      else zone.innerHTML = extra;
       toast.querySelector(".pub-toast-cta").innerHTML = cta + ' <span aria-hidden="true">→</span>';
       toast.style.setProperty("--pub-duree", duree + "ms");
-      toast.hidden = false; toastOuvert = true;
+      toast.hidden = false; toastOuvert = true; dernier = Date.now();
       requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add("est-visible")));
       ecrire({ toasts: (lire().toasts || 0) + 1 });
       let reste = duree, t0 = Date.now();
@@ -558,21 +539,35 @@
     }
     toast.querySelector(".pub-toast-fermer").addEventListener("click", cacherToast);
 
-    // 1) en découvrant le programme : l'offre
-    ScrollTrigger.create({ trigger: "#programme", start: "top 55%", once: true, onEnter: () => setTimeout(() => montrerToast({
+    // chaque section a son message et son style ; un message n'est proposé qu'une fois
+    const quand = (selecteur, message, duree) => ScrollTrigger.create({
+      trigger: selecteur, start: "top 55%", once: true, onEnter: () => setTimeout(() => montrerToast(message, duree), 1200),
+    });
+    quand(".film", {
+      variante: "chrono", sur: "Le prochain gala démarre dans", extra: "chrono",
+      titre: "Gala Élites, vendredi 11 dès 19h au garage Moteka.", cta: "Réserver avant le gong",
+    }, 10000);
+    quand("#gala", {
+      variante: "billet", sur: "Ton billet FIGHT & Furious",
+      titre: "Trois jours de boxe au garage Moteka. Choisis ton accès :",
+      extra: '<span class="pub-prix">15 €</span><span class="pub-prix">10 €</span><span class="pub-prix">5 €</span><span class="pub-prix">Pack 3 jours 20 €</span>',
+      cta: "Choisir ma place",
+    });
+    quand("#programme", {
       sur: "Vendredi 11 déc. · dès 19h",
       titre: "Gala Boxe Amateur Élites : réservez votre place, accès dès 5 €.",
       cta: "Réserver",
-    }), 1200) });
-    // 2) chez le partenaire Moteka : le compte à rebours
-    ScrollTrigger.create({ trigger: "#stand", start: "top 50%", once: true, onEnter: () => setTimeout(() => {
-      const j = joursRestants();
-      montrerToast({
-        sur: j > 1 ? "J-" + j + " avant le premier gong" : "C'est ce week-end",
-        titre: "Trois soirs de boxe au garage Moteka, pour son inauguration. Ne ratez pas ça.",
-        cta: "Prendre mon billet",
-      });
-    }, 1200) });
+    });
+    quand("#disciplines", {
+      variante: "famille", sur: "Dimanche 13 déc. · dès 11h",
+      titre: "En famille : venez encourager les jeunes à la compétition de boxe éducative.",
+      cta: "Réserver pour dimanche",
+    });
+    quand("#stand", {
+      sur: joursRestants() > 1 ? "J-" + joursRestants() + " avant le premier gong" : "C'est ce week-end",
+      titre: "Trois jours de boxe au garage Moteka, pour son inauguration. Ne ratez pas ça.",
+      cta: "Prendre mon billet",
+    });
     // en atteignant la billetterie, on ne relance plus personne
     ScrollTrigger.create({ trigger: "#billets", start: "top 70%", onEnter: () => { ecrire({ billetsVus: true }); if (toastOuvert) cacherToast(); } });
 
