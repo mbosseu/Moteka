@@ -592,7 +592,7 @@
     });
     quand("#garage", {
       sur: "Le lieu · Garage Moteka, Fenouillet", visuel: "assets/img/garage-voiture.jpg",
-      titre: "Le ring s'installe au cœur de l'atelier Moteka, pour son inauguration.",
+      titre: "Le ring s'installe au garage Moteka, pour son inauguration.",
       cta: "Réserver ma place",
     });
     quand("#programme", {
