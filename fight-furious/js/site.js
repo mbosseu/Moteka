@@ -506,8 +506,16 @@
       setTimeout(() => { if (!toastOuvert) toast.hidden = true; }, 500);
       planifier();
     }
-    const MAX_TOASTS = 4, ECART = 12000; // 4 pop-ups au plus par chargement de page, au moins 12 s entre deux
-    let dernier = 0, chronoMinuterie = 0, affiches = 0, enAttente = null, planif = 0;
+    // en continu pendant toute la visite : une carte toutes les ~14 s (9 s affichée, ~5 s de respiration)
+    // rythme poli : ~14 s entre deux cartes quand on fait défiler, ~26 s quand on lit sans bouger,
+    // et chaque fermeture à la croix espace un peu plus les suivantes (jusqu'à 45 s)
+    const PAUSE_FERMETURE = 20000;
+    let dernier = 0, chronoMinuterie = 0, enAttente = null, planif = 0, pauseJusqua = 0, fermetures = 0, dernierScroll = Date.now();
+    const catalogue = [], vu = new Map(); let actif = null, dernierMsg = null, tour = 0;
+    addEventListener("scroll", () => { dernierScroll = Date.now(); }, { passive: true });
+    const ecart = () => Math.min(45000, (Date.now() - dernierScroll > 8000 ? 26000 : 14000) + fermetures * 8000);
+    // le visiteur est occupé : il remplit un formulaire ou regarde la vidéo
+    const occupe = () => { const a = document.activeElement; return !!(a && a.matches("input, textarea, select")) || !$(".lecteur").hidden; };
     const deux = n => String(n).padStart(2, "0");
     function remplirChrono(zone) {
       const tic = () => {
@@ -519,15 +527,26 @@
       tic(); chronoMinuterie = setInterval(tic, 1000);
     }
     // une seule file : le message de la dernière section atteinte remplace celui qui attendait encore
-    function proposer(message, duree = 9000) { enAttente = { message, duree }; planifier(); }
+    const recent = (m, ms) => Date.now() - (vu.get(m) || 0) < ms;
+    function proposer(m) { if (!recent(m, 45000)) enAttente = m; planifier(); }
+    // message de la section à l'écran s'il n'a pas été vu depuis 1 min, sinon on fait tourner le catalogue
+    function choisir() {
+      if (actif && !recent(actif, 60000)) return actif;
+      for (let i = 0; i < catalogue.length; i++) {
+        const m = catalogue[(tour++) % catalogue.length];
+        if (m !== dernierMsg && !recent(m, 30000)) return m;
+      }
+      return catalogue.find(m => m !== dernierMsg) || catalogue[0];
+    }
     function planifier() {
       clearTimeout(planif);
-      if (!enAttente || fini() || affiches >= MAX_TOASTS) return;
-      // pendant l'intro, sur la billetterie, si une incitation est déjà affichée ou trop tôt après la précédente : on patiente
-      const attente = !lance || toastOuvert || billetsAEcran || !modale.hidden ? 1500 : Math.max(0, ECART - (Date.now() - dernier));
+      if (fini() || !catalogue.length) return;
+      // pendant l'intro et le héros, sur la billetterie, après une fermeture, si une carte est affichée ou trop tôt : on patiente
+      const attente = !lance || scrollY < innerHeight * .8 || toastOuvert || billetsAEcran || !modale.hidden || document.hidden || occupe()
+        ? 1500 : Math.max(0, ecart() - (Date.now() - dernier), pauseJusqua - Date.now());
       if (attente > 0) { planif = setTimeout(planifier, attente); return; }
-      const { message, duree } = enAttente; enAttente = null;
-      montrerToast(message, duree);
+      const m = enAttente || choisir(); enAttente = null; dernierMsg = m; vu.set(m, Date.now());
+      montrerToast(m, m.duree || 9000);
     }
     function montrerToast(message, duree) {
       const { sur, titre, cta, variante = "", extra = "", visuel = "assets/img/affiche.jpg" } = message;
@@ -544,19 +563,22 @@
       toast.hidden = false; toastOuvert = true; dernier = Date.now();
       requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add("est-visible")));
       if (Son.pret && !Son.coupe) Son.cloche(1, .32, .3);
-      affiches++;
       let reste = duree, t0 = Date.now();
       const relancer = () => { clearTimeout(minuterie); t0 = Date.now(); minuterie = setTimeout(cacherToast, reste); };
       toast.onmouseenter = () => { clearTimeout(minuterie); reste -= Date.now() - t0; };
       toast.onmouseleave = relancer;
       relancer();
     }
-    toast.querySelector(".pub-toast-fermer").addEventListener("click", cacherToast);
+    toast.querySelector(".pub-toast-fermer").addEventListener("click", () => { fermetures++; pauseJusqua = Date.now() + PAUSE_FERMETURE; cacherToast(); });
 
-    // chaque section a son message et son style ; un message n'est proposé qu'une fois
-    const quand = (selecteur, message, duree) => ScrollTrigger.create({
-      trigger: selecteur, start: "top 60%", once: true, onEnter: () => setTimeout(() => proposer(message, duree), 700),
-    });
+    // chaque section a son message et son style ; proposé en descendant comme en remontant
+    const quand = (selecteur, message, duree) => {
+      if (!document.querySelector(selecteur)) return;
+      message.duree = duree; catalogue.push(message);
+      const entrer = () => { actif = message; setTimeout(() => { if (actif === message) proposer(message); }, 700); };
+      const sortir = () => { if (actif === message) actif = null; };
+      ScrollTrigger.create({ trigger: selecteur, start: "top 60%", end: "bottom 40%", onEnter: entrer, onEnterBack: entrer, onLeave: sortir, onLeaveBack: sortir });
+    };
     quand(".film", {
       variante: "chrono", sur: "Le prochain gala démarre dans", extra: "chrono", visuel: "assets/img/gala/impact.jpg",
       titre: "Gala Élites, vendredi 11 dès 19h au garage Moteka.", cta: "Réserver avant le gong",
@@ -566,6 +588,11 @@
       titre: "Trois jours de boxe au garage Moteka. Choisis ton accès :",
       extra: '<span class="pub-prix">15 €</span><span class="pub-prix">10 €</span><span class="pub-prix">5 €</span><span class="pub-prix">Pack 3 jours 20 €</span>',
       cta: "Choisir ma place",
+    });
+    quand("#garage", {
+      sur: "Le lieu · Garage Moteka, Fenouillet", visuel: "assets/img/garage-voiture.jpg",
+      titre: "Le ring s'installe au cœur de l'atelier Moteka, pour son inauguration.",
+      cta: "Réserver ma place",
     });
     quand("#programme", {
       sur: "Vendredi 11 déc. · dès 19h", visuel: "assets/img/gala/echange.jpg",
@@ -582,7 +609,7 @@
       titre: "Trois jours de boxe au garage Moteka, pour son inauguration. Ne ratez pas ça.",
       cta: "Prendre mon billet",
     });
-    // en atteignant la billetterie, on ne relance plus personne
+    document.addEventListener("focusin", e => { if (toastOuvert && e.target.matches("input, textarea, select")) cacherToast(); });
     // sur la billetterie, pas d'incitation : elles reprennent si le visiteur repart sans réserver
     ScrollTrigger.create({ trigger: "#billets", start: "top 70%", end: "bottom 30%",
       onToggle: st => { billetsAEcran = st.isActive; if (billetsAEcran && toastOuvert) cacherToast(); else planifier(); } });
