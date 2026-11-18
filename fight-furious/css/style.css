@@ -639,6 +639,39 @@ em { font-style: normal; }
 .lot-master .lot-nom small { color: #ffc2e3; text-transform: uppercase; letter-spacing: .14em; font-weight: 600; }
 .lot-visuel { width: 72px; height: auto; display: block; border-radius: 6px; filter: drop-shadow(0 6px 14px rgba(255, 64, 160, .35)); }
 @media (min-width: 700px) { .lot-visuel { width: 96px; } }
+
+/* Lot premium : la Golf 8 R */
+.lot-premium {
+  position: relative; overflow: hidden; align-items: center;
+  grid-template-columns: 34px 1fr; grid-template-areas: "num nom" "photo photo";
+  padding: 18px 14px 14px; margin-bottom: 6px;
+  border: 1px solid rgba(209, 20, 20, .6);
+  background:
+    linear-gradient(135deg, rgba(209, 20, 20, .22), rgba(10, 10, 11, .2) 45%),
+    linear-gradient(180deg, #17171b, #0d0d10);
+  box-shadow: 0 0 30px rgba(209, 20, 20, .2), inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+.lot-premium .lot-num { grid-area: num; color: var(--rouge-vif); }
+.lot-premium .lot-nom { grid-area: nom; font-size: 24px; }
+.lot-premium .lot-nom small { color: #ffb3b3; text-transform: uppercase; letter-spacing: .14em; font-weight: 600; }
+.lot-detail { display: block; margin-top: 6px; font: 400 14px/1.4 var(--texte); font-style: normal; color: var(--blanc); opacity: .8; }
+.lot-photo {
+  grid-area: photo; display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: 50% 62%;
+  margin-top: 14px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, .1);
+}
+.lot-premium::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .16) 50%, transparent 65%);
+  transform: translateX(-120%);
+}
+@media (min-width: 700px) {
+  .lot-premium { grid-template-columns: 34px 1fr 300px; grid-template-areas: "num nom photo"; }
+  .lot-photo { margin-top: 0; aspect-ratio: 4 / 3; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .lot-premium::after { animation: lot-reflet 4.5s ease-in-out infinite; }
+  @keyframes lot-reflet { 0%, 55% { transform: translateX(-120%); } 85%, 100% { transform: translateX(120%); } }
+}
 .reglement { border: 1px solid var(--trait); border-radius: 4px; padding: 0 18px; font-size: 14px; color: #c9c6c1; }
 .reglement summary { cursor: pointer; padding: 14px 0; font: 600 13px var(--titre); letter-spacing: .18em; text-transform: uppercase; color: var(--blanc); }
 .reglement ol { margin: 0 0 16px; padding-left: 20px; display: grid; gap: 8px; }
