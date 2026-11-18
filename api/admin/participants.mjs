@@ -1,16 +1,50 @@
 // GET /api/admin/participants : participants, tickets et statistiques. ?format=csv pour l'export.
 // DELETE ?id= : retire un participant, ses tickets et un eventuel tirage gagne.
+import { lireCorps, lienPage } from '../_lib/http.mjs';
 import { accepter, erreurServeur, exigerSession, memeOrigine, repondre } from '../_lib/admin-http.mjs';
 import { lireLots, lireParticipant, lireParticipants, lireTickets, lireTirages, supprimerParticipant } from '../_lib/admin-db.mjs';
 import { assemblerParticipants, csvParticipants, dateParis, statistiques } from '../_lib/admin-tirage.mjs';
+import { brevoConfigure, envoyerMail } from '../_lib/brevo.mjs';
+import { mailConfirmation } from '../_lib/mails.mjs';
+import { pieceJointeTicketsPdf } from '../_lib/ticket-pdf.mjs';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default async function handler(req, res) {
-  if (!accepter(req, res, ['GET', 'DELETE'])) return;
+  if (!accepter(req, res, ['GET', 'POST', 'DELETE'])) return;
   const session = exigerSession(req, res);
   if (!session) return;
   try {
+    if (req.method === 'POST') {
+      if (!memeOrigine(req, res)) return;
+      const corps = lireCorps(req);
+      const id = String(corps.id || '').trim();
+      if (!UUID.test(id)) return repondre(res, 400, { ok: false, message: 'Participant inconnu.' });
+      if (String(corps.action || '') !== 'renvoyer-pdf') {
+        return repondre(res, 400, { ok: false, message: 'Action inconnue.' });
+      }
+      const cible = await lireParticipant(id);
+      if (!cible || !cible.email) return repondre(res, 404, { ok: false, message: 'Participant introuvable.' });
+      const tous = await lireTickets();
+      const tickets = tous.filter((t) => String(t.participant_id) === id);
+      if (!tickets.length) return repondre(res, 409, { ok: false, message: 'Aucun ticket à envoyer.' });
+      if (!brevoConfigure()) return repondre(res, 503, { ok: false, message: 'Envoi e-mail indisponible.' });
+      const pdf = await pieceJointeTicketsPdf({
+        prenom: cible.prenom,
+        nom: cible.nom,
+        participantId: cible.id,
+        tickets,
+        baseUrl: lienPage(req),
+      });
+      if (!pdf) return repondre(res, 503, { ok: false, message: 'PDF impossible (secret ticket manquant).' });
+      await envoyerMail({
+        to: cible.email,
+        ...mailConfirmation({ prenom: cible.prenom, tickets, lienPage: lienPage(req) }),
+        attachments: [pdf],
+      });
+      console.info('[admin] pdf tickets renvoye', id, 'par', session.email);
+      return repondre(res, 200, { ok: true, message: 'PDF renvoyé par e-mail.' });
+    }
     if (req.method === 'DELETE') {
       if (!memeOrigine(req, res)) return;
       const id = new URL(req.url, 'http://local').searchParams.get('id') || '';

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Vérification ticket · FIGHT &amp; Furious</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/fight-furious/assets/logo/favicon-32.png">
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; min-height: 100dvh; display: grid; place-items: center; background: #050506; color: #f4f2ef; font: 16px/1.4 Barlow, Arial, sans-serif; padding: 24px; }
+  .carte { max-width: 420px; width: 100%; padding: 28px 24px; border: 1px solid rgba(255,255,255,.14); border-radius: 8px; background: #111114; text-align: center; }
+  h1 { margin: 0 0 8px; font: 800 28px/1 "Barlow Condensed", Arial, sans-serif; text-transform: uppercase; }
+  .ok { color: #7dce7d; }
+  .ko { color: #ff4d4d; }
+  p { margin: 10px 0 0; color: #b8b8c0; }
+  .numero { font: 800 42px/1 "Barlow Condensed", Arial, sans-serif; margin-top: 16px; }
+</style>
+</head>
+<body>
+  <div class="carte">
+    <h1>Ticket tirage</h1>
+    <p id="etat">Vérification du QR...</p>
+    <p class="numero" id="numero" hidden></p>
+    <p id="detail"></p>
+  </div>
+<script>
+(async () => {
+  const q = new URLSearchParams(location.search);
+  const n = q.get('n') || '';
+  const c = q.get('c') || '';
+  const etat = document.getElementById('etat');
+  const numero = document.getElementById('numero');
+  const detail = document.getElementById('detail');
+  if (!n || !c) {
+    etat.className = 'ko';
+    etat.textContent = 'QR incomplet.';
+    return;
+  }
+  try {
+    const res = await fetch(`/api/concours/ticket?n=${encodeURIComponent(n)}&c=${encodeURIComponent(c)}`);
+    const data = await res.json();
+    if (data.valide) {
+      etat.className = 'ok';
+      etat.textContent = 'Ticket authentique';
+      numero.hidden = false;
+      numero.textContent = 'n. ' + data.numero;
+      detail.textContent = [data.titulaire, data.motif].filter(Boolean).join(' · ');
+    } else {
+      etat.className = 'ko';
+      etat.textContent = data.message || 'QR invalide';
+    }
+  } catch {
+    etat.className = 'ko';
+    etat.textContent = 'Vérification impossible pour le moment.';
+  }
+})();
+</script>
+</body>
+</html>

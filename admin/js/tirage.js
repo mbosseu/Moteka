@@ -1166,14 +1166,19 @@ function basculerPleinEcran() {
 }
 
 async function entrerPleinEcran() {
-  const el = $('#story');
-  if (document.fullscreenElement) return;
+  const el = $('#story') || document.documentElement;
+  if (document.fullscreenElement || document.webkitFullscreenElement) return;
   try {
-    await el.requestFullscreen();
+    if (el.requestFullscreen) await el.requestFullscreen();
+    else el.webkitRequestFullscreen?.();
   } catch {
-    /* souvent bloque sans geste : le clic sur Tourner la roue reessaie */
+    /* bloque tant qu'il n'y a pas de geste : pointerdown / Tourner la roue */
   }
 }
+
+entrerPleinEcran();
+document.addEventListener('pointerdown', () => { entrerPleinEcran(); }, { capture: true });
+window.addEventListener('load', () => { entrerPleinEcran(); });
 
 /* ------------------------------------------------------------------ */
 /* Deroule de l'animation                                              */

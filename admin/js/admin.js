@@ -132,7 +132,10 @@
               <td>${celluleAvis(p)}</td>
               <td>${amis.length ? amis.map((a) => `<small>${echapper(a)}</small>`).join('') : '<small>-</small>'}</td>
               <td>${p.gain ? `<span class="gain">${echapper(p.gain.lot)}</span><small>${echapper(dateFr(p.gain.date_tirage))}, n. ${p.gain.numero}</small>` : ''}</td>
-              <td><button type="button" class="bouton bouton-contour bouton-petit" data-supprimer="${echapper(p.id)}">Supprimer</button></td>
+              <td>
+                <button type="button" class="bouton bouton-contour bouton-petit" data-pdf="${echapper(p.id)}">Renvoyer PDF</button>
+                <button type="button" class="bouton bouton-contour bouton-petit" data-supprimer="${echapper(p.id)}">Supprimer</button>
+              </td>
             </tr>`;
           })
           .join('')
@@ -187,6 +190,22 @@
     const cible = e.target.closest('button');
     if (!cible) return;
     if (cible.dataset.voirPreuve) return ouvrirPreuve(cible.dataset.voirPreuve);
+    if (cible.dataset.pdf) {
+      const idPdf = cible.dataset.pdf;
+      const dest = etat.participants.find((x) => String(x.id) === String(idPdf));
+      const nomPdf = dest ? `${dest.prenom} ${dest.nom}` : 'ce participant';
+      if (!window.confirm(`Renvoyer le PDF des tickets à ${nomPdf} (${dest?.email || 'e-mail'}) ?`)) return;
+      cible.disabled = true;
+      try {
+        await api('/api/admin/participants', { method: 'POST', body: JSON.stringify({ id: idPdf, action: 'renvoyer-pdf' }) });
+        toast(`PDF renvoyé à ${dest?.email || nomPdf}`);
+      } catch (err) {
+        toast(err.message, true);
+      } finally {
+        cible.disabled = false;
+      }
+      return;
+    }
     const id = cible.dataset.supprimer;
     if (!id) return;
     const p = etat.participants.find((x) => String(x.id) === String(id));
@@ -390,6 +409,21 @@
   $('#choix-gagnant-demo').addEventListener('change', majLiensTirage);
   $('#filtre-gagnant-bo').addEventListener('input', (e) => filtrerCandidatsTirage(e.target.value));
   remplirGagnantsDemo();
+
+  function ouvrirSpectacle(e) {
+    const a = e.currentTarget;
+    if (a.getAttribute('aria-disabled') === 'true') {
+      e.preventDefault();
+      return;
+    }
+    e.preventDefault();
+    const w = screen.availWidth || screen.width;
+    const h = screen.availHeight || screen.height;
+    const win = window.open(a.href, 'moteka-tirage', `popup=yes,left=0,top=0,width=${w},height=${h}`);
+    if (!win) location.href = a.href;
+  }
+  $('#lancer-tirage').addEventListener('click', ouvrirSpectacle);
+  $('#lien-demo-tirage').addEventListener('click', ouvrirSpectacle);
 
   async function chargerEtatTirage() {
     const data = await api('/api/admin/tirage');

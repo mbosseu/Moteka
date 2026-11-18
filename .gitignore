@@ -2,6 +2,8 @@
 fight-furious/affiche/flora/film/_images/
 __pycache__/
 
+node_modules/
+
 # Secrets locaux
 .env
 .env.*

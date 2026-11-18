@@ -79,7 +79,7 @@ export const lireTirages = () =>
   toutLire('moteka_tirages?select=id,date_tirage,numero,participant_id,lot_id,created_at&order=date_tirage.desc');
 
 export async function lireParticipant(id) {
-  const lignes = await requete(`moteka_concours?select=id,prenom,nom&id=eq.${encodeURIComponent(id)}&limit=1`);
+  const lignes = await requete(`moteka_concours?select=id,prenom,nom,email&id=eq.${encodeURIComponent(id)}&limit=1`);
   return Array.isArray(lignes) && lignes[0] ? lignes[0] : null;
 }
 

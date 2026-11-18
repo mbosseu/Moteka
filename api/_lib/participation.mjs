@@ -4,6 +4,22 @@ import { attribuerTickets, listerTickets, majParticipant, trouverParId, trouverP
 import { brevoConfigure, envoyerMail } from './brevo.mjs';
 import { destinatairesInternes, mailAmi, mailInterne, mailNouveauTicket } from './mails.mjs';
 import { lienPage } from './http.mjs';
+import { pieceJointeTicketsPdf } from './ticket-pdf.mjs';
+
+async function pdfTickets(participant, tickets, req) {
+  try {
+    return await pieceJointeTicketsPdf({
+      prenom: participant.prenom,
+      nom: participant.nom,
+      participantId: participant.id,
+      tickets,
+      baseUrl: lienPage(req),
+    });
+  } catch (err) {
+    console.error('[concours] pdf tickets', err?.message || err);
+    return null;
+  }
+}
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -88,7 +104,11 @@ export async function completerParticipation(participant, { amis = [], avisPreuv
 
   if (brevoConfigure() && nouveaux.length) {
     const taches = [
-      envoyerMail({ to: maj.email, ...mailNouveauTicket({ prenom: maj.prenom, nouveaux, tickets, lienPage: lienPage(req) }) }),
+      envoyerMail({
+        to: maj.email,
+        ...mailNouveauTicket({ prenom: maj.prenom, nouveaux, tickets, lienPage: lienPage(req) }),
+        attachments: [await pdfTickets(maj, tickets, req)].filter(Boolean),
+      }),
       ...invitationsAmis(maj, amisAjoutes, req),
     ];
     const avisNouveau = nouveaux.some((t) => t.motif === 'avis');

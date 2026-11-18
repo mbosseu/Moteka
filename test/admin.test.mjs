@@ -133,6 +133,18 @@ test('eligibilite : un gagnant ne peut plus regagner, avec aucun de ses tickets'
   assert.deepEqual(ticketsEligibles(tickets, deux).map((t) => t.numero), [101]);
 });
 
+test('QR ticket : HMAC unique, refuse une copie du numero seul', async () => {
+  process.env.MOTEKA_TICKET_SECRET = 'a'.repeat(32);
+  const { codeTicket, verifierCodeTicket } = await import('../api/_lib/ticket-pdf.mjs');
+  const a = codeTicket(208, 'p1');
+  const b = codeTicket(208, 'p2');
+  assert.equal(a.length, 20);
+  assert.notEqual(a, b);
+  assert.equal(verifierCodeTicket(208, 'p1', a), true);
+  assert.equal(verifierCodeTicket(208, 'p1', '00000000000000000000'), false);
+  assert.equal(verifierCodeTicket(208, 'p2', a), false);
+});
+
 test('gagnant manuel : numero ou participant_id parmi les eligibles', () => {
   const eligibles = ticketsEligibles(tickets, []);
   assert.equal(resoudreTicketGagnant(eligibles, { numero: 102 }).ticket.numero, 102);

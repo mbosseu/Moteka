@@ -6,6 +6,7 @@ import { brevoConfigure, envoyerMail } from '../_lib/brevo.mjs';
 import { mailConfirmation } from '../_lib/mails.mjs';
 import { lienPage, lireCorps, repondre, verifierMethode } from '../_lib/http.mjs';
 import { champsPreuveAvis, completerParticipation, envoyerTous, invitationsAmis, notesInternes, ticketsPublics } from '../_lib/participation.mjs';
+import { pieceJointeTicketsPdf } from '../_lib/ticket-pdf.mjs';
 
 const MESSAGE_DOUBLON =
   'Vous êtes déjà inscrit(e) au jeu avec ce numéro ou cet email. Pas besoin de recommencer : vos tickets comptent pour chaque tirage.';
@@ -13,7 +14,14 @@ const MESSAGE_DOUBLON =
 async function envoyerMails(participant, tickets, req, preuve) {
   if (!brevoConfigure()) return { envoyes: 0, erreurs: ['brevo_non_configure'] };
   const taches = [
-    envoyerMail({ to: participant.email, ...mailConfirmation({ prenom: participant.prenom, tickets, lienPage: lienPage(req) }) }),
+    envoyerMail({
+      to: participant.email,
+      ...mailConfirmation({ prenom: participant.prenom, tickets, lienPage: lienPage(req) }),
+      attachments: [await pieceJointeTicketsPdf({ prenom: participant.prenom, nom: participant.nom, participantId: participant.id, tickets, baseUrl: lienPage(req) }).catch((err) => {
+        console.error('[concours] pdf tickets', err?.message || err);
+        return null;
+      })].filter(Boolean),
+    }),
     ...invitationsAmis(participant, participant.amis, req),
     ...notesInternes({ ...participant, tickets: tickets.length }, tickets, { preuve }),
   ];

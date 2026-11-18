@@ -52,7 +52,7 @@ export function mailConfirmation({ prenom, tickets = [], lienPage }) {
     '',
     ...(avecAvis ? [LIGNE_AVIS_RECU, ''] : []),
     `Tes tickets : ${listeNumeros(tickets)}`,
-    `(${nb} ticket${nb > 1 ? 's' : ''} pour le tirage, garde bien ces numéros)`,
+    `(${nb} ticket${nb > 1 ? 's' : ''} pour le tirage — le PDF en pièce jointe a un QR unique par ticket)`,
     '',
     LIGNE_TIRAGE,
     '',
@@ -68,6 +68,7 @@ export function mailNouveauTicket({ prenom, nouveaux = [], tickets = [], lienPag
     `${raison} Tu gagnes un ticket de plus : ${listeNumeros(nouveaux)}.`,
     '',
     `Tous tes tickets : ${listeNumeros(tickets)}`,
+    'Le PDF en pièce jointe a un QR unique : un numéro recopié sans ce PDF ne suffit pas.',
   ];
   const reste = ticketsAGagner(motifsObtenus(tickets));
   if (reste.length) lignes.push('', ...lignesManque(tickets, lienPage));

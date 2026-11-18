@@ -4,6 +4,7 @@
     { "source": "/", "destination": "/fight-furious/index.html" },
     { "source": "/admin", "destination": "/admin/index.html" },
     { "source": "/admin/tirage", "destination": "/admin/tirage.html" },
+    { "source": "/ticket", "destination": "/fight-furious/ticket.html" },
     { "source": "/:chemin((?!fight-furious/|api/|admin/|admin$).*)", "destination": "/fight-furious/:chemin" }
   ],
   "headers": [

@@ -82,7 +82,7 @@ export async function majParticipant(id, champs) {
 /** Tickets du participant, du plus petit numero au plus grand. */
 export async function listerTickets(participantId) {
   const lignes = await requete(
-    `${TABLE_TICKETS}?select=numero,motif,created_at&participant_id=eq.${encodeURIComponent(participantId)}&order=numero.asc`
+    `${TABLE_TICKETS}?select=numero,participant_id,motif,created_at&participant_id=eq.${encodeURIComponent(participantId)}&order=numero.asc`
   );
   return Array.isArray(lignes) ? lignes : [];
 }
@@ -93,7 +93,7 @@ export async function listerTickets(participantId) {
  */
 export async function ajouterTicket(participantId, motif) {
   try {
-    const lignes = await requete(`${TABLE_TICKETS}?select=numero,motif,created_at`, {
+    const lignes = await requete(`${TABLE_TICKETS}?select=numero,participant_id,motif,created_at`, {
       method: 'POST',
       headers: { Prefer: 'return=representation' },
       body: JSON.stringify({ participant_id: participantId, motif }),
