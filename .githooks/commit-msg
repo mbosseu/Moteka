@@ -2,16 +2,15 @@
 # =====================================================================
 # Aucune signature d'outil dans l'historique de ce depot.
 #
-# POURQUOI. Depot partage entre plusieurs developpeurs, livre a un client
-# entre plusieurs developpeurs. La paternite du travail appartient a l equipe.
-# Une signature d'assistant dans l'historique d'un projet client est une
+# POURQUOI. Depot partage entre plusieurs developpeurs et livre a un client :
+# la paternite du travail appartient a l equipe, aucune signature d outil
+# ne doit apparaitre dans l historique.
 #
 # CE QUE FAIT CE CROCHET. Il retire silencieusement les lignes de
 # signature du message avant l'enregistrement du commit. Il ne refuse
 # rien, il ne fait perdre aucun travail : il nettoie et laisse passer.
 #
-# POUR L ACTIVER (une fois par clone) :
-# ou, sans passer par npm :               git config core.hooksPath .githooks
+# POUR L ACTIVER (une fois par clone) : git config core.hooksPath .githooks
 # =====================================================================
 f="$1"
 [ -f "$f" ] || exit 0
