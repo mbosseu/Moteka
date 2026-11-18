@@ -113,6 +113,8 @@ td small { color: var(--gris); display: block; }
 .etat { font: 600 11px var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--gris); }
 .etat.attribue { color: #ffd166; }
 .lot.masterclass { border-color: rgba(255, 64, 160, .6); box-shadow: 0 0 0 1px rgba(0, 220, 255, .25) inset; }
+.lot.premium { border-color: rgba(209, 20, 20, .7); box-shadow: 0 0 0 1px rgba(230, 232, 236, .2) inset; }
+.badge-premium { font: 700 11px var(--titre); letter-spacing: .14em; text-transform: uppercase; color: #ff4040; }
 .badge-masterclass { font: 700 11px var(--titre); letter-spacing: .14em; text-transform: uppercase; color: #ff6ec7; }
 
 .planning-soirs { flex: 1 1 100%; min-width: 0; }
@@ -125,6 +127,7 @@ td small { color: var(--gris); display: block; }
 .planning li.aujourdhui { border-color: var(--rouge); background: rgba(209, 20, 20, .12); }
 .planning li.tire small { color: #ffd166; }
 .planning li.masterclass span { color: #ff6ec7; font-weight: 600; }
+.planning li.premium span { color: #ff4040; font-weight: 600; }
 .case { display: flex; align-items: center; gap: 8px; text-transform: none; letter-spacing: 0; font: 400 14px var(--texte); color: var(--blanc); }
 .case input { width: auto; }
 

@@ -245,10 +245,11 @@
   function rendreLots() {
     $('#liste-lots').innerHTML = etat.lots
       .map(
-        (l) => `<form class="carte lot${l.masterclass ? ' masterclass' : ''}" data-id="${echapper(l.id)}">
+        (l) => `<form class="carte lot${l.masterclass ? ' masterclass' : ''}${l.premium ? ' premium' : ''}" data-id="${echapper(l.id)}">
           <div class="lot-tete">
             <span class="lot-ordre">${echapper(l.ordre)}</span>
             ${l.masterclass ? '<span class="badge-masterclass">Lot masterclass</span>' : ''}
+            ${l.premium ? '<span class="badge-premium">Lot premium</span>' : ''}
             <span class="etat ${l.attribue_le ? 'attribue' : ''}">${l.attribue_le ? `Gagné le ${echapper(dateFr(l.attribue_le))}` : l.actif ? 'Disponible' : 'Inactif'}</span>
           </div>
           <label>Nom<input name="nom" maxlength="120" required value="${echapper(l.nom)}"></label>
@@ -281,12 +282,13 @@
       ? etat.planning
           .map((p) => {
             const masterclass = Boolean(p.lot && /\bGTA/i.test(p.lot.nom));
-            const classes = [p.date === aujourdhui ? 'aujourdhui' : '', p.statut === 'tire' ? 'tire' : '', masterclass ? 'masterclass' : ''].filter(Boolean).join(' ');
+            const premium = Boolean(p.lot && !masterclass && /\bgolf\b/i.test(p.lot.nom));
+            const classes = [p.date === aujourdhui ? 'aujourdhui' : '', p.statut === 'tire' ? 'tire' : '', masterclass ? 'masterclass' : '', premium ? 'premium' : ''].filter(Boolean).join(' ');
             const statut = p.statut === 'tire' ? 'Tiré' : p.date === aujourdhui ? 'Ce soir' : 'Prévu';
             return `<li class="${classes}">
               <b>${echapper(dateFr(p.date))}</b>
               <span>${p.lot ? `${echapper(p.lot.ordre)}. ${echapper(p.lot.nom)}` : 'Aucun lot disponible'}</span>
-              <small>${statut}${masterclass ? ' · lot masterclass' : ''}</small>
+              <small>${statut}${masterclass ? ' · lot masterclass' : ''}${premium ? ' · lot premium' : ''}</small>
             </li>`;
           })
           .join('')
@@ -426,6 +428,10 @@
     gta.set('prenom', profil.prenom);
     gta.set('nom', profil.nom);
     $('#lien-demo-gta').href = `/admin/tirage?${gta}`;
+    // Demo de l'animation speciale Golf 8 R (lot premium), meme profil fictif.
+    const golf = new URLSearchParams(gta);
+    golf.set('lot', 'golf');
+    $('#lien-demo-golf').href = `/admin/tirage?${golf}`;
     $('#lancer-tirage').href = `/admin/tirage?${reel}`;
     $('#lien-demo-tirage').href = `/admin/tirage?${demo}`;
     $('#lien-demo-tirage').toggleAttribute('aria-disabled', !fictif);
@@ -456,6 +462,7 @@
   $('#lancer-tirage').addEventListener('click', ouvrirSpectacle);
   $('#lien-demo-tirage').addEventListener('click', ouvrirSpectacle);
   $('#lien-demo-gta').addEventListener('click', ouvrirSpectacle);
+  $('#lien-demo-golf').addEventListener('click', ouvrirSpectacle);
 
   async function chargerEtatTirage() {
     const data = await api('/api/admin/tirage');
@@ -463,7 +470,7 @@
     etat.candidatsTirage = data.candidats || [];
     remplirCandidatsTirage(etat.candidatsTirage);
     etat.tirageDuSoir = data;
-    const lot = data.prochain_lot ? `${data.prochain_lot.nom}${data.prochain_lot.masterclass ? ' (lot masterclass, animation spéciale)' : ''}` : 'aucun lot restant';
+    const lot = data.prochain_lot ? `${data.prochain_lot.nom}${data.prochain_lot.masterclass ? ' (lot masterclass, animation spéciale)' : data.prochain_lot.premium ? ' (lot premium, animation spéciale)' : ''}` : 'aucun lot restant';
     if (Array.isArray(data.planning)) {
       etat.planning = data.planning;
       rendrePlanning();

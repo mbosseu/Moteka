@@ -7,9 +7,11 @@
  *   3. "Felicitations Prenom N. - ticket n. X" ;
  *   4. un ticket a gratter 3D arrive : on le gratte au doigt / a la souris (ou grattage automatique)
  *      et il revele le lot Moteka gagne.
- *   5. lot masterclass (jeu GTA 6, finale du samedi 28) : sequence 3D speciale "Vice City" (tirage-gta.js).
+ *   5. lot masterclass (jeu GTA 6, finale du samedi 28) : sequence 3D speciale "Vice City" (tirage-gta.js) ;
+ *      lot premium (24 h de location de la Golf 8 R, vendredi 27) : garage de nuit autour de la photo (tirage-golf.js).
  * Mode demo (?mode=demo) : tirage factice, rien n'est enregistre. Mode reel (?mode=reel) : POST /api/admin/tirage.
  * Demo de la sequence GTA 6 : ?mode=demo&lot=gta (le ticket revele GTA 6), touche G pour la lancer directement.
+ * Demo de la sequence Golf 8 R : ?mode=demo&lot=golf (le ticket revele la Golf 8 R), touche V pour la lancer directement.
  */
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -17,7 +19,8 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-import { creerSequenceGta } from './tirage-gta.js?v=20261118220000';
+import { creerSequenceGta } from './tirage-gta.js?v=20261118233000';
+import { creerSequenceGolf } from './tirage-golf.js?v=20261118233000';
 
 /* ------------------------------------------------------------------ */
 /* Parametres                                                          */
@@ -54,6 +57,10 @@ const LOT_GTA_DEMO = { nom: 'Le jeu GTA 6 sur PS5', description: 'Lot masterclas
 const DEMO_GTA = LOT_DEMANDE.toLowerCase() === 'gta';
 /** Lot masterclass (GTA 6) : animation speciale a la revelation. */
 const estMasterclass = (lot) => Boolean(lot && (lot.masterclass || /\bGTA/i.test(String(lot.nom || ''))));
+const LOT_GOLF_DEMO = { nom: '24 h de location de la Golf 8 R', description: 'Lot premium du vendredi 27 novembre, offert par Moteka.', premium: true };
+const DEMO_GOLF = LOT_DEMANDE.toLowerCase() === 'golf';
+/** Lot premium (Golf 8 R) : animation speciale a la revelation. */
+const estPremium = (lot) => Boolean(lot && !estMasterclass(lot) && (lot.premium || /\bgolf\b/i.test(String(lot.nom || ''))));
 
 /* ------------------------------------------------------------------ */
 /* Ressources : polices et logos                                       */
@@ -167,8 +174,10 @@ function redimensionner() {
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   sequenceGta?.redimensionner(w, h);
+  sequenceGolf?.redimensionner(w, h);
 }
 let sequenceGta = null;
+let sequenceGolf = null;
 new ResizeObserver(redimensionner).observe(story);
 
 /* ------------------------------------------------------------------ */
@@ -1170,7 +1179,7 @@ function aujourdhui() {
 }
 
 function candidatChoisi() {
-  if (!NUMERO_CHOISI && MODE === 'demo' && DEMO_GTA) {
+  if (!NUMERO_CHOISI && MODE === 'demo' && (DEMO_GTA || DEMO_GOLF)) {
     return { numero: 9001, prenom: 'Camille', nom: 'Martin', initiale: 'M', label: 'Camille Martin' };
   }
   if (!NUMERO_CHOISI) return null;
@@ -1190,9 +1199,10 @@ function candidatChoisi() {
   return candidats.find((c) => String(c.numero) === NUMERO_CHOISI) || null;
 }
 
-/** Lot montre en repetition : ?lot=gta, un lot choisi dans le back-office, sinon le lot prevu ce soir. */
+/** Lot montre en repetition : ?lot=gta ou ?lot=golf, un lot choisi dans le back-office, sinon le lot prevu ce soir. */
 function lotRepetition() {
   if (DEMO_GTA) return LOT_GTA_DEMO;
+  if (DEMO_GOLF) return LOT_GOLF_DEMO;
   if (LOT_DEMANDE) {
     const l = (infoTirage?.lots_restants || []).find((x) => String(x.id) === LOT_DEMANDE);
     if (l) return l;
@@ -1255,7 +1265,7 @@ window.addEventListener('load', () => { entrerPleinEcran(); });
 /* ------------------------------------------------------------------ */
 /* Deroule de l'animation                                              */
 /* ------------------------------------------------------------------ */
-const P = { attente: 0, intro: 1, tourne: 2, ralenti: 3, arret: 4, ticketEntree: 5, grattage: 6, revele: 7, erreur: 8, gta: 9 };
+const P = { attente: 0, intro: 1, tourne: 2, ralenti: 3, arret: 4, ticketEntree: 5, grattage: 6, revele: 7, erreur: 8, gta: 9, golf: 10 };
 let phase = P.attente;
 let tPhase = 0;
 let angleRouleau = 0;
@@ -1451,11 +1461,14 @@ function revelerLot() {
   if (estMasterclass(resultat.lot)) {
     $('#lot-final .sur-titre').textContent = 'Lot masterclass';
     $('#lot-final').classList.add('masterclass');
+  } else if (estPremium(resultat.lot)) {
+    $('#lot-final .sur-titre').textContent = 'Lot premium';
+    $('#lot-final').classList.add('premium');
   }
   const centre = pointMonde(new THREE.Vector3(0, 0, 0.5), ticket);
   lancerConfettis(centre.clone().add(new THREE.Vector3(0, 1.4, 0)), 260, 3.2);
   etincelles.emettre(pointMonde(new THREE.Vector3(zoneCx, zoneCy, 0.1), ticket), 160, { vitesse: 3.5, couleur: [1, 0.85, 0.5], duree: 1.4 });
-  if (!estMasterclass(resultat.lot)) {
+  if (!estMasterclass(resultat.lot) && !estPremium(resultat.lot)) {
     setTimeout(() => {
       if (phase === P.revele) $('#fin').hidden = false;
     }, 2500);
@@ -1503,8 +1516,8 @@ function demarrerGta() {
   $('#gta-bas').classList.remove('montre');
   $('#flash').classList.add('neon');
   flash(1.4);
-  bloom.threshold = 0.72;
-  bloom.radius = 0.62;
+  bloom.threshold = 0.92;
+  bloom.radius = 0.45;
   passeRendu.scene = sequenceGta.scene;
   passeRendu.camera = sequenceGta.camera;
   sequenceGta.demarrer();
@@ -1527,9 +1540,85 @@ function quitterGta() {
   $('#lot-final .sur-titre').textContent = 'Lot gagné';
 }
 
+/* --- sequence speciale du lot premium (Golf 8 R) --- */
+function demarrerGolf() {
+  if (!sequenceGolf) {
+    sequenceGolf = creerSequenceGolf({
+      environnement: scene.environment,
+      texPoint,
+      police: POLICE,
+      obtenirAudio: () => audio,
+      rappels: {
+        depart: () => {
+          flash(0.25);
+          son('impact');
+        },
+        passage: () => flash(0.15),
+        titre: () => {
+          $('#golf-sur').classList.add('montre');
+        },
+        gagnant: () => {
+          const r = resultat || {};
+          $('#golf-gagnant').textContent = `${r.prenom || ''}${r.initiale ? ` ${r.initiale}.` : ''}`.trim();
+          $('#golf-ticket').textContent = r.numero ? `Ticket n. ${r.numero}` : '';
+          $('#golf-bas').classList.add('montre');
+          son('fanfare');
+        },
+        fin: () => {
+          $('#fin').hidden = false;
+        },
+      },
+    });
+    sequenceGolf.redimensionner(story.clientWidth || 9, story.clientHeight || 16);
+  }
+  changerPhase(P.golf);
+  for (const id of ['#lot-final', '#resultat', '#consigne', '#compteur', '#titre-tirage']) $(id).hidden = true;
+  $('#panneau').classList.add('cache');
+  $('#golf-final').hidden = false;
+  $('#golf-sur').classList.remove('montre');
+  $('#golf-bas').classList.remove('montre');
+  // photo fidele : pas de tone mapping, bloom reserve aux LED et aux trainees (valeurs au-dela de 1,2)
+  renderer.toneMapping = THREE.NoToneMapping;
+  bloom.threshold = 1.2;
+  bloom.radius = 0.55;
+  passeRendu.scene = sequenceGolf.scene;
+  passeRendu.camera = sequenceGolf.camera;
+  initAudio();
+  if (audio?.state === 'suspended') audio.resume();
+  sequenceGolf.demarrer();
+}
+
+function quitterGolf() {
+  sequenceGolf?.arreter();
+  if (sequenceGolf && passeRendu.scene === sequenceGolf.scene) {
+    passeRendu.scene = scene;
+    passeRendu.camera = camera;
+  }
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  bloom.threshold = 0.88;
+  bloom.radius = 0.5;
+  $('#golf-final').hidden = true;
+  $('#golf-sur').classList.remove('montre');
+  $('#golf-bas').classList.remove('montre');
+  $('#lot-final').classList.remove('premium');
+}
+
+/** Repetition : lance directement la sequence Golf 8 R (touche V), sans passer par la roue. */
+function repeterGolf() {
+  if (MODE !== 'demo' || phase === P.golf) return;
+  quitterGta();
+  const choisi = candidatChoisi() || { numero: 9001, prenom: 'Camille', nom: 'Martin', initiale: 'M' };
+  resultat = { ...tirageDepuisCandidat(choisi), lot: LOT_GOLF_DEMO };
+  ticket.visible = false;
+  voile.material.opacity = 0;
+  $('#fin').hidden = true;
+  demarrerGolf();
+}
+
 /** Repetition : lance directement la sequence GTA 6 (touche G), sans passer par la roue. */
 function repeterGta() {
   if (MODE !== 'demo' || phase === P.gta) return;
+  quitterGolf();
   const choisi = candidatChoisi() || { numero: 9001, prenom: 'Camille', nom: 'Martin', initiale: 'M' };
   resultat = { ...tirageDepuisCandidat(choisi), lot: LOT_GTA_DEMO };
   ticket.visible = false;
@@ -1569,6 +1658,7 @@ async function lancer() {
 
 function reinitialiser() {
   quitterGta();
+  quitterGolf();
   ralenti = null;
   resultat = null;
   erreurTirage = null;
@@ -1741,12 +1831,24 @@ function boucle() {
           }
           if (tPhase > 1.6) flash(Math.min(1.2, (tPhase - 1.6) * 2.2));
           if (tPhase > 2.15) demarrerGta();
+        } else if (estPremium(resultat?.lot)) {
+          // lot premium : flash puis bascule dans le garage de nuit de la Golf 8 R
+          if (tPhase > 1.6 && tPhase - dt <= 1.6) {
+            secousse = 0.2;
+            son('montee');
+          }
+          if (tPhase > 1.6) flash(Math.min(1, (tPhase - 1.6) * 2));
+          if (tPhase > 2.15) demarrerGolf();
         }
       }
       break;
     }
     case P.gta: {
       sequenceGta.maj(dt);
+      break;
+    }
+    case P.golf: {
+      sequenceGolf.maj(dt);
       break;
     }
     case P.erreur: {
@@ -1789,7 +1891,7 @@ function boucle() {
   // flash et bloom
   flashNiveau = Math.max(0, flashNiveau - dt * 1.8);
   $('#flash').style.opacity = String(Math.min(1, flashNiveau * 0.9));
-  bloom.strength = (phase === P.gta ? 0.85 : 0.34) + flashNiveau * 1.35;
+  bloom.strength = (phase === P.gta ? 0.42 : phase === P.golf ? 0.6 : 0.34) + flashNiveau * (phase === P.gta ? 0.45 : 1.35);
 
   composer.render();
   requestAnimationFrame(boucle);
@@ -1896,6 +1998,10 @@ document.addEventListener('keydown', (e) => {
   } else if (e.key === 'h' || e.key === 'H') document.body.classList.toggle('sans-ui');
   else if ((e.key === 'r' || e.key === 'R') && MODE === 'demo') reinitialiser();
   else if ((e.key === 'g' || e.key === 'G') && MODE === 'demo') repeterGta();
+  else if ((e.key === 'v' || e.key === 'V') && MODE === 'demo') {
+    initAudio();
+    repeterGolf();
+  }
 });
 
 preparer();

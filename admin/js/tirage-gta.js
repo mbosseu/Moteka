@@ -388,7 +388,7 @@ export function creerSequenceGta({ environnement = null, texPoint, police = 'san
   /* --- soleil synthwave --- */
   const cSoleil = toile(1024, 1024);
   dessinerSoleil(cSoleil.getContext('2d'), 512, 512, 500);
-  const matSoleil = new THREE.MeshBasicMaterial({ map: texture(cSoleil), transparent: true, fog: false, depthWrite: false, color: new THREE.Color(1.6, 1.6, 1.6) });
+  const matSoleil = new THREE.MeshBasicMaterial({ map: texture(cSoleil), transparent: true, fog: false, depthWrite: false, color: new THREE.Color(0.8, 0.8, 0.8) });
   const soleil = new THREE.Mesh(new THREE.PlaneGeometry(44, 44), matSoleil);
   soleil.position.set(0, SOL_Y + 9, -112);
   scene.add(soleil);
@@ -406,6 +406,7 @@ export function creerSequenceGta({ environnement = null, texPoint, police = 'san
     new THREE.PlaneGeometry(100, 100),
     new THREE.MeshBasicMaterial({ map: texture(cHalo), transparent: true, blending: THREE.AdditiveBlending, fog: false, depthWrite: false })
   );
+  halo.material.opacity = 0.3;
   halo.position.set(0, SOL_Y + 9, -114);
   scene.add(halo);
 
@@ -510,8 +511,8 @@ export function creerSequenceGta({ environnement = null, texPoint, police = 'san
   });
 
   /* --- cadre neon derriere le boitier --- */
-  const matRose = new THREE.MeshBasicMaterial({ color: neon(ROSE, 3.2), fog: false });
-  const matCyan = new THREE.MeshBasicMaterial({ color: neon(CYAN, 2.6), fog: false });
+  const matRose = new THREE.MeshBasicMaterial({ color: neon(ROSE, 1.8), fog: false });
+  const matCyan = new THREE.MeshBasicMaterial({ color: neon(CYAN, 1.5), fog: false });
   const cadre = new THREE.Group();
   const CW = 3.0;
   const CH = 3.7;
@@ -538,11 +539,12 @@ export function creerSequenceGta({ environnement = null, texPoint, police = 'san
 
   /* --- lumieres --- */
   scene.add(new THREE.HemisphereLight(0xff6ab8, 0x2a0a45, 0.9));
-  const lumRose = new THREE.PointLight(ROSE, 40, 14, 1.5);
-  const lumCyan = new THREE.PointLight(CYAN, 34, 14, 1.5);
+  const lumRose = new THREE.PointLight(ROSE, 16, 14, 1.5);
+  const lumCyan = new THREE.PointLight(CYAN, 14, 14, 1.5);
   scene.add(lumRose, lumCyan);
-  const face = new THREE.SpotLight(0xffffff, 60, 20, 0.5, 0.6, 1.2);
-  face.position.set(0.5, 2.5, 6);
+  const face = new THREE.SpotLight(0xffffff, 34, 22, 0.55, 0.9, 1.2);
+  face.position.set(0.3, 1.6, 7);
+  face.target.position.set(0, 0.3, 0);
   scene.add(face, face.target);
   const lumImpact = new THREE.PointLight(0xffd0f0, 0, 12, 1.4);
   lumImpact.position.set(0, 0.4, 1.4);
@@ -564,20 +566,20 @@ export function creerSequenceGta({ environnement = null, texPoint, police = 'san
   const texJaq = texture(cJaq);
   const texDos = texture(cDos);
   const texTranche = texture(cTranche);
-  const matJaq = new THREE.MeshPhysicalMaterial({ map: texJaq, emissiveMap: texJaq, emissive: 0xffffff, emissiveIntensity: 0.32, roughness: 0.32, clearcoat: 1, clearcoatRoughness: 0.04 });
+  const matJaq = new THREE.MeshPhysicalMaterial({ map: texJaq, emissiveMap: texJaq, emissive: 0xffffff, emissiveIntensity: 0.1, roughness: 0.4, clearcoat: 0.6, clearcoatRoughness: 0.12 });
   const avant = new THREE.Mesh(new THREE.PlaneGeometry(BW - 0.07, BH - 0.07), matJaq);
   avant.position.z = BD / 2 + 0.003;
   boite.add(avant);
   const arriere = new THREE.Mesh(
     new THREE.PlaneGeometry(BW - 0.07, BH - 0.07),
-    new THREE.MeshPhysicalMaterial({ map: texDos, emissiveMap: texDos, emissive: 0xffffff, emissiveIntensity: 0.25, roughness: 0.35, clearcoat: 1 })
+    new THREE.MeshPhysicalMaterial({ map: texDos, emissiveMap: texDos, emissive: 0xffffff, emissiveIntensity: 0.08, roughness: 0.4, clearcoat: 0.6 })
   );
   arriere.position.z = -BD / 2 - 0.003;
   arriere.rotation.y = Math.PI;
   boite.add(arriere);
   const tranche = new THREE.Mesh(
     new THREE.PlaneGeometry(BD - 0.02, BH - 0.07),
-    new THREE.MeshPhysicalMaterial({ map: texTranche, emissiveMap: texTranche, emissive: 0xffffff, emissiveIntensity: 0.3, roughness: 0.3, clearcoat: 1 })
+    new THREE.MeshPhysicalMaterial({ map: texTranche, emissiveMap: texTranche, emissive: 0xffffff, emissiveIntensity: 0.1, roughness: 0.4, clearcoat: 0.6 })
   );
   tranche.position.x = -BW / 2 - 0.003;
   tranche.rotation.y = -Math.PI / 2;
@@ -611,6 +613,24 @@ export function creerSequenceGta({ environnement = null, texPoint, police = 'san
   boite.add(reflet);
   boite.position.set(0, 0.3, 0);
   scene.add(boite);
+
+  // voile sombre derriere le boitier : contraste net, plus de source blanche dans son dos
+  const cVoile = toile(256, 256);
+  {
+    const g = cVoile.getContext('2d');
+    const grd = g.createRadialGradient(128, 128, 0, 128, 128, 128);
+    grd.addColorStop(0, 'rgba(6,1,14,.88)');
+    grd.addColorStop(0.55, 'rgba(6,1,14,.6)');
+    grd.addColorStop(1, 'rgba(6,1,14,0)');
+    g.fillStyle = grd;
+    g.fillRect(0, 0, 256, 256);
+  }
+  const voileFond = new THREE.Mesh(
+    new THREE.PlaneGeometry(5.2, 6.2),
+    new THREE.MeshBasicMaterial({ map: texture(cVoile), transparent: true, depthWrite: false, fog: false })
+  );
+  voileFond.position.set(0, 0.3, -1.4);
+  scene.add(voileFond);
 
   // ombre / reflet neon au sol sous le boitier
   const cTache = toile(256, 256);
@@ -855,7 +875,7 @@ export function creerSequenceGta({ environnement = null, texPoint, police = 'san
         const centre = new THREE.Vector3(0, 0.3, 0.3);
         emettre(centre, 700, 7, 1.8, 1);
         lancerConfettis(centre.clone().add(new THREE.Vector3(0, 0.8, 0)), 260, 4);
-        lumImpact.intensity = 140;
+        lumImpact.intensity = 45;
         rappels.impact?.();
       }
       if (evts.impact) {
@@ -866,7 +886,7 @@ export function creerSequenceGta({ environnement = null, texPoint, police = 'san
         const k2 = clamp((v - 0.15) / 1.3);
         onde2.scale.setScalar(lerp(1, 5, easeOut(k2)));
         onde2.material.opacity = v > 0.15 ? (1 - k2) * 0.8 : 0;
-        lumImpact.intensity = Math.max(0, lumImpact.intensity - dt * 160);
+        lumImpact.intensity = Math.max(0, lumImpact.intensity - dt * 60);
       }
       if (t >= T_TITRE && !evts.titre) {
         evts.titre = true;
@@ -884,20 +904,20 @@ export function creerSequenceGta({ environnement = null, texPoint, police = 'san
         rappels.fin?.();
       }
       if (t > T_GAGNANT && Math.random() < dt * 6) pluie(4);
-      if (t > T_ARRIVEE && Math.random() < dt * 1.2) emettre(new THREE.Vector3(hasard(-1.4, 1.4), hasard(-0.8, 1.6), 0.4), 30, 2.4, 1.1, 0.5);
+      if (t > T_ARRIVEE && Math.random() < dt * 0.5) emettre(new THREE.Vector3(hasard(-1.4, 1.4), hasard(-0.8, 1.6), 0.4), 30, 2.4, 1.1, 0.5);
 
       // reflet qui balaie la jaquette toutes les 3 s
       const cycle = ((t + 1.2) % 3) / 3;
       texReflet.offset.x = lerp(0.9, -0.9, cycle);
-      matReflet.opacity = 0.55 + (t < T_ARRIVEE ? 0.3 : 0);
+      matReflet.opacity = 0.18 + (t < T_ARRIVEE ? 0.2 : 0);
 
       // decor vivant
       uniformsGrille.uDefile.value = (temps * 6) % 2000;
       soleil.scale.setScalar(1 + Math.sin(temps * 0.8) * 0.015);
       halo.material.opacity = 0.8 + Math.sin(temps * 1.6) * 0.15;
       const clignote = Math.random() < 0.03 ? 0.35 : 1;
-      matRose.color.copy(neon(ROSE, 3.2 * clignote + Math.sin(temps * 5) * 0.2));
-      matCyan.color.copy(neon(CYAN, 2.6 + Math.sin(temps * 3.3) * 0.3));
+      matRose.color.copy(neon(ROSE, 1.8 * clignote + Math.sin(temps * 5) * 0.12));
+      matCyan.color.copy(neon(CYAN, 1.5 + Math.sin(temps * 3.3) * 0.15));
       cadre.scale.setScalar(evts.impact ? 1 + Math.sin(temps * 2) * 0.01 : lerp(0.6, 1, clamp(t / T_ARRIVEE)));
       lumRose.position.set(Math.cos(temps * 0.9) * 2.6, 1.4 + Math.sin(temps * 1.3) * 0.6, 2.2);
       lumCyan.position.set(Math.cos(temps * 0.9 + Math.PI) * 2.6, 0.2 + Math.cos(temps * 1.1) * 0.6, 2.2);
@@ -909,12 +929,12 @@ export function creerSequenceGta({ environnement = null, texPoint, police = 'san
         if (s.position.x > 10) s.position.x = -10;
         if (s.position.x < -10) s.position.x = 10;
       });
-      tache.material.opacity = evts.impact ? 0.9 + Math.sin(temps * 3) * 0.1 : clamp(1 - (-boite.position.z) / 20);
+      tache.material.opacity = evts.impact ? 0.45 + Math.sin(temps * 3) * 0.05 : clamp(1 - (-boite.position.z) / 20);
 
       // camera : rase la grille puis remonte face au boitier
       const c = easeOut(clamp(t / 3.2));
-      camera.position.set(Math.sin(temps * 0.35) * 0.25 * c, lerp(-1.1, 0.42, c), lerp(9.5, 6.5, c));
-      camera.lookAt(0, lerp(1.2, 0.6, c), lerp(-20, 0, c));
+      camera.position.set(Math.sin(temps * 0.35) * 0.25 * c, lerp(-1.1, 0.42, c), lerp(10, 8.2, c));
+      camera.lookAt(0, lerp(1.2, 0.1, c), lerp(-20, 0, c));
 
       majParticules(dt);
       majConfettis(dt, temps);

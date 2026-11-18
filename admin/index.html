@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/admin/css/admin.css?v=20261118183000">
+<link rel="stylesheet" href="/admin/css/admin.css?v=20261118233000">
 </head>
 <body>
 <header class="barre">
@@ -70,6 +70,7 @@
         <a class="bouton bouton-rouge" id="lancer-tirage" href="/admin/tirage?mode=reel" aria-disabled="true">Ouvrir le tirage (plein écran)</a>
         <a class="bouton bouton-contour" id="lien-demo-tirage" href="/admin/tirage?mode=demo" target="_blank" rel="noopener" aria-disabled="true">Répétition (démo)</a>
         <a class="bouton bouton-contour" id="lien-demo-gta" href="/admin/tirage?mode=demo&amp;lot=gta" target="_blank" rel="noopener" title="Répétition de l'animation spéciale du lot masterclass (rien n'est enregistré)">Démo lot GTA 6</a>
+        <a class="bouton bouton-contour" id="lien-demo-golf" href="/admin/tirage?mode=demo&amp;lot=golf" target="_blank" rel="noopener" title="Répétition de l'animation spéciale du lot premium Golf 8 R (rien n'est enregistré)">Démo lot Golf 8 R</a>
       </div>
       <div class="planning-soirs">
         <h3>Planning des 6 soirs</h3>
@@ -104,7 +105,7 @@
     </section>
 
     <section class="panneau" id="panneau-lots" hidden>
-      <p class="aide">Un tirage par soir du lundi 23 au samedi 28 novembre 2026 : 6 soirs, 6 lots. Par défaut, le soir N attribue le lot n° N (23 nov. : lot 1 ... samedi 28 nov. : lot 6, le jeu GTA 6, lot masterclass avec animation spéciale). Si ce lot est déjà gagné, c'est le prochain lot disponible. Vous pouvez aussi choisir un autre lot avant de lancer le tirage. Un lot déjà gagné n'est plus proposé.</p>
+      <p class="aide">Un tirage par soir du lundi 23 au samedi 28 novembre 2026 : 6 soirs, 6 lots. Par défaut, le soir N attribue le lot n° N (23 nov. : lot 1 ... samedi 28 nov. : lot 6, le jeu GTA 6, lot masterclass avec animation spéciale ; le vendredi 27 nov. : lot 5, la Golf 8 R, lot premium avec animation spéciale). Si ce lot est déjà gagné, c'est le prochain lot disponible. Vous pouvez aussi choisir un autre lot avant de lancer le tirage. Un lot déjà gagné n'est plus proposé.</p>
       <div id="liste-lots" class="lots"></div>
     </section>
 
@@ -127,6 +128,6 @@
   <div class="preuve-image"><img id="preuve-image" alt="Capture d'écran de l'avis Google envoyée par le participant"></div>
 </dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="/admin/js/admin.js?v=20261118220000" defer></script>
+<script src="/admin/js/admin.js?v=20261118233000" defer></script>
 </body>
 </html>

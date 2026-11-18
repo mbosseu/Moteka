@@ -10,6 +10,7 @@ import {
   dateParis,
   dateValide,
   estLotMasterclass,
+  estLotPremium,
   nomPublic,
   planningTirages,
   resoudreTicketGagnant,
@@ -18,7 +19,7 @@ import {
 
 function lotPublic(l) {
   return l
-    ? { id: l.id, ordre: l.ordre, nom: l.nom, description: l.description || '', image_url: l.image_url || null, masterclass: estLotMasterclass(l) }
+    ? { id: l.id, ordre: l.ordre, nom: l.nom, description: l.description || '', image_url: l.image_url || null, masterclass: estLotMasterclass(l), premium: estLotPremium(l) }
     : null;
 }
 

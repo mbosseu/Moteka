@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/admin/css/tirage.css?v=20261118220000">
+<link rel="stylesheet" href="/admin/css/tirage.css?v=20261118233000">
 <script type="importmap">
 {
   "imports": {
@@ -70,6 +70,18 @@
       </div>
     </div>
 
+    <div class="golf-final" id="golf-final" hidden>
+      <div class="golf-haut" id="golf-sur">
+        <p class="golf-premium">Lot premium</p>
+        <p class="golf-titre">24 H au volant</p>
+      </div>
+      <div class="golf-bas" id="golf-bas">
+        <p class="golf-modele">Golf 8 R</p>
+        <p class="golf-gagnant" id="golf-gagnant"></p>
+        <p class="golf-ticket" id="golf-ticket"></p>
+      </div>
+    </div>
+
     <p class="erreur-tirage" id="erreur-tirage" hidden></p>
 
     <footer class="pied">Boxing Center x Moteka · Garage Moteka, Fenouillet</footer>
@@ -82,7 +94,7 @@
       <p class="info" id="info" hidden>Préparation...</p>
       <button type="button" class="bouton bouton-roue" id="lancer" disabled>Tourner la roue</button>
       <p class="raccourcis raccourcis-spectacle">Espace : tourner · F : quitter le plein écran</p>
-      <p class="raccourcis" id="raccourcis-demo" hidden>Répétition : G lance directement l'animation du lot GTA 6 · R rejoue</p>
+      <p class="raccourcis" id="raccourcis-demo" hidden>Répétition : G lance l'animation GTA 6 · V lance l'animation Golf 8 R · R rejoue</p>
     </div>
 
     <div class="fin" id="fin" hidden>
@@ -92,6 +104,6 @@
     </div>
   </div>
 </div>
-<script type="module" src="/admin/js/tirage.js?v=20261118220000"></script>
+<script type="module" src="/admin/js/tirage.js?v=20261118233000"></script>
 </body>
 </html>

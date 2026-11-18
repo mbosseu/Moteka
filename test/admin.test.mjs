@@ -11,6 +11,7 @@ import {
   dateParis,
   dateValide,
   estLotMasterclass,
+  estLotPremium,
   historiqueTirages,
   ordrePrevu,
   planningTirages,
@@ -230,6 +231,18 @@ test('lot masterclass : detection du jeu GTA 6', () => {
   assert.equal(estLotMasterclass({ nom: 'gta vi' }), true);
   assert.equal(estLotMasterclass({ nom: 'Vidange offerte' }), false);
   assert.equal(estLotMasterclass(null), false);
+});
+
+test('lot premium : detection de la Golf 8 R', () => {
+  assert.equal(estLotPremium({ nom: '24 h de location de la Golf 8 R' }), true);
+  assert.equal(estLotPremium({ nom: 'golf 8r' }), true);
+  assert.equal(estLotPremium({ nom: 'Le jeu GTA 6 sur PS5' }), false);
+  assert.equal(estLotPremium({ nom: 'Nettoyage complet intérieur et extérieur de votre voiture' }), false);
+  assert.equal(estLotPremium({ nom: 'Golfeur' }), false);
+  assert.equal(estLotPremium(null), false);
+  // un seul lot masterclass et un seul lot premium parmi les 6 lots
+  assert.deepEqual(lots6.filter(estLotPremium).map((l) => l.id), ['r']);
+  assert.deepEqual(lots6.filter(estLotMasterclass).map((l) => l.id), ['gta']);
 });
 
 test('dates : jour de Paris et validation', () => {

@@ -135,6 +135,11 @@ export function estLotMasterclass(lot) {
   return /\bGTA/i.test(String(lot?.nom || ''));
 }
 
+/** Vrai pour le lot premium (24 h de location de la Golf 8 R) : animation speciale a la revelation. */
+export function estLotPremium(lot) {
+  return !estLotMasterclass(lot) && /\bgolf\b/i.test(String(lot?.nom || ''));
+}
+
 /** "Prenom N." : ce qui peut etre montre a l'ecran pendant le direct. */
 export function nomPublic(prenom, nom) {
   const p = String(prenom || '').trim();
