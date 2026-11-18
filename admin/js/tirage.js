@@ -22,6 +22,9 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 const params = new URLSearchParams(location.search);
 const MODE = params.get('mode') === 'reel' ? 'reel' : 'demo';
 const LOT_DEMANDE = params.get('lot') || '';
+const NUMERO_CHOISI = params.get('numero') || '';
+const SON_ACTIF = true;
+const GRATTAGE_AUTO = true;
 const $ = (s) => document.querySelector(s);
 
 const ROUGE = 0xd11414;
@@ -140,7 +143,7 @@ scene.add(camera);
 
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(512, 512), 0.55, 0.55, 0.82);
+const bloom = new UnrealBloomPass(new THREE.Vector2(512, 512), 0.36, 0.5, 0.88);
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
 
@@ -469,7 +472,7 @@ function peindreFace(face, numero, gagnant = false) {
   g.fillText('TICKET', 46, h / 2 - 22);
   g.fillText('N.', 46, h / 2 + 22);
   g.textAlign = 'center';
-  g.fillStyle = gagnant ? '#ffe7b0' : '#f4f2ef';
+  g.fillStyle = gagnant ? '#c9a96a' : '#b8b5b0';
   texteAjuste(g, numero == null ? '---' : String(numero), w / 2 + 40, h / 2 + 6, w - 260, 150);
   face.numero = numero;
   face.texture.needsUpdate = true;
@@ -481,7 +484,7 @@ for (let k = 0; k < NB_FACES; k += 1) {
   c.width = 860;
   c.height = 200;
   const texture = textureCanvas(c);
-  const mat = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.42, metalness: 0.15, emissive: 0xffffff, emissiveMap: texture, emissiveIntensity: 0.32 });
+  const mat = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.48, metalness: 0.12, emissive: 0xffffff, emissiveMap: texture, emissiveIntensity: 0.12 });
   const pivot = new THREE.Group();
   pivot.rotation.x = k * PAS;
   const mesh = new THREE.Mesh(faceGeo, mat);
@@ -1004,7 +1007,7 @@ function construireTicket(res) {
 /* ------------------------------------------------------------------ */
 let audio = null;
 function initAudio() {
-  if (audio || !$('#opt-son').checked) return;
+  if (audio || !SON_ACTIF) return;
   try {
     audio = new (window.AudioContext || window.webkitAudioContext)();
   } catch {
@@ -1012,7 +1015,7 @@ function initAudio() {
   }
 }
 function son(type) {
-  if (!audio || !$('#opt-son').checked) return;
+  if (!audio || !SON_ACTIF) return;
   const t = audio.currentTime;
   const gain = audio.createGain();
   gain.connect(audio.destination);
@@ -1020,7 +1023,7 @@ function son(type) {
     const o = audio.createOscillator();
     o.type = 'square';
     o.frequency.value = 2100;
-    gain.gain.setValueAtTime(0.035, t);
+    gain.gain.setValueAtTime(0.022, t);
     gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
     o.connect(gain);
     o.start(t);
@@ -1030,7 +1033,7 @@ function son(type) {
     o.type = 'sine';
     o.frequency.setValueAtTime(140, t);
     o.frequency.exponentialRampToValueAtTime(38, t + 0.6);
-    gain.gain.setValueAtTime(0.6, t);
+    gain.gain.setValueAtTime(0.38, t);
     gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
     o.connect(gain);
     o.start(t);
@@ -1052,7 +1055,7 @@ function son(type) {
       o.type = 'triangle';
       o.frequency.value = f;
       g.gain.setValueAtTime(0.0001, t + i * 0.11);
-      g.gain.exponentialRampToValueAtTime(0.16, t + i * 0.11 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.1, t + i * 0.11 + 0.02);
       g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.11 + 0.9);
       o.connect(g);
       g.connect(audio.destination);
@@ -1080,7 +1083,6 @@ function son(type) {
 /* ------------------------------------------------------------------ */
 let numeros = [];
 let candidats = [];
-let candidatsVisibles = [];
 let pretBase = false;
 let resultat = null;
 let erreurTirage = null;
@@ -1107,9 +1109,16 @@ function aujourdhui() {
 }
 
 function candidatChoisi() {
-  const v = $('#choix-gagnant').value;
-  if (!v) return null;
-  return candidats.find((c) => String(c.numero) === v) || null;
+  if (!NUMERO_CHOISI) return null;
+  const trouve = candidats.find((c) => String(c.numero) === NUMERO_CHOISI);
+  if (trouve) return trouve;
+  if (MODE === 'demo') {
+    const n = Number(NUMERO_CHOISI);
+    if (Number.isFinite(n) && numeros.includes(n)) {
+      return { numero: n, prenom: 'Demo', nom: '', initiale: 'X', label: `Répétition (n. ${n})` };
+    }
+  }
+  return null;
 }
 
 function tirageDepuisCandidat(c) {
@@ -1137,38 +1146,6 @@ function tirageDemo() {
   };
 }
 
-function remplirSelectCandidats(liste) {
-  candidatsVisibles = liste;
-  const sel = $('#choix-gagnant');
-  const courant = sel.value;
-  sel.innerHTML = '<option value="">Choisir le gagnant...</option>';
-  for (const c of liste) {
-    const opt = document.createElement('option');
-    opt.value = String(c.numero);
-    opt.textContent = `${c.label || c.prenom} (ticket n. ${c.numero})`;
-    sel.appendChild(opt);
-  }
-  if (courant && liste.some((c) => String(c.numero) === courant)) sel.value = courant;
-}
-
-function filtrerCandidats(q) {
-  const needle = String(q || '')
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/\p{M}/gu, '');
-  if (!needle) {
-    remplirSelectCandidats(candidats);
-    return;
-  }
-  remplirSelectCandidats(
-    candidats.filter((c) => {
-      const hay = `${c.label} ${c.prenom} ${c.nom} ${c.numero}`.toLowerCase().normalize('NFD').replace(/\p{M}/gu, '');
-      return hay.includes(needle);
-    })
-  );
-}
-
 function majBoutonLancer() {
   const bouton = $('#lancer');
   const okGagnant = !!candidatChoisi();
@@ -1179,6 +1156,16 @@ function basculerPleinEcran() {
   const el = $('#story');
   if (document.fullscreenElement) document.exitFullscreen();
   else el.requestFullscreen?.().catch(() => {});
+}
+
+async function entrerPleinEcran() {
+  const el = $('#story');
+  if (document.fullscreenElement) return;
+  try {
+    await el.requestFullscreen();
+  } catch {
+    /* souvent bloque sans geste : le clic sur Tourner la roue reessaie */
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -1390,6 +1377,7 @@ async function lancer() {
   if (phase !== P.attente || !numeros.length || $('#lancer').disabled) return;
   const choisi = candidatChoisi();
   if (!choisi) return;
+  entrerPleinEcran();
   initAudio();
   if (audio?.state === 'suspended') audio.resume();
   grattageAuto = false;
@@ -1422,7 +1410,7 @@ function reinitialiser() {
   pourcentage = 0;
   faces.forEach((f) => {
     f.verrou = false;
-    f.mat.emissiveIntensity = 0.32;
+    f.mat.emissiveIntensity = 0.12;
     peindreFace(f, numeroAuHasard());
   });
   ticket.visible = false;
@@ -1511,7 +1499,7 @@ function boucle() {
       // petit rebond mecanique du rouleau
       angleRouleau = ralenti.a1 + Math.sin(tPhase * 22) * Math.exp(-tPhase * 6) * 0.06;
       const f = faces[ralenti.kGagnant];
-      f.mat.emissiveIntensity = 0.5 + Math.abs(Math.sin(tPhase * 6)) * 0.9 * Math.exp(-tPhase * 0.4);
+      f.mat.emissiveIntensity = 0.22 + Math.abs(Math.sin(tPhase * 6)) * 0.35 * Math.exp(-tPhase * 0.4);
       lumiereImpact.intensity = 60 * Math.exp(-tPhase * 2.5);
       camCible = CAM_AFFICHEUR;
       if (tPhase > 0.9 && tPhase - dt <= 0.9) lancerConfettis(pointMonde(new THREE.Vector3(0, 1.6, 0.4), afficheur), 160, 3);
@@ -1537,7 +1525,7 @@ function boucle() {
         changerPhase(P.grattage);
         flash(0.35);
         $('#consigne').hidden = false;
-        if ($('#opt-auto').checked) setTimeout(demarrerGrattageAuto, 1200);
+        if (GRATTAGE_AUTO) setTimeout(demarrerGrattageAuto, 700);
       }
       break;
     }
@@ -1621,7 +1609,7 @@ function boucle() {
   // flash et bloom
   flashNiveau = Math.max(0, flashNiveau - dt * 1.8);
   $('#flash').style.opacity = String(Math.min(1, flashNiveau * 0.9));
-  bloom.strength = 0.55 + flashNiveau * 2.2;
+  bloom.strength = 0.34 + flashNiveau * 1.35;
 
   composer.render();
   requestAnimationFrame(boucle);
@@ -1631,7 +1619,9 @@ function boucle() {
 /* Demarrage                                                           */
 /* ------------------------------------------------------------------ */
 function majInfo(texte) {
-  $('#info').textContent = texte;
+  const el = $('#info');
+  el.textContent = texte;
+  el.hidden = false;
 }
 
 async function preparer() {
@@ -1668,7 +1658,7 @@ async function preparer() {
     }
   }
   if (MODE === 'demo' && !numeros.length) numeros = Array.from({ length: 160 }, (_, i) => 100 + i);
-  if (!candidats.length && numeros.length) {
+  if (!candidats.length && numeros.length && MODE === 'demo' && !NUMERO_CHOISI) {
     candidats = numeros.map((n, i) => {
       const prenom = PRENOMS_DEMO[i % PRENOMS_DEMO.length];
       const initiale = 'ABCDEFGHIJKLMNOPRSTV'[i % 20];
@@ -1681,41 +1671,49 @@ async function preparer() {
       };
     });
   }
-  remplirSelectCandidats(candidats);
 
   redimensionner();
   construireBoules(numeros.length ? numeros : [100]);
   faces.forEach((f) => peindreFace(f, numeroAuHasard()));
   $('#compteur').innerHTML = `<b>${numeros.length}</b> ticket${numeros.length > 1 ? 's' : ''} en jeu`;
 
-  if (MODE === 'reel' && pret) {
+  const choisi = candidatChoisi();
+  if (!NUMERO_CHOISI || !choisi) {
+    pret = false;
+    if ($('#info')) {
+      $('#info').hidden = false;
+      $('#info').textContent =
+        'Gagnant manquant : retournez au back-office, choisissez le gagnant du soir, puis rouvrez cette page.';
+    }
+  } else if (MODE === 'reel' && pret) {
     if (infoTirage.deja_tire) {
       pret = false;
-      majInfo("Le tirage d'aujourd'hui a déjà eu lieu. Utilisez la répétition ou consultez l'historique.");
+      if ($('#info')) {
+        $('#info').hidden = false;
+        $('#info').textContent = "Le tirage d'aujourd'hui a déjà eu lieu.";
+      }
     } else if (infoTirage.dans_periode === false) {
       pret = false;
-      majInfo('Les tirages réels ont lieu du lundi 23 au vendredi 27 novembre 2026 uniquement. Utilisez la répétition (démo) en attendant.');
+      if ($('#info')) {
+        $('#info').hidden = false;
+        $('#info').textContent = 'Hors période de tirage réel.';
+      }
     } else if (!numeros.length) {
       pret = false;
-      majInfo('Aucun ticket éligible.');
     } else if (!infoTirage.prochain_lot) {
       pret = false;
-      majInfo('Aucun lot disponible : vérifiez les lots dans le back-office.');
-    } else {
-      const lot = LOT_DEMANDE ? infoTirage.lots_restants.find((l) => String(l.id) === LOT_DEMANDE) : infoTirage.prochain_lot;
-      majInfo(`${numeros.length} tickets éligibles. Lot : ${lot ? lot.nom : 'prochain lot'}. Choisissez le gagnant puis lancez : le rouleau s’arrêtera sur lui et le résultat sera enregistré.`);
     }
-  } else if (MODE === 'demo') {
-    majInfo('Répétition : choisissez un gagnant pour tester l’animation (rien n’est enregistré).');
   }
   pretBase = pret;
   const bouton = $('#lancer');
-  bouton.textContent = MODE === 'reel' ? 'Lancer le tirage réel' : 'Lancer la démo';
+  bouton.textContent = 'Tourner la roue';
   majBoutonLancer();
   bouton.addEventListener('click', lancer);
-  $('#filtre-gagnant').addEventListener('input', (e) => filtrerCandidats(e.target.value));
-  $('#choix-gagnant').addEventListener('change', majBoutonLancer);
   document.querySelectorAll('.btn-plein-ecran').forEach((b) => b.addEventListener('click', basculerPleinEcran));
+  if (pretBase && choisi) {
+    setTimeout(() => entrerPleinEcran(), 120);
+  }
+  if (params.get('auto') === '1') $('#opt-auto').checked = true;
   $('#rejouer').hidden = MODE === 'reel';
   $('#rejouer').addEventListener('click', reinitialiser);
   requestAnimationFrame(boucle);

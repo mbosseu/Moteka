@@ -65,22 +65,14 @@
 
     <footer class="pied">Boxing Center x Moteka · Garage Moteka, Fenouillet</footer>
 
-    <div class="panneau" id="panneau">
-      <p class="mode" id="mode-libelle"></p>
-      <p class="info" id="info">Préparation...</p>
-      <label class="case"><input type="checkbox" id="opt-auto"> Grattage automatique (pour la vidéo)</label>
-      <label class="case"><input type="checkbox" id="opt-son" checked> Son</label>
-      <div class="choix-gagnant" id="bloc-choix-gagnant">
-        <span class="choix-titre">Gagnant du soir</span>
-        <input type="search" id="filtre-gagnant" class="champ-gagnant" placeholder="Chercher un nom ou un n° de ticket" autocomplete="off">
-        <select id="choix-gagnant" class="select-gagnant" aria-label="Gagnant du soir">
-          <option value="">Choisir le gagnant...</option>
-        </select>
-      </div>
-      <button type="button" class="bouton" id="lancer" disabled>Lancer le tirage</button>
-      <button type="button" class="bouton contour btn-plein-ecran">Plein écran</button>
-      <p class="raccourcis">Espace : lancer · A : gratter auto · F : plein écran · H : masquer les commandes</p>
-      <a class="retour" href="/admin">Retour au back-office</a>
+    <input type="checkbox" id="opt-auto" hidden checked>
+    <input type="checkbox" id="opt-son" hidden checked>
+
+    <div class="panneau panneau-spectacle" id="panneau">
+      <p class="mode" id="mode-libelle" hidden></p>
+      <p class="info" id="info" hidden>Préparation...</p>
+      <button type="button" class="bouton bouton-roue" id="lancer" disabled>Tourner la roue</button>
+      <p class="raccourcis raccourcis-spectacle">Espace : tourner · F : quitter le plein écran</p>
     </div>
 
     <div class="fin" id="fin" hidden>

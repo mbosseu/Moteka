@@ -107,6 +107,9 @@ body { font-family: var(--texte); -webkit-font-smoothing: antialiased; }
   font-size: max(13px, 3.4cqw);
 }
 .panneau.cache { opacity: 0; pointer-events: none; }
+.panneau-spectacle { top: auto; bottom: 10cqh; justify-items: center; text-align: center; background: rgba(10, 10, 12, .72); }
+.panneau-spectacle .bouton-roue { min-width: min(100%, 78cqw); padding: 18px 24px; font-size: max(16px, 4.8cqw); }
+.raccourcis-spectacle { opacity: .5; }
 .mode { margin: 0; font: 800 max(16px, 5cqw) var(--titre); letter-spacing: .14em; text-transform: uppercase; }
 .mode.reel { color: var(--rouge-vif); }
 .mode.demo { color: var(--or); }

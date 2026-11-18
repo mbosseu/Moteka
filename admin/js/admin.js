@@ -3,7 +3,7 @@
   'use strict';
 
   const $ = (s) => document.querySelector(s);
-  const etat = { participants: [], lots: [], tirages: [], tirageDuSoir: null };
+  const etat = { participants: [], lots: [], tirages: [], tirageDuSoir: null, candidatsTirage: [] };
 
   function echapper(v) {
     return String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -309,31 +309,83 @@
   }
 
   /* ---------- Tirage du soir ---------- */
-  function majLienTirage() {
-    const lot = $('#choix-lot').value;
-    $('#lancer-tirage').href = `/admin/tirage?mode=reel${lot ? `&lot=${encodeURIComponent(lot)}` : ''}`;
+  function remplirCandidatsTirage(liste) {
+    const sel = $('#choix-gagnant-bo');
+    const courant = sel.value;
+    sel.innerHTML = '<option value="">Choisir le gagnant...</option>';
+    for (const c of liste) {
+      const opt = document.createElement('option');
+      opt.value = String(c.numero);
+      opt.textContent = `${c.label || c.prenom} (ticket n. ${c.numero})`;
+      sel.appendChild(opt);
+    }
+    if (courant && liste.some((c) => String(c.numero) === courant)) sel.value = courant;
   }
-  $('#choix-lot').addEventListener('change', majLienTirage);
+
+  function filtrerCandidatsTirage(q) {
+    const needle = String(q || '')
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/\p{M}/gu, '');
+    const base = etat.candidatsTirage || [];
+    if (!needle) {
+      remplirCandidatsTirage(base);
+      return;
+    }
+    remplirCandidatsTirage(
+      base.filter((c) => {
+        const hay = `${c.label} ${c.prenom} ${c.nom} ${c.numero}`.toLowerCase().normalize('NFD').replace(/\p{M}/gu, '');
+        return hay.includes(needle);
+      })
+    );
+  }
+
+  function majLiensTirage() {
+    const lot = $('#choix-lot').value;
+    const numero = $('#choix-gagnant-bo').value;
+    const reel = new URLSearchParams({ mode: 'reel' });
+    const demo = new URLSearchParams({ mode: 'demo' });
+    if (lot) {
+      reel.set('lot', lot);
+      demo.set('lot', lot);
+    }
+    if (numero) {
+      reel.set('numero', numero);
+      demo.set('numero', numero);
+    }
+    $('#lancer-tirage').href = `/admin/tirage?${reel}`;
+    $('#lien-demo-tirage').href = `/admin/tirage?${demo}`;
+    $('#lien-demo-tirage').toggleAttribute('aria-disabled', !numero);
+    const t = etat.tirageDuSoir;
+    const reelBloque = !t || t.deja_tire || t.dans_periode === false;
+    if (numero && !reelBloque) $('#lancer-tirage').removeAttribute('aria-disabled');
+    else $('#lancer-tirage').setAttribute('aria-disabled', 'true');
+  }
+
+  $('#choix-lot').addEventListener('change', majLiensTirage);
+  $('#choix-gagnant-bo').addEventListener('change', majLiensTirage);
+  $('#filtre-gagnant-bo').addEventListener('input', (e) => filtrerCandidatsTirage(e.target.value));
 
   async function chargerEtatTirage() {
     const data = await api('/api/admin/tirage');
     const bouton = $('#lancer-tirage');
     const horsPeriode = data.dans_periode === false;
+    etat.candidatsTirage = data.candidats || [];
+    remplirCandidatsTirage(etat.candidatsTirage);
+    etat.tirageDuSoir = data;
     if (horsPeriode) {
-      $('#etat-tirage').textContent = `Tirages réels du lundi 23 au vendredi 27 novembre 2026 (un par soir). ${data.numeros.length} ticket(s) éligible(s). En attendant, utilisez la répétition.`;
+      $('#etat-tirage').textContent = `Tirages réels du lundi 23 au vendredi 27 novembre 2026 (un par soir). ${data.numeros.length} ticket(s) éligible(s). Choisissez le gagnant ici, puis ouvrez la répétition ou le tirage réel.`;
     }
     if (horsPeriode || data.deja_tire) {
       if (!horsPeriode) $('#etat-tirage').textContent = `Le tirage du ${dateFr(data.date)} a déjà eu lieu (voir l'historique).`;
       bouton.setAttribute('aria-disabled', 'true');
-      bouton.style.pointerEvents = 'none';
-      bouton.style.opacity = '.45';
     } else {
       const lot = data.prochain_lot ? data.prochain_lot.nom : 'aucun lot restant';
-      $('#etat-tirage').textContent = `${data.numeros.length} ticket(s) éligible(s) sur ${data.total_tickets}. Prochain lot : ${lot}.`;
+      $('#etat-tirage').textContent = `${data.numeros.length} ticket(s) éligible(s) sur ${data.total_tickets}. Prochain lot : ${lot}. Sélectionnez le gagnant ci-dessous : sur la page tirage, il ne restera qu’à tourner la roue.`;
       bouton.removeAttribute('aria-disabled');
-      bouton.style.pointerEvents = '';
-      bouton.style.opacity = '';
     }
+    majLiensTirage();
   }
 
   async function toutCharger() {

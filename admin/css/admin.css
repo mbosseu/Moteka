@@ -72,6 +72,14 @@ textarea { min-height: 70px; resize: vertical; }
 .tirage-soir { display: flex; gap: 20px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 20px; border-left: 4px solid var(--rouge); }
 .actions-tirage { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
 .choix-lot { min-width: 220px; }
+.choix-gagnant-bo { display: grid; gap: 6px; min-width: min(100%, 320px); flex: 1 1 280px; }
+.choix-lot-pleine { min-width: 0; width: 100%; }
+.champ-tirage {
+  width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--trait); border-radius: 4px;
+  background: var(--noir-2); color: var(--blanc); font: 500 14px/1.3 var(--texte);
+}
+.champ-tirage::placeholder { color: var(--gris); }
+a.bouton[aria-disabled="true"] { pointer-events: none; opacity: .45; }
 
 .onglets { display: flex; gap: 4px; border-bottom: 1px solid var(--trait); margin-bottom: 16px; overflow-x: auto; }
 .onglets button {

@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/admin/css/admin.css?v=20261118214500">
+<link rel="stylesheet" href="/admin/css/admin.css?v=20261118173000">
 </head>
 <body>
 <header class="barre">
@@ -54,8 +54,15 @@
         <label class="choix-lot">Lot
           <select id="choix-lot"><option value="">Prochain lot dans l'ordre</option></select>
         </label>
-        <a class="bouton bouton-rouge" id="lancer-tirage" href="/admin/tirage?mode=reel">Lancer le tirage du soir</a>
-        <a class="bouton bouton-contour" href="/admin/tirage?mode=demo" target="_blank" rel="noopener">Répétition (démo)</a>
+        <div class="choix-gagnant-bo">
+          <label class="choix-lot choix-lot-pleine" for="filtre-gagnant-bo">Gagnant du soir</label>
+          <input type="search" id="filtre-gagnant-bo" class="champ-tirage" placeholder="Chercher un nom ou un n° de ticket" autocomplete="off" aria-label="Filtrer les gagnants">
+          <select id="choix-gagnant-bo" class="champ-tirage" aria-label="Gagnant du soir" required>
+            <option value="">Choisir le gagnant...</option>
+          </select>
+        </div>
+        <a class="bouton bouton-rouge" id="lancer-tirage" href="/admin/tirage?mode=reel" aria-disabled="true">Ouvrir le tirage (plein écran)</a>
+        <a class="bouton bouton-contour" id="lien-demo-tirage" href="/admin/tirage?mode=demo" target="_blank" rel="noopener" aria-disabled="true">Répétition (démo)</a>
       </div>
     </div>
 
@@ -115,6 +122,6 @@
   </div>
 </dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="/admin/js/admin.js?v=20261118214500" defer></script>
+<script src="/admin/js/admin.js?v=20261118173000" defer></script>
 </body>
 </html>
