@@ -23,6 +23,8 @@ const params = new URLSearchParams(location.search);
 const MODE = params.get('mode') === 'reel' ? 'reel' : 'demo';
 const LOT_DEMANDE = params.get('lot') || '';
 const NUMERO_CHOISI = params.get('numero') || '';
+const PRENOM_CHOISI = params.get('prenom') || '';
+const NOM_CHOISI = params.get('nom') || '';
 const SON_ACTIF = true;
 const GRATTAGE_AUTO = true;
 const $ = (s) => document.querySelector(s);
@@ -1110,15 +1112,20 @@ function aujourdhui() {
 
 function candidatChoisi() {
   if (!NUMERO_CHOISI) return null;
-  const trouve = candidats.find((c) => String(c.numero) === NUMERO_CHOISI);
-  if (trouve) return trouve;
   if (MODE === 'demo') {
     const n = Number(NUMERO_CHOISI);
-    if (Number.isFinite(n) && numeros.includes(n)) {
-      return { numero: n, prenom: 'Demo', nom: '', initiale: 'X', label: `Répétition (n. ${n})` };
-    }
+    if (!Number.isFinite(n)) return null;
+    const prenom = PRENOM_CHOISI || 'Répétition';
+    const nom = NOM_CHOISI;
+    return {
+      numero: n,
+      prenom,
+      nom,
+      initiale: String(nom || prenom).trim().charAt(0).toUpperCase(),
+      label: `${prenom} ${nom}`.trim(),
+    };
   }
-  return null;
+  return candidats.find((c) => String(c.numero) === NUMERO_CHOISI) || null;
 }
 
 function tirageDepuisCandidat(c) {
@@ -1657,19 +1664,10 @@ async function preparer() {
       majInfo(err.status === 401 ? 'Session expirée : reconnectez-vous au back-office, puis revenez sur cette page.' : `Impossible de préparer le tirage : ${err.message}`);
     }
   }
-  if (MODE === 'demo' && !numeros.length) numeros = Array.from({ length: 160 }, (_, i) => 100 + i);
-  if (!candidats.length && numeros.length && MODE === 'demo' && !NUMERO_CHOISI) {
-    candidats = numeros.map((n, i) => {
-      const prenom = PRENOMS_DEMO[i % PRENOMS_DEMO.length];
-      const initiale = 'ABCDEFGHIJKLMNOPRSTV'[i % 20];
-      return {
-        numero: n,
-        prenom,
-        nom: 'Demo',
-        initiale,
-        label: `${prenom} ${initiale}.`,
-      };
-    });
+  if (MODE === 'demo') {
+    if (!numeros.length) numeros = Array.from({ length: 80 }, (_, i) => 100 + i);
+    const nDemo = Number(NUMERO_CHOISI);
+    if (Number.isFinite(nDemo) && !numeros.includes(nDemo)) numeros = [...numeros, nDemo];
   }
 
   redimensionner();

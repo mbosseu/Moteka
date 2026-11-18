@@ -4,6 +4,16 @@
 
   const $ = (s) => document.querySelector(s);
   const etat = { participants: [], lots: [], tirages: [], tirageDuSoir: null, candidatsTirage: [] };
+  const DEMO_GAGNANTS = [
+    { numero: 9001, prenom: 'Camille', nom: 'Martin', type: 'Classique' },
+    { numero: 9002, prenom: 'Inès', nom: 'Benali', type: 'Accents' },
+    { numero: 9003, prenom: 'Jean-Baptiste', nom: 'Lefèvre', type: 'Prénom composé' },
+    { numero: 9004, prenom: 'Alexandre', nom: 'Dupont-Durand', type: 'Nom long' },
+    { numero: 9005, prenom: 'Léa', nom: '', type: 'Prénom seul' },
+    { numero: 9006, prenom: 'M', nom: 'X', type: 'Très court' },
+    { numero: 9007, prenom: 'Youssef', nom: 'El Amrani', type: 'Particule' },
+    { numero: 9008, prenom: 'Sarah', nom: "O'Connor", type: 'Apostrophe' },
+  ];
 
   function echapper(v) {
     return String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -336,22 +346,39 @@
     );
   }
 
+  function remplirGagnantsDemo() {
+    const sel = $('#choix-gagnant-demo');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Profil de test...</option>';
+    for (const c of DEMO_GAGNANTS) {
+      const opt = document.createElement('option');
+      opt.value = String(c.numero);
+      const nom = `${c.prenom} ${c.nom}`.trim();
+      opt.textContent = `${c.type} — ${nom} (n. ${c.numero})`;
+      sel.appendChild(opt);
+    }
+  }
+
   function majLiensTirage() {
     const lot = $('#choix-lot').value;
     const numero = $('#choix-gagnant-bo').value;
+    const demoId = $('#choix-gagnant-demo').value;
     const reel = new URLSearchParams({ mode: 'reel' });
     const demo = new URLSearchParams({ mode: 'demo' });
     if (lot) {
       reel.set('lot', lot);
       demo.set('lot', lot);
     }
-    if (numero) {
-      reel.set('numero', numero);
-      demo.set('numero', numero);
+    if (numero) reel.set('numero', numero);
+    const fictif = DEMO_GAGNANTS.find((c) => String(c.numero) === demoId);
+    if (fictif) {
+      demo.set('numero', String(fictif.numero));
+      demo.set('prenom', fictif.prenom);
+      demo.set('nom', fictif.nom);
     }
     $('#lancer-tirage').href = `/admin/tirage?${reel}`;
     $('#lien-demo-tirage').href = `/admin/tirage?${demo}`;
-    $('#lien-demo-tirage').toggleAttribute('aria-disabled', !numero);
+    $('#lien-demo-tirage').toggleAttribute('aria-disabled', !fictif);
     const t = etat.tirageDuSoir;
     const dejaTire = Boolean(t && t.deja_tire);
     if (numero && !dejaTire) $('#lancer-tirage').removeAttribute('aria-disabled');
@@ -360,7 +387,9 @@
 
   $('#choix-lot').addEventListener('change', majLiensTirage);
   $('#choix-gagnant-bo').addEventListener('change', majLiensTirage);
+  $('#choix-gagnant-demo').addEventListener('change', majLiensTirage);
   $('#filtre-gagnant-bo').addEventListener('input', (e) => filtrerCandidatsTirage(e.target.value));
+  remplirGagnantsDemo();
 
   async function chargerEtatTirage() {
     const data = await api('/api/admin/tirage');

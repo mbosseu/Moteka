@@ -55,10 +55,16 @@
           <select id="choix-lot"><option value="">Prochain lot dans l'ordre</option></select>
         </label>
         <div class="choix-gagnant-bo">
-          <label class="choix-lot choix-lot-pleine" for="filtre-gagnant-bo">Gagnant du soir</label>
-          <input type="search" id="filtre-gagnant-bo" class="champ-tirage" placeholder="Chercher un nom ou un n° de ticket" autocomplete="off" aria-label="Filtrer les gagnants">
-          <select id="choix-gagnant-bo" class="champ-tirage" aria-label="Gagnant du soir" required>
+          <label class="choix-lot choix-lot-pleine" for="filtre-gagnant-bo">Gagnant réel</label>
+          <input type="search" id="filtre-gagnant-bo" class="champ-tirage" placeholder="Chercher un nom ou un n° de ticket" autocomplete="off" aria-label="Filtrer les gagnants réels">
+          <select id="choix-gagnant-bo" class="champ-tirage" aria-label="Gagnant réel">
             <option value="">Choisir le gagnant...</option>
+          </select>
+        </div>
+        <div class="choix-gagnant-bo">
+          <label class="choix-lot choix-lot-pleine" for="choix-gagnant-demo">Gagnant démo (fictif)</label>
+          <select id="choix-gagnant-demo" class="champ-tirage" aria-label="Gagnant démo">
+            <option value="">Profil de test...</option>
           </select>
         </div>
         <a class="bouton bouton-rouge" id="lancer-tirage" href="/admin/tirage?mode=reel" aria-disabled="true">Ouvrir le tirage (plein écran)</a>
@@ -116,6 +122,6 @@
   <div class="preuve-image"><img id="preuve-image" alt="Capture d'écran de l'avis Google envoyée par le participant"></div>
 </dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="/admin/js/admin.js?v=20261118183000" defer></script>
+<script src="/admin/js/admin.js?v=20261118184000" defer></script>
 </body>
 </html>
