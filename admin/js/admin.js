@@ -122,10 +122,11 @@
               <td>${celluleAvis(p)}</td>
               <td>${amis.length ? amis.map((a) => `<small>${echapper(a)}</small>`).join('') : '<small>-</small>'}</td>
               <td>${p.gain ? `<span class="gain">${echapper(p.gain.lot)}</span><small>${echapper(dateFr(p.gain.date_tirage))}, n. ${p.gain.numero}</small>` : ''}</td>
+              <td><button type="button" class="bouton bouton-contour bouton-petit" data-supprimer="${echapper(p.id)}">Supprimer</button></td>
             </tr>`;
           })
           .join('')
-      : '<tr><td colspan="7" class="aide">Aucun participant.</td></tr>';
+      : '<tr><td colspan="8" class="aide">Aucun participant.</td></tr>';
   }
 
   function libelleAmi(a) {
@@ -172,9 +173,25 @@
   dialogue.addEventListener('click', (e) => { if (e.target === dialogue) fermerPreuve(); });
   dialogue.addEventListener('close', () => { preuveOuverte = ''; });
 
-  $('#liste-participants').addEventListener('click', (e) => {
+  $('#liste-participants').addEventListener('click', async (e) => {
     const cible = e.target.closest('button');
-    if (cible && cible.dataset.voirPreuve) ouvrirPreuve(cible.dataset.voirPreuve);
+    if (!cible) return;
+    if (cible.dataset.voirPreuve) return ouvrirPreuve(cible.dataset.voirPreuve);
+    const id = cible.dataset.supprimer;
+    if (!id) return;
+    const p = etat.participants.find((x) => String(x.id) === String(id));
+    const nom = p ? `${p.prenom} ${p.nom}` : 'ce participant';
+    const extra = p && p.gain ? ' Un tirage déjà gagné sera aussi annulé (le lot redevient disponible).' : '';
+    if (!window.confirm(`Supprimer ${nom} et tous ses tickets ?${extra} Cette action est définitive.`)) return;
+    cible.disabled = true;
+    try {
+      await api(`/api/admin/participants?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+      toast(`${nom} a été retiré du concours`);
+      await toutCharger();
+    } catch (err) {
+      toast(err.message, true);
+      cible.disabled = false;
+    }
   });
 
   async function chargerParticipants() {

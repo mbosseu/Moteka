@@ -105,6 +105,14 @@ export async function supprimerTirage(id) {
   await requete(`moteka_tirages?id=eq.${encodeURIComponent(id)}`, { method: 'DELETE' });
 }
 
+/** Retire un participant (tricheur) : d'abord ses tirages (lot redevient dispo), puis tickets, puis la fiche. */
+export async function supprimerParticipant(id) {
+  const cle = encodeURIComponent(id);
+  await requete(`moteka_tirages?participant_id=eq.${cle}`, { method: 'DELETE' });
+  await requete(`moteka_tickets?participant_id=eq.${cle}`, { method: 'DELETE' });
+  await requete(`moteka_concours?id=eq.${cle}`, { method: 'DELETE' });
+}
+
 /* ---------- Preuve d'avis Google ---------- */
 
 /** Capture de l'avis d'un participant (data URL), chargee a la demande. */
