@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261118180000">
+<link rel="stylesheet" href="css/style.css?v=20261118181500">
 </head>
 <body>
 
@@ -76,6 +76,21 @@
     <a href="#fiche"><em>08</em> Fiche technique</a>
   </nav>
 </div>
+
+<!-- barre de réservation : un message qui change toutes les 3 s, le chrono, un bouton -->
+<aside class="pub-barre" aria-label="Réservation">
+  <span class="pub-barre-point" aria-hidden="true"></span>
+  <p class="pub-barre-messages" aria-live="off">
+    <span class="est-actif">Vendredi 11 · <b>Gala Élites</b> dès 19h</span>
+    <span>Samedi 12 · <b>Boxing Trophy 20</b> dès 19h</span>
+    <span>Dimanche 13 · <b>Boxe éducative</b> dès 11h</span>
+    <span>Au <b>garage Moteka</b> · Fenouillet</span>
+    <span><b>Pack 3 jours</b> · 20 €</span>
+  </p>
+  <span class="pub-barre-chrono" aria-hidden="true"></span>
+  <a class="pub-barre-cta" href="#billets">Réserver <span>dès 5 €</span></a>
+  <button class="pub-barre-fermer" type="button" aria-label="Masquer la barre de réservation">✕</button>
+</aside>
 
 <div class="curseur" aria-hidden="true"></div>
 <div class="pastille" aria-hidden="true">Lire</div>
@@ -610,8 +625,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="js/son.js?v=20261118180000"></script>
-<script src="js/site.js?v=20261118180000"></script>
-<script src="js/concours.js?v=20261118180000"></script>
+<script src="js/son.js?v=20261118181500"></script>
+<script src="js/site.js?v=20261118181500"></script>
+<script src="js/concours.js?v=20261118181500"></script>
 </body>
 </html>

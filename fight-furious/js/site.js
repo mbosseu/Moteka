@@ -528,8 +528,9 @@
       montrerToast(message, duree);
     }
     function montrerToast(message, duree) {
-      const { sur, titre, cta, variante = "", extra = "" } = message;
+      const { sur, titre, cta, variante = "", extra = "", visuel = "assets/img/affiche.jpg" } = message;
       toast.dataset.variante = variante;
+      toast.querySelector(".pub-toast-visuel").src = visuel;
       toast.querySelector(".pub-toast-sur").textContent = sur;
       toast.querySelector(".pub-toast-titre").textContent = titre;
       const zone = toast.querySelector(".pub-toast-extra");
@@ -540,6 +541,7 @@
       toast.style.setProperty("--pub-duree", duree + "ms");
       toast.hidden = false; toastOuvert = true; dernier = Date.now();
       requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add("est-visible")));
+      if (Son.pret && !Son.coupe) Son.cloche(1, .32, .3);
       affiches++;
       let reste = duree, t0 = Date.now();
       const relancer = () => { clearTimeout(minuterie); t0 = Date.now(); minuterie = setTimeout(cacherToast, reste); };
@@ -554,27 +556,27 @@
       trigger: selecteur, start: "top 60%", once: true, onEnter: () => setTimeout(() => proposer(message, duree), 700),
     });
     quand(".film", {
-      variante: "chrono", sur: "Le prochain gala démarre dans", extra: "chrono",
+      variante: "chrono", sur: "Le prochain gala démarre dans", extra: "chrono", visuel: "assets/img/gala/impact.jpg",
       titre: "Gala Élites, vendredi 11 dès 19h au garage Moteka.", cta: "Réserver avant le gong",
     }, 10000);
     quand("#gala", {
-      variante: "billet", sur: "Ton billet FIGHT & Furious",
+      variante: "billet", sur: "Ton billet FIGHT & Furious", visuel: "assets/img/affiche.jpg",
       titre: "Trois jours de boxe au garage Moteka. Choisis ton accès :",
       extra: '<span class="pub-prix">15 €</span><span class="pub-prix">10 €</span><span class="pub-prix">5 €</span><span class="pub-prix">Pack 3 jours 20 €</span>',
       cta: "Choisir ma place",
     });
     quand("#programme", {
-      sur: "Vendredi 11 déc. · dès 19h",
+      sur: "Vendredi 11 déc. · dès 19h", visuel: "assets/img/gala/echange.jpg",
       titre: "Gala Boxe Amateur Élites : réservez votre place, accès dès 5 €.",
       cta: "Réserver",
     });
     quand("#disciplines", {
-      variante: "famille", sur: "Dimanche 13 déc. · dès 11h",
+      variante: "famille", sur: "Dimanche 13 déc. · dès 11h", visuel: "assets/img/gala/jeunes.jpg",
       titre: "En famille : venez encourager les jeunes à la compétition de boxe éducative.",
       cta: "Réserver pour dimanche",
     });
     quand("#stand", {
-      sur: joursRestants() > 1 ? "J-" + joursRestants() + " avant le premier gong" : "C'est ce week-end",
+      sur: joursRestants() > 1 ? "J-" + joursRestants() + " avant le premier gong" : "C'est ce week-end", visuel: "assets/img/atelier.jpg",
       titre: "Trois jours de boxe au garage Moteka, pour son inauguration. Ne ratez pas ça.",
       cta: "Prendre mon billet",
     });
@@ -582,6 +584,32 @@
     // sur la billetterie, pas d'incitation : elles reprennent si le visiteur repart sans réserver
     ScrollTrigger.create({ trigger: "#billets", start: "top 70%", end: "bottom 30%",
       onToggle: st => { billetsAEcran = st.isActive; if (billetsAEcran && toastOuvert) cacherToast(); else planifier(); } });
+
+    // barre de réservation : visible après le héros, un message différent toutes les 3 s, en pause sur la billetterie
+    const pubBarre = $(".pub-barre");
+    if (pubBarre) {
+      const messages = [...pubBarre.querySelectorAll(".pub-barre-messages span")], chronoB = pubBarre.querySelector(".pub-barre-chrono");
+      let n = 0, survol = false, masquee = false;
+      const tourner = () => {
+        if (survol || document.hidden || !pubBarre.classList.contains("est-visible")) return;
+        messages[n].classList.remove("est-actif"); messages[n].classList.add("est-sorti");
+        const ancien = messages[n]; setTimeout(() => ancien.classList.remove("est-sorti"), 600);
+        n = (n + 1) % messages.length; messages[n].classList.add("est-actif");
+      };
+      setInterval(tourner, 3000);
+      const ticB = () => {
+        let d = Math.max(0, Math.floor((new Date("2026-12-11T19:00:00+01:00") - Date.now()) / 1000));
+        const j = Math.floor(d / 86400); d %= 86400;
+        chronoB.textContent = j + "j " + deux(Math.floor(d / 3600)) + ":" + deux(Math.floor(d % 3600 / 60)) + ":" + deux(d % 60);
+      };
+      ticB(); setInterval(ticB, 1000);
+      pubBarre.addEventListener("mouseenter", () => { survol = true; });
+      pubBarre.addEventListener("mouseleave", () => { survol = false; });
+      const majBarre = () => pubBarre.classList.toggle("est-visible", lance && !masquee && !billetsAEcran && !lire().reserve && scrollY > innerHeight * .8);
+      addEventListener("scroll", majBarre, { passive: true });
+      setInterval(majBarre, 1000);
+      pubBarre.querySelector(".pub-barre-fermer").addEventListener("click", () => { masquee = true; majBarre(); });
+    }
 
     // 3) fenêtre de sortie (ordinateur) : la souris quitte la page par le haut, une seule fois
     function ouvrirModale() {

@@ -739,3 +739,55 @@ em { font-style: normal; }
 .disc-essai { margin-top: 28px; max-width: 34ch; line-height: 1.5; border-bottom-color: rgba(255, 255, 255, .25); color: var(--gris); }
 .disc-etat:not(.est-actif) { pointer-events: none; }
 @media (max-width: 860px) { .disc-etat:not(.est-actif) { pointer-events: auto; } }
+
+/* ---------- barre de réservation (toujours là, jamais envahissante) ---------- */
+.pub-barre {
+  position: fixed; z-index: 55; right: var(--marge); bottom: 18px; height: 50px; display: flex; align-items: center; gap: 14px; padding: 0 6px 0 18px;
+  border-radius: 12px; background: rgba(22, 22, 26, .88); backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, .08);
+  opacity: 0; transform: translateY(30px); pointer-events: none; transition: opacity .5s, transform .6s cubic-bezier(.16, 1, .3, 1), bottom .45s ease;
+}
+.pub-barre.est-visible { opacity: 1; transform: none; pointer-events: auto; }
+.pub-barre-point { width: 8px; height: 8px; border-radius: 50%; background: var(--rouge-vif); flex: none; animation: pub-point 1.6s ease-in-out infinite; }
+@keyframes pub-point { 50% { opacity: .35; transform: scale(.7); } }
+.pub-barre-messages { position: relative; margin: 0; width: 290px; height: 20px; overflow: hidden; font: 600 14px/20px var(--titre); letter-spacing: .04em; color: var(--gris); }
+.pub-barre-messages span { position: absolute; inset: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transform: translateY(100%); opacity: 0; transition: transform .55s cubic-bezier(.16, 1, .3, 1), opacity .4s; }
+.pub-barre-messages span.est-actif { transform: none; opacity: 1; }
+.pub-barre-messages span.est-sorti { transform: translateY(-100%); opacity: 0; }
+.pub-barre-messages b { color: var(--blanc); font-weight: 700; }
+.pub-barre-chrono { font: 700 15px var(--titre); letter-spacing: .06em; font-variant-numeric: tabular-nums; color: var(--blanc); padding-left: 14px; border-left: 1px solid rgba(255, 255, 255, .12); }
+.pub-barre-cta { height: 38px; display: inline-flex; align-items: center; gap: 6px; padding: 0 16px; border-radius: 8px; background: var(--rouge); color: #fff; text-decoration: none; font: 700 12px var(--titre); letter-spacing: .14em; text-transform: uppercase; transition: background .3s; }
+.pub-barre-cta span { opacity: .8; }
+.pub-barre-cta:hover { background: var(--rouge-vif); }
+.pub-barre-fermer { width: 28px; height: 28px; border-radius: 50%; color: var(--gris); font-size: 11px; }
+.pub-barre-fermer:hover { background: rgba(255, 255, 255, .08); color: var(--blanc); }
+@media (max-width: 1180px) { .pub-barre-chrono { display: none; } .pub-barre-messages { width: 220px; } }
+@media (max-width: 860px) {
+  /* téléphone : au-dessus de la barre des chapitres, et descend quand celle-ci se cache */
+  .pub-barre { left: var(--marge); right: var(--marge); bottom: 76px; height: 46px; gap: 10px; padding: 0 4px 0 14px; }
+  .barre.est-cachee ~ .pub-barre { bottom: 12px; }
+  .pub-barre-messages { flex: 1; width: auto; font-size: 13px; letter-spacing: 0; }
+  .pub-barre-messages span { text-overflow: clip; }
+  .pub-barre-cta { height: 36px; padding: 0 12px; }
+  .pub-barre-cta span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .pub-barre-point { animation: none; } .pub-barre-messages span { transition: opacity .3s; transform: none; } }
+
+/* ---------- pop-up de section : grande carte photo (ordinateur) ---------- */
+@media (min-width: 861px) {
+  .pub-toast { bottom: 80px; width: 380px; grid-template-columns: 1fr; gap: 0; padding: 0; transform: translateX(110%) rotate(2deg); opacity: 1;
+    transition: transform .8s cubic-bezier(.34, 1.3, .5, 1); }
+  .pub-toast.est-visible { transform: none; }
+  .pub-toast-visuel { width: 100%; height: 190px; border-radius: 0; filter: saturate(.9) contrast(1.05); }
+  .pub-toast-texte { padding: 16px 20px 20px; }
+  .pub-toast-titre { font-size: 20px; }
+  .pub-toast-fermer { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, .55); color: #fff; }
+  .pub-toast::before { z-index: 1; }
+  .pub-toast[data-variante="billet"] { background: rgba(18, 18, 22, .96); }
+  .pub-toast[data-variante="billet"]::after { left: 12px; right: 12px; top: 189px; bottom: auto; border-left: 0; border-top: 2px dashed rgba(255, 255, 255, .3); }
+  .pub-toast[data-variante="billet"] .pub-toast-visuel { transform: none; box-shadow: none; object-position: center 30%; }
+  .pub-toast-cta { height: 40px; align-items: center; padding: 0 18px; border: 0; border-radius: 8px; background: var(--rouge); }
+  .pub-toast-cta:hover { color: #fff; background: var(--rouge-vif); }
+  .pub-toast[data-variante="famille"] .pub-toast-cta { background: var(--bleu); }
+}
+@media (min-width: 861px) and (max-height: 760px) { .pub-toast-visuel { height: 140px; } .pub-toast[data-variante="billet"]::after { top: 139px; } }
+@media (prefers-reduced-motion: reduce) { .pub-toast { transition: opacity .3s; } }

@@ -80,7 +80,7 @@ window.Son = (() => {
   }
 
   // cloche de ring : partiels inharmoniques à décroissance exponentielle
-  function cloche(coups = 1, ecart = .32) {
+  function cloche(coups = 1, ecart = .32, force = 1) {
     if (!ctx) return;
     for (let k = 0; k < coups; k++) {
       const t0 = ctx.currentTime + k * ecart;
@@ -88,7 +88,7 @@ window.Son = (() => {
         const o = ctx.createOscillator(); o.type = "sine"; o.frequency.value = 760 * r;
         const e = ctx.createGain();
         e.gain.setValueAtTime(0, t0);
-        e.gain.linearRampToValueAtTime(g * .5, t0 + .004);
+        e.gain.linearRampToValueAtTime(g * .5 * force, t0 + .004);
         e.gain.exponentialRampToValueAtTime(.0001, t0 + 1.8 / Math.sqrt(r));
         o.connect(e).connect(maitre); o.start(t0); o.stop(t0 + 2);
       });
