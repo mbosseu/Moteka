@@ -17,6 +17,7 @@ import {
   statutAvisCourt,
   validerDecisionAvis,
   ticketsEligibles,
+  resoudreTicketGagnant,
   tirerTicket,
   validerLot,
 } from '../api/_lib/admin-tirage.mjs';
@@ -130,6 +131,15 @@ test('eligibilite : un gagnant ne peut plus regagner, avec aucun de ses tickets'
   assert.deepEqual(ticketsEligibles(tickets, tirages).map((t) => t.numero), [101, 103]);
   const deux = [...tirages, { numero: 103, participant_id: 'p3', lot_id: 'l2' }];
   assert.deepEqual(ticketsEligibles(tickets, deux).map((t) => t.numero), [101]);
+});
+
+test('gagnant manuel : numero ou participant_id parmi les eligibles', () => {
+  const eligibles = ticketsEligibles(tickets, []);
+  assert.equal(resoudreTicketGagnant(eligibles, { numero: 102 }).ticket.numero, 102);
+  assert.equal(resoudreTicketGagnant(eligibles, { participant_id: 'p1' }).ticket.numero, 100);
+  assert.ok(resoudreTicketGagnant(eligibles, { numero: 999 }).erreur);
+  assert.ok(resoudreTicketGagnant(eligibles, {}).erreur);
+  assert.ok(resoudreTicketGagnant([], { numero: 100 }).erreur);
 });
 
 test('tirage : uniforme sur les tickets eligibles (un participant a autant de chances que de tickets)', () => {

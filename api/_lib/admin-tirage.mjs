@@ -45,6 +45,28 @@ export function tirerTicket(eligibles, aleatoire = crypto.randomInt) {
   return eligibles[i] || null;
 }
 
+/** Retrouve le ticket gagnant choisi manuellement (numero ou participant_id). */
+export function resoudreTicketGagnant(eligibles, choix = {}) {
+  if (!eligibles?.length) return { erreur: 'Aucun ticket éligible.' };
+  const numeroRaw = choix.numero;
+  const pid =
+    choix.participant_id != null && choix.participant_id !== '' ? String(choix.participant_id) : '';
+  if (numeroRaw != null && numeroRaw !== '') {
+    const n = Number(numeroRaw);
+    if (!Number.isFinite(n)) return { erreur: 'Numéro de ticket invalide.' };
+    const ticket = eligibles.find((t) => Number(t.numero) === n);
+    if (!ticket) return { erreur: 'Ce numéro de ticket n\'est pas éligible pour ce tirage.' };
+    return { ticket };
+  }
+  if (pid) {
+    const tickets = eligibles.filter((t) => String(t.participant_id) === pid);
+    if (!tickets.length) return { erreur: 'Ce participant n\'a aucun ticket éligible.' };
+    tickets.sort((a, b) => Number(a.numero) - Number(b.numero));
+    return { ticket: tickets[0] };
+  }
+  return { erreur: 'Indiquez le gagnant (numéro de ticket ou participant).' };
+}
+
 /**
  * Lot a attribuer : celui demande (actif et pas encore attribue) ou, a defaut, le prochain lot actif
  * non attribue dans l'ordre. Renvoie { lot } ou { erreur }.

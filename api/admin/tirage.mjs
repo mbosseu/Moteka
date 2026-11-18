@@ -1,8 +1,8 @@
 // GET /api/admin/tirage : etat du tirage du soir (numeros des tickets eligibles pour la roulette, lots restants).
-// POST /api/admin/tirage { lot_id?, date? } : tire au sort un ticket eligible cote serveur et enregistre le resultat.
+// POST /api/admin/tirage { lot_id?, date?, numero?, participant_id? } : enregistre le gagnant choisi (ticket eligible).
 import { lireCorps } from '../_lib/http.mjs';
 import { accepter, erreurServeur, exigerSession, memeOrigine, repondre } from '../_lib/admin-http.mjs';
-import { enregistrerTirage, lireLots, lireParticipant, lireTickets, lireTirages } from '../_lib/admin-db.mjs';
+import { enregistrerTirage, lireLots, lireParticipant, lireParticipants, lireTickets, lireTirages } from '../_lib/admin-db.mjs';
 import {
   PERIODE_TIRAGES,
   choisirLot,
@@ -10,8 +10,8 @@ import {
   dateParis,
   dateValide,
   nomPublic,
+  resoudreTicketGagnant,
   ticketsEligibles,
-  tirerTicket,
 } from '../_lib/admin-tirage.mjs';
 
 function lotPublic(l) {
@@ -29,6 +29,26 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
       const attribues = new Set(tirages.map((t) => String(t.lot_id)));
+      const participants = await lireParticipants();
+      const parId = new Map(participants.map((p) => [String(p.id), p]));
+      const candidats = eligibles
+        .map((t) => {
+          const p = parId.get(String(t.participant_id));
+          const prenom = p?.prenom || '';
+          const nom = p?.nom || '';
+          const initiale = String(nom).trim().charAt(0).toUpperCase();
+          const label = nomPublic(prenom, nom);
+          return {
+            numero: Number(t.numero),
+            participant_id: t.participant_id,
+            prenom,
+            nom,
+            initiale,
+            label,
+            motif: t.motif || '',
+          };
+        })
+        .sort((a, b) => a.numero - b.numero);
       return repondre(res, 200, {
         ok: true,
         date: aujourdhui,
@@ -36,6 +56,7 @@ export default async function handler(req, res) {
         dans_periode: dateDansPeriode(aujourdhui),
         periode: PERIODE_TIRAGES,
         numeros: eligibles.map((t) => Number(t.numero)),
+        candidats,
         total_tickets: tickets.length,
         lots_restants: lots.filter((l) => l.actif !== false && !attribues.has(String(l.id))).map(lotPublic),
         prochain_lot: lotPublic(choisirLot(lots, tirages).lot || null),
@@ -57,8 +78,11 @@ export default async function handler(req, res) {
     }
     const { lot, erreur } = choisirLot(lots, tirages, corps.lot_id || null);
     if (erreur) return repondre(res, 409, { ok: false, message: erreur });
-    const ticket = tirerTicket(eligibles);
-    if (!ticket) return repondre(res, 409, { ok: false, message: 'Aucun ticket éligible pour le tirage.' });
+    const { ticket, erreur: errGagnant } = resoudreTicketGagnant(eligibles, {
+      numero: corps.numero,
+      participant_id: corps.participant_id,
+    });
+    if (errGagnant) return repondre(res, 400, { ok: false, message: errGagnant });
 
     let enregistre;
     try {

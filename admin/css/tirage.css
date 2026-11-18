@@ -113,6 +113,14 @@ body { font-family: var(--texte); -webkit-font-smoothing: antialiased; }
 .info { margin: 0; color: var(--gris); line-height: 1.4; }
 .case { display: flex; gap: 10px; align-items: center; cursor: pointer; }
 .case input { width: 18px; height: 18px; accent-color: var(--rouge); }
+.choix-gagnant { display: grid; gap: 8px; }
+.choix-titre { font: 700 max(13px, 3.6cqw) var(--titre); letter-spacing: .12em; text-transform: uppercase; color: var(--blanc); }
+.champ-gagnant, .select-gagnant {
+  width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid rgba(255, 255, 255, .22); border-radius: 3px;
+  background: rgba(0, 0, 0, .45); color: var(--blanc); font: 500 max(14px, 3.6cqw)/1.3 var(--texte);
+}
+.select-gagnant { cursor: pointer; }
+.champ-gagnant::placeholder { color: var(--gris); }
 .bouton {
   display: inline-flex; justify-content: center; align-items: center; padding: 14px 18px; border: 0; border-radius: 3px; cursor: pointer;
   background: var(--rouge); color: #fff; text-decoration: none;

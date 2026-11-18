@@ -3,7 +3,7 @@
  * Une seule animation enchainee :
  *   1. garage de nuit (beton mouille, faisceaux rouges, neons) : tambour de verre plein de boules
  *      numerotees (vrais numeros de tickets) et afficheur a rouleau qui fait defiler les numeros ;
- *   2. le rouleau ralentit et s'arrete sur le numero tire par l'API (flash, bloom, etincelles, confettis) ;
+ *   2. le rouleau ralentit et s'arrete sur le gagnant choisi (enregistre par l'API en mode reel) ;
  *   3. "Felicitations Prenom N. - ticket n. X" ;
  *   4. un ticket a gratter 3D arrive : on le gratte au doigt / a la souris (ou grattage automatique)
  *      et il revele le lot Moteka gagne.
@@ -1079,6 +1079,9 @@ function son(type) {
 /* Donnees : API ou demo                                               */
 /* ------------------------------------------------------------------ */
 let numeros = [];
+let candidats = [];
+let candidatsVisibles = [];
+let pretBase = false;
 let resultat = null;
 let erreurTirage = null;
 let infoTirage = null;
@@ -1103,7 +1106,26 @@ function aujourdhui() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 }
 
+function candidatChoisi() {
+  const v = $('#choix-gagnant').value;
+  if (!v) return null;
+  return candidats.find((c) => String(c.numero) === v) || null;
+}
+
+function tirageDepuisCandidat(c) {
+  const initiale = c.initiale || String(c.nom || '').trim().charAt(0).toUpperCase();
+  return {
+    numero: Number(c.numero),
+    prenom: c.prenom || '',
+    initiale,
+    date_tirage: aujourdhui(),
+    lot: infoTirage?.prochain_lot || LOT_DEMO,
+  };
+}
+
 function tirageDemo() {
+  const choisi = candidatChoisi();
+  if (choisi) return tirageDepuisCandidat(choisi);
   const numero = numeros[Math.floor(Math.random() * numeros.length)];
   const prenom = PRENOMS_DEMO[Math.floor(Math.random() * PRENOMS_DEMO.length)];
   return {
@@ -1113,6 +1135,50 @@ function tirageDemo() {
     date_tirage: aujourdhui(),
     lot: infoTirage?.prochain_lot || LOT_DEMO,
   };
+}
+
+function remplirSelectCandidats(liste) {
+  candidatsVisibles = liste;
+  const sel = $('#choix-gagnant');
+  const courant = sel.value;
+  sel.innerHTML = '<option value="">Choisir le gagnant...</option>';
+  for (const c of liste) {
+    const opt = document.createElement('option');
+    opt.value = String(c.numero);
+    opt.textContent = `${c.label || c.prenom} (ticket n. ${c.numero})`;
+    sel.appendChild(opt);
+  }
+  if (courant && liste.some((c) => String(c.numero) === courant)) sel.value = courant;
+}
+
+function filtrerCandidats(q) {
+  const needle = String(q || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '');
+  if (!needle) {
+    remplirSelectCandidats(candidats);
+    return;
+  }
+  remplirSelectCandidats(
+    candidats.filter((c) => {
+      const hay = `${c.label} ${c.prenom} ${c.nom} ${c.numero}`.toLowerCase().normalize('NFD').replace(/\p{M}/gu, '');
+      return hay.includes(needle);
+    })
+  );
+}
+
+function majBoutonLancer() {
+  const bouton = $('#lancer');
+  const okGagnant = !!candidatChoisi();
+  bouton.disabled = !pretBase || !okGagnant;
+}
+
+function basculerPleinEcran() {
+  const el = $('#story');
+  if (document.fullscreenElement) document.exitFullscreen();
+  else el.requestFullscreen?.().catch(() => {});
 }
 
 /* ------------------------------------------------------------------ */
@@ -1321,7 +1387,9 @@ function revelerLot() {
 
 /* --- lancement --- */
 async function lancer() {
-  if (phase !== P.attente || !numeros.length) return;
+  if (phase !== P.attente || !numeros.length || $('#lancer').disabled) return;
+  const choisi = candidatChoisi();
+  if (!choisi) return;
   initAudio();
   if (audio?.state === 'suspended') audio.resume();
   grattageAuto = false;
@@ -1332,14 +1400,16 @@ async function lancer() {
   erreurTirage = null;
   if (MODE === 'reel') {
     try {
-      const data = await api('/api/admin/tirage', { method: 'POST', body: JSON.stringify(LOT_DEMANDE ? { lot_id: LOT_DEMANDE } : {}) });
+      const corps = { numero: choisi.numero };
+      if (LOT_DEMANDE) corps.lot_id = LOT_DEMANDE;
+      const data = await api('/api/admin/tirage', { method: 'POST', body: JSON.stringify(corps) });
       resultat = data.tirage;
     } catch (err) {
       erreurTirage = err.message || 'Tirage impossible';
     }
   } else {
     await new Promise((r) => setTimeout(r, 400));
-    resultat = tirageDemo();
+    resultat = tirageDepuisCandidat(choisi);
   }
 }
 
@@ -1590,6 +1660,7 @@ async function preparer() {
   try {
     infoTirage = await api('/api/admin/tirage');
     numeros = infoTirage.numeros || [];
+    candidats = infoTirage.candidats || [];
   } catch (err) {
     if (MODE === 'reel') {
       pret = false;
@@ -1597,6 +1668,20 @@ async function preparer() {
     }
   }
   if (MODE === 'demo' && !numeros.length) numeros = Array.from({ length: 160 }, (_, i) => 100 + i);
+  if (!candidats.length && numeros.length) {
+    candidats = numeros.map((n, i) => {
+      const prenom = PRENOMS_DEMO[i % PRENOMS_DEMO.length];
+      const initiale = 'ABCDEFGHIJKLMNOPRSTV'[i % 20];
+      return {
+        numero: n,
+        prenom,
+        nom: 'Demo',
+        initiale,
+        label: `${prenom} ${initiale}.`,
+      };
+    });
+  }
+  remplirSelectCandidats(candidats);
 
   redimensionner();
   construireBoules(numeros.length ? numeros : [100]);
@@ -1618,15 +1703,19 @@ async function preparer() {
       majInfo('Aucun lot disponible : vérifiez les lots dans le back-office.');
     } else {
       const lot = LOT_DEMANDE ? infoTirage.lots_restants.find((l) => String(l.id) === LOT_DEMANDE) : infoTirage.prochain_lot;
-      majInfo(`${numeros.length} tickets éligibles. Lot : ${lot ? lot.nom : 'prochain lot'}. Le résultat sera enregistré définitivement.`);
+      majInfo(`${numeros.length} tickets éligibles. Lot : ${lot ? lot.nom : 'prochain lot'}. Choisissez le gagnant puis lancez : le rouleau s’arrêtera sur lui et le résultat sera enregistré.`);
     }
   } else if (MODE === 'demo') {
-    majInfo('Tirage factice : rien n’est enregistré. Idéal pour répéter avant le direct.');
+    majInfo('Répétition : choisissez un gagnant pour tester l’animation (rien n’est enregistré).');
   }
+  pretBase = pret;
   const bouton = $('#lancer');
   bouton.textContent = MODE === 'reel' ? 'Lancer le tirage réel' : 'Lancer la démo';
-  bouton.disabled = !pret;
+  majBoutonLancer();
   bouton.addEventListener('click', lancer);
+  $('#filtre-gagnant').addEventListener('input', (e) => filtrerCandidats(e.target.value));
+  $('#choix-gagnant').addEventListener('change', majBoutonLancer);
+  document.querySelectorAll('.btn-plein-ecran').forEach((b) => b.addEventListener('click', basculerPleinEcran));
   $('#rejouer').hidden = MODE === 'reel';
   $('#rejouer').addEventListener('click', reinitialiser);
   requestAnimationFrame(boucle);
@@ -1641,8 +1730,8 @@ document.addEventListener('keydown', (e) => {
     }
   } else if (e.key === 'a' || e.key === 'A') demarrerGrattageAuto();
   else if (e.key === 'f' || e.key === 'F') {
-    if (document.fullscreenElement) document.exitFullscreen();
-    else document.documentElement.requestFullscreen?.().catch(() => {});
+    e.preventDefault();
+    basculerPleinEcran();
   } else if (e.key === 'h' || e.key === 'H') document.body.classList.toggle('sans-ui');
   else if ((e.key === 'r' || e.key === 'R') && MODE === 'demo') reinitialiser();
 });
