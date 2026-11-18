@@ -494,15 +494,18 @@
     const ecrire = o => { try { sessionStorage.setItem(CLE, JSON.stringify(Object.assign(lire(), o))); } catch (e) {} };
     const debut = Date.now();
     const joursRestants = () => Math.max(0, Math.ceil((new Date("2026-12-11T19:00:00+01:00") - Date.now()) / 864e5));
-    const fini = () => lire().reserve || lire().billetsVus;
+    // « fini » : billet demandé sur la boutique (mémorisé pour la visite) ou clic vers la billetterie (cette page seulement)
+    let versBilletterie = false, billetsAEcran = false;
+    const fini = () => lire().reserve || versBilletterie;
     let minuterie = 0, toastOuvert = false;
 
     function cacherToast() {
       toast.classList.remove("est-visible"); toastOuvert = false; clearTimeout(minuterie); clearInterval(chronoMinuterie);
       setTimeout(() => { if (!toastOuvert) toast.hidden = true; }, 500);
+      planifier();
     }
-    const MAX_TOASTS = 4, ECART = 18000; // 4 pop-ups au plus par visite, au moins 18 s entre deux
-    let dernier = 0, chronoMinuterie = 0;
+    const MAX_TOASTS = 4, ECART = 12000; // 4 pop-ups au plus par chargement de page, au moins 12 s entre deux
+    let dernier = 0, chronoMinuterie = 0, affiches = 0, enAttente = null, planif = 0;
     const deux = n => String(n).padStart(2, "0");
     function remplirChrono(zone) {
       const tic = () => {
@@ -513,11 +516,18 @@
       };
       tic(); chronoMinuterie = setInterval(tic, 1000);
     }
-    function montrerToast(message, duree = 9000, essais = 0) {
-      if (fini() || (lire().toasts || 0) >= MAX_TOASTS || essais > 12) return;
-      // pendant l'intro, si une autre incitation est affichée, ou trop tôt après la précédente : on patiente un peu
-      const attente = !lance || toastOuvert || !modale.hidden ? 2500 : Math.max(0, ECART - (Date.now() - dernier));
-      if (attente > 0) { setTimeout(() => montrerToast(message, duree, essais + 1), attente); return; }
+    // une seule file : le message de la dernière section atteinte remplace celui qui attendait encore
+    function proposer(message, duree = 9000) { enAttente = { message, duree }; planifier(); }
+    function planifier() {
+      clearTimeout(planif);
+      if (!enAttente || fini() || affiches >= MAX_TOASTS) return;
+      // pendant l'intro, sur la billetterie, si une incitation est déjà affichée ou trop tôt après la précédente : on patiente
+      const attente = !lance || toastOuvert || billetsAEcran || !modale.hidden ? 1500 : Math.max(0, ECART - (Date.now() - dernier));
+      if (attente > 0) { planif = setTimeout(planifier, attente); return; }
+      const { message, duree } = enAttente; enAttente = null;
+      montrerToast(message, duree);
+    }
+    function montrerToast(message, duree) {
       const { sur, titre, cta, variante = "", extra = "" } = message;
       toast.dataset.variante = variante;
       toast.querySelector(".pub-toast-sur").textContent = sur;
@@ -530,7 +540,7 @@
       toast.style.setProperty("--pub-duree", duree + "ms");
       toast.hidden = false; toastOuvert = true; dernier = Date.now();
       requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add("est-visible")));
-      ecrire({ toasts: (lire().toasts || 0) + 1 });
+      affiches++;
       let reste = duree, t0 = Date.now();
       const relancer = () => { clearTimeout(minuterie); t0 = Date.now(); minuterie = setTimeout(cacherToast, reste); };
       toast.onmouseenter = () => { clearTimeout(minuterie); reste -= Date.now() - t0; };
@@ -541,7 +551,7 @@
 
     // chaque section a son message et son style ; un message n'est proposé qu'une fois
     const quand = (selecteur, message, duree) => ScrollTrigger.create({
-      trigger: selecteur, start: "top 55%", once: true, onEnter: () => setTimeout(() => montrerToast(message, duree), 1200),
+      trigger: selecteur, start: "top 60%", once: true, onEnter: () => setTimeout(() => proposer(message, duree), 700),
     });
     quand(".film", {
       variante: "chrono", sur: "Le prochain gala démarre dans", extra: "chrono",
@@ -569,11 +579,13 @@
       cta: "Prendre mon billet",
     });
     // en atteignant la billetterie, on ne relance plus personne
-    ScrollTrigger.create({ trigger: "#billets", start: "top 70%", onEnter: () => { ecrire({ billetsVus: true }); if (toastOuvert) cacherToast(); } });
+    // sur la billetterie, pas d'incitation : elles reprennent si le visiteur repart sans réserver
+    ScrollTrigger.create({ trigger: "#billets", start: "top 70%", end: "bottom 30%",
+      onToggle: st => { billetsAEcran = st.isActive; if (billetsAEcran && toastOuvert) cacherToast(); else planifier(); } });
 
     // 3) fenêtre de sortie (ordinateur) : la souris quitte la page par le haut, une seule fois
     function ouvrirModale() {
-      if (!lance || fini() || lire().modale || Date.now() - debut < 20000) return;
+      if (!lance || lire().reserve || lire().modale || Date.now() - debut < 20000) return;
       ecrire({ modale: true });
       if (toastOuvert) cacherToast();
       modale.querySelector("[data-pub-jours]").textContent = joursRestants();
@@ -591,8 +603,9 @@
     addEventListener("keydown", e => { if (e.key === "Escape" && !modale.hidden) fermerModale(); });
 
     // tout clic vers la billetterie compte comme « réservé » : plus aucune incitation ensuite
+    $$('a[href^="https://boutique.boxingcenter.fr"]').forEach(a => a.addEventListener("click", () => ecrire({ reserve: true })));
     $$('a[href="#billets"]').forEach(a => a.addEventListener("click", () => {
-      ecrire({ reserve: true });
+      versBilletterie = true;
       if (toastOuvert) cacherToast();
       if (!modale.hidden) fermerModale();
     }));
