@@ -41,8 +41,7 @@
     return d.toLocaleString('fr-FR', iso.length === 10 ? { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' } : { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
   };
   const MOTIFS = { inscription: 'inscription', amis: 'ami(e)s', avis: 'avis' };
-  const STATUTS_AVIS = { aucun: 'non', a_verifier: 'à vérifier', valide: 'validé', refuse: 'refusé' };
-  const statutAvis = (p) => p.avis_statut || (p.avis ? 'a_verifier' : 'aucun');
+  const aUnAvis = (p) => Boolean(p.avis) || p.avis_statut === 'a_verifier' || p.avis_statut === 'valide';
 
   /* ---------- Connexion ---------- */
   function afficherConnexion() {
@@ -102,9 +101,10 @@
     const qChiffres = q.replace(/\D/g, '');
     const filtreAvis = $('#filtre-avis').value;
     const liste = etat.participants.filter((p) => {
-      if (filtreAvis && statutAvis(p) !== filtreAvis) return false;
+      if (filtreAvis === 'oui' && !aUnAvis(p)) return false;
+      if (filtreAvis === 'aucun' && aUnAvis(p)) return false;
       if (!q) return true;
-      const texte = normaliser(`${p.prenom} ${p.nom} ${p.email} ${p.source || ''}`);
+      const texte = normaliser(`${p.prenom} ${p.nom} ${p.email} ${p.source || ''} ${(p.amis || []).map(libelleAmi).join(' ')}`);
       if (texte.includes(q)) return true;
       if (qChiffres && String(p.telephone || '').replace(/\D/g, '').includes(qChiffres)) return true;
       return qChiffres && p.tickets.some((t) => String(t.numero) === qChiffres);
@@ -113,7 +113,7 @@
     $('#liste-participants').innerHTML = liste.length
       ? liste
           .map((p) => {
-            const amis = (p.amis || []).map((a) => (typeof a === 'string' ? a : a && (a.email || a.prenom)) || '').filter(Boolean);
+            const amis = (p.amis || []).map(libelleAmi).filter(Boolean);
             return `<tr>
               <td>${echapper(dateFr(p.created_at))}${p.source ? `<small>${echapper(p.source)}</small>` : ''}</td>
               <td><strong>${echapper(p.prenom)} ${echapper(p.nom)}</strong></td>
@@ -128,17 +128,19 @@
       : '<tr><td colspan="7" class="aide">Aucun participant.</td></tr>';
   }
 
+  function libelleAmi(a) {
+    if (!a) return '';
+    if (typeof a === 'string') return a;
+    const nom = [a.prenom, a.nom].filter(Boolean).join(' ').trim();
+    const mail = String(a.email || '').trim();
+    const tel = String(a.telephone || '').trim();
+    return [nom, mail, tel].filter(Boolean).join(' · ');
+  }
+
   function celluleAvis(p) {
-    const statut = statutAvis(p);
-    if (statut === 'aucun') return 'non';
-    const id = echapper(p.id);
+    if (!aUnAvis(p)) return 'non';
     const quand = p.avis_le ? `<small>${echapper(dateFr(p.avis_le))}</small>` : '';
-    const boutons = [
-      `<button type="button" class="bouton bouton-contour bouton-petit" data-voir-preuve="${id}">Voir la preuve</button>`,
-      statut !== 'valide' ? `<button type="button" class="bouton bouton-contour bouton-petit" data-avis="valider" data-id="${id}">Valider</button>` : '',
-      statut !== 'refuse' ? `<button type="button" class="bouton bouton-contour bouton-petit" data-avis="refuser" data-id="${id}">Refuser</button>` : '',
-    ].join('');
-    return `<span class="avis-statut avis-${statut}">${echapper(STATUTS_AVIS[statut] || statut)}</span>${quand}<span class="avis-actions">${boutons}</span>`;
+    return `<span class="avis-statut avis-valide">oui</span>${quand}<span class="avis-actions"><button type="button" class="bouton bouton-contour bouton-petit" data-voir-preuve="${echapper(p.id)}">Voir l'avis</button></span>`;
   }
 
   /* ---------- Preuve d'avis Google ---------- */
@@ -149,13 +151,10 @@
     const p = etat.participants.find((x) => String(x.id) === String(id));
     if (!p) return;
     preuveOuverte = p.id;
-    const statut = statutAvis(p);
-    $('#preuve-qui').textContent = `${p.prenom} ${p.nom} : ${STATUTS_AVIS[statut] || statut}${p.avis_le ? `, envoyée le ${dateFr(p.avis_le)}` : ''}`;
+    $('#preuve-qui').textContent = `${p.prenom} ${p.nom}${p.avis_le ? `, envoyé le ${dateFr(p.avis_le)}` : ''}`;
     const img = $('#preuve-image');
     img.removeAttribute('src');
     img.src = `/api/admin/preuve?id=${encodeURIComponent(p.id)}&t=${Date.now()}`;
-    dialogue.querySelector('[data-decision="valider"]').hidden = statut === 'valide';
-    dialogue.querySelector('[data-decision="refuser"]').hidden = statut === 'refuse';
     if (typeof dialogue.showModal === 'function') dialogue.showModal();
     else window.open(img.src, '_blank', 'noopener');
   }
@@ -173,30 +172,9 @@
   dialogue.addEventListener('click', (e) => { if (e.target === dialogue) fermerPreuve(); });
   dialogue.addEventListener('close', () => { preuveOuverte = ''; });
 
-  async function deciderAvis(id, decision, bouton) {
-    if (decision === 'refuser' && !window.confirm('Refuser cette preuve ? Le ticket avis sera retiré et le participant recevra un mail pour en renvoyer une.')) return;
-    if (bouton) bouton.disabled = true;
-    try {
-      const data = await api('/api/admin/avis', { method: 'POST', body: JSON.stringify({ id, decision }) });
-      toast(data.message || (decision === 'refuser' ? 'Preuve refusée' : 'Preuve validée'));
-      fermerPreuve();
-      await Promise.allSettled([chargerParticipants(), chargerEtatTirage()]);
-    } catch (err) {
-      toast(err.message, true);
-    } finally {
-      if (bouton) bouton.disabled = false;
-    }
-  }
-
-  dialogue.querySelectorAll('[data-decision]').forEach((b) => {
-    b.addEventListener('click', () => { if (preuveOuverte) deciderAvis(preuveOuverte, b.dataset.decision, b); });
-  });
-
   $('#liste-participants').addEventListener('click', (e) => {
     const cible = e.target.closest('button');
-    if (!cible) return;
-    if (cible.dataset.voirPreuve) return ouvrirPreuve(cible.dataset.voirPreuve);
-    if (cible.dataset.avis && cible.dataset.id) deciderAvis(cible.dataset.id, cible.dataset.avis, cible);
+    if (cible && cible.dataset.voirPreuve) ouvrirPreuve(cible.dataset.voirPreuve);
   });
 
   async function chargerParticipants() {
@@ -243,7 +221,7 @@
         .map((l) => `<option value="${echapper(l.id)}">${echapper(l.ordre)}. ${echapper(l.nom)}</option>`)
         .join('');
     select.value = [...select.options].some((o) => o.value === valeur) ? valeur : '';
-    majLienTirage();
+    majLiensTirage();
   }
 
   $('#liste-lots').addEventListener('submit', async (e) => {
@@ -316,7 +294,7 @@
     for (const c of liste) {
       const opt = document.createElement('option');
       opt.value = String(c.numero);
-      opt.textContent = `${c.label || c.prenom} (ticket n. ${c.numero})`;
+      opt.textContent = `${c.label || `${c.prenom} ${c.nom}`.trim()} (ticket n. ${c.numero})`;
       sel.appendChild(opt);
     }
     if (courant && liste.some((c) => String(c.numero) === courant)) sel.value = courant;
@@ -358,8 +336,8 @@
     $('#lien-demo-tirage').href = `/admin/tirage?${demo}`;
     $('#lien-demo-tirage').toggleAttribute('aria-disabled', !numero);
     const t = etat.tirageDuSoir;
-    const reelBloque = !t || t.deja_tire || t.dans_periode === false;
-    if (numero && !reelBloque) $('#lancer-tirage').removeAttribute('aria-disabled');
+    const dejaTire = Boolean(t && t.deja_tire);
+    if (numero && !dejaTire) $('#lancer-tirage').removeAttribute('aria-disabled');
     else $('#lancer-tirage').setAttribute('aria-disabled', 'true');
   }
 
@@ -369,21 +347,17 @@
 
   async function chargerEtatTirage() {
     const data = await api('/api/admin/tirage');
-    const bouton = $('#lancer-tirage');
     const horsPeriode = data.dans_periode === false;
     etat.candidatsTirage = data.candidats || [];
     remplirCandidatsTirage(etat.candidatsTirage);
     etat.tirageDuSoir = data;
-    if (horsPeriode) {
-      $('#etat-tirage').textContent = `Tirages réels du lundi 23 au vendredi 27 novembre 2026 (un par soir). ${data.numeros.length} ticket(s) éligible(s). Choisissez le gagnant ici, puis ouvrez la répétition ou le tirage réel.`;
-    }
-    if (horsPeriode || data.deja_tire) {
-      if (!horsPeriode) $('#etat-tirage').textContent = `Le tirage du ${dateFr(data.date)} a déjà eu lieu (voir l'historique).`;
-      bouton.setAttribute('aria-disabled', 'true');
+    const lot = data.prochain_lot ? data.prochain_lot.nom : 'aucun lot restant';
+    if (data.deja_tire) {
+      $('#etat-tirage').textContent = `Le tirage du ${dateFr(data.date)} a déjà eu lieu (voir l'historique).`;
+    } else if (horsPeriode) {
+      $('#etat-tirage').textContent = `${data.numeros.length} ticket(s) éligible(s) sur ${data.total_tickets}. Prochain lot : ${lot}. Choisissez le gagnant puis ouvrez le tirage. Hors période (23-27 nov.), la roue tourne en répétition : rien n'est enregistré.`;
     } else {
-      const lot = data.prochain_lot ? data.prochain_lot.nom : 'aucun lot restant';
-      $('#etat-tirage').textContent = `${data.numeros.length} ticket(s) éligible(s) sur ${data.total_tickets}. Prochain lot : ${lot}. Sélectionnez le gagnant ci-dessous : sur la page tirage, il ne restera qu’à tourner la roue.`;
-      bouton.removeAttribute('aria-disabled');
+      $('#etat-tirage').textContent = `${data.numeros.length} ticket(s) éligible(s) sur ${data.total_tickets}. Prochain lot : ${lot}. Choisissez le gagnant : sur la page tirage, il ne restera qu’à tourner la roue.`;
     }
     majLiensTirage();
   }

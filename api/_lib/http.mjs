@@ -21,7 +21,7 @@ export function repondre(res, statut, donnees) {
 
 export function lienPage(req) {
   const env = String(process.env.PUBLIC_URL || '').trim();
-  if (env) return env.replace(/\/$/, '');
+  if (env) return (/^https?:\/\//i.test(env) ? env : `https://${env}`).replace(/\/$/, '');
   const hote = req.headers['x-forwarded-host'] || req.headers.host || '';
   return hote ? `https://${hote}` : '';
 }

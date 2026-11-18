@@ -37,7 +37,7 @@ export default async function handler(req, res) {
           const prenom = p?.prenom || '';
           const nom = p?.nom || '';
           const initiale = String(nom).trim().charAt(0).toUpperCase();
-          const label = nomPublic(prenom, nom);
+          const label = `${prenom} ${nom}`.trim() || nomPublic(prenom, nom);
           return {
             numero: Number(t.numero),
             participant_id: t.participant_id,

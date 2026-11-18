@@ -109,7 +109,7 @@ export function mailAmi({ prenomParrain, prenomAmi, lienPage }) {
       'On fait un week-end de boxe du 11 au 13 décembre au garage Moteka, et un tirage au sort chaque soir du 23 au 27 novembre.',
       'Location 24 h d’une grosse voiture, révision complète, vidange et d’autres lots à gagner.',
       'Si tu veux tenter ta chance aussi, l’inscription est gratuite :',
-      nettoyerLien(lienPage),
+      `${nettoyerLien(lienPage)}/#concours`,
     ],
   });
 }

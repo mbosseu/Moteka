@@ -15,8 +15,30 @@ export function brevoConfigure() {
   return cle().startsWith('xkeysib-');
 }
 
+function echapper(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 /**
- * Envoie un mail texte. attachments (facultatif) : [{ name: 'avis-google.jpg', content: '<base64>' }],
+ * Version HTML minimale du texte (meme contenu, sans image ni mise en forme) :
+ * les liens deviennent cliquables dans tous les clients mail.
+ */
+export function texteVersHtml(texte) {
+  const morceaux = String(texte || '').split(/(https?:\/\/[^\s<>"]+)/g);
+  const html = morceaux
+    .map((m, i) => {
+      if (i % 2 === 0) return echapper(m);
+      const fin = (m.match(/[.,;:!?)]+$/) || [''])[0];
+      const url = fin ? m.slice(0, -fin.length) : m;
+      return `<a href="${echapper(url)}">${echapper(url)}</a>${echapper(fin)}`;
+    })
+    .join('')
+    .replace(/\r?\n/g, '<br>\n');
+  return `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5">${html}</div>`;
+}
+
+/**
+ * Envoie un mail texte (avec sa version HTML minimale pour les liens cliquables). attachments (facultatif) : [{ name: 'avis-google.jpg', content: '<base64>' }],
  * extensions acceptees par Brevo (jpg, png...).
  */
 export async function envoyerMail({ to, subject, text, fromName, replyTo, attachments }) {
@@ -29,6 +51,7 @@ export async function envoyerMail({ to, subject, text, fromName, replyTo, attach
     replyTo: { email: replyTo || process.env.BREVO_REPLY_TO || REPONSE_DEFAUT, name: nom },
     subject: subject || 'Message Boxing Center',
     textContent: text,
+    htmlContent: texteVersHtml(text),
   };
   const pieces = (Array.isArray(attachments) ? attachments : []).filter((a) => a && a.name && a.content);
   if (pieces.length) corps.attachment = pieces.map((a) => ({ name: String(a.name), content: String(a.content) }));

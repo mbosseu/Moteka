@@ -126,7 +126,7 @@ test('mails en texte brut', () => {
   assert.match(n.text, /422, 423, 430/);
   const ami = mailAmi({ prenomParrain: 'lea', prenomAmi: 'paul', lienPage: 'https://exemple.fr/' });
   assert.match(ami.text, /^Salut Paul,/);
-  assert.match(ami.text, /https:\/\/exemple\.fr$/m);
+  assert.match(ami.text, /https:\/\/exemple\.fr\/#concours$/m);
   const i = mailInterne({ participant: { ...base, telephone: '0612345678', amis: [{ prenom: 'Paul', email: 'a@b.fr', telephone: '' }] }, tickets });
   assert.match(i.text, /06 12 34 56 78/);
   assert.match(i.text, /Paul \/ a@b\.fr/);

@@ -1386,7 +1386,7 @@ async function lancer() {
   changerPhase(P.intro);
   resultat = null;
   erreurTirage = null;
-  if (MODE === 'reel') {
+  if (MODE === 'reel' && infoTirage?.dans_periode !== false) {
     try {
       const corps = { numero: choisi.numero };
       if (LOT_DEMANDE) corps.lot_id = LOT_DEMANDE;
@@ -1688,19 +1688,10 @@ async function preparer() {
   } else if (MODE === 'reel' && pret) {
     if (infoTirage.deja_tire) {
       pret = false;
-      if ($('#info')) {
-        $('#info').hidden = false;
-        $('#info').textContent = "Le tirage d'aujourd'hui a déjà eu lieu.";
-      }
-    } else if (infoTirage.dans_periode === false) {
-      pret = false;
-      if ($('#info')) {
-        $('#info').hidden = false;
-        $('#info').textContent = 'Hors période de tirage réel.';
-      }
+      majInfo("Le tirage d'aujourd'hui a déjà eu lieu.");
     } else if (!numeros.length) {
       pret = false;
-    } else if (!infoTirage.prochain_lot) {
+    } else if (!infoTirage.prochain_lot && infoTirage.dans_periode !== false) {
       pret = false;
     }
   }
