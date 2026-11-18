@@ -60,18 +60,87 @@ export function formaterTelephone(entree) {
   return n ? n.replace(/(\d{2})(?=\d)/g, '$1 ') : '';
 }
 
-/** Inscription = 1 ticket, avis Google confirme = 1 ticket de plus. */
-export function calculerTickets({ avis = false } = {}) {
-  return 1 + (avis ? 1 : 0);
+/** Motifs de tickets, dans l'ordre d'attribution. */
+export const MOTIFS = ['inscription', 'amis', 'avis'];
+
+export const LIBELLES_MOTIFS = {
+  inscription: 'Inscription',
+  amis: '2 ami(e)s invité(e)s',
+  avis: 'Avis Google Moteka',
+};
+
+/**
+ * Motifs de tickets auxquels un participant a droit.
+ * Inscription = 1 ticket, 2 ami(e)s invite(e)s = 1 ticket, avis Google = 1 ticket (3 au maximum).
+ */
+export function motifsTickets({ amis = [], avis = false } = {}) {
+  const motifs = ['inscription'];
+  if (Array.isArray(amis) && amis.length >= AMIS_MAX) motifs.push('amis');
+  if (avis) motifs.push('avis');
+  return motifs;
 }
 
-function lireAmis(corps) {
-  const brut = Array.isArray(corps.ami_emails)
-    ? corps.ami_emails
-    : Array.isArray(corps.amis)
-      ? corps.amis
-      : [corps.ami1, corps.ami2, corps.ami_email_1, corps.ami_email_2];
-  return brut.map((e) => nettoyerEmail(typeof e === 'object' && e ? e.email : e)).filter(Boolean);
+/** Motifs encore a attribuer : ceux auxquels il a droit moins ceux deja obtenus. */
+export function motifsManquants(droits = [], obtenus = []) {
+  return MOTIFS.filter((m) => droits.includes(m) && !obtenus.includes(m));
+}
+
+/** Ce qu'il reste a faire pour gagner plus de tickets. */
+export function ticketsAGagner(obtenus = []) {
+  return MOTIFS.filter((m) => m !== 'inscription' && !obtenus.includes(m));
+}
+
+export function calculerTickets(options = {}) {
+  return motifsTickets(options).length;
+}
+
+function lireAmisBruts(corps) {
+  if (Array.isArray(corps.amis)) return corps.amis.slice(0, AMIS_MAX);
+  return [1, 2].map((i) => ({
+    prenom: corps[`ami${i}_prenom`],
+    email: corps[`ami${i}_email`],
+    telephone: corps[`ami${i}_telephone`],
+  }));
+}
+
+/**
+ * Valide le bloc ami(e)s : soit vide, soit 2 ami(e)s complet(e)s
+ * (prenom et email obligatoires, telephone facultatif).
+ * Renvoie { erreurs, amis } ; amis = [] si le bloc est vide.
+ */
+export function validerAmis(corps = {}, { emailParticipant = '' } = {}) {
+  const erreurs = [];
+  const bruts = lireAmisBruts(corps).map((a) => (a && typeof a === 'object' ? a : {}));
+  while (bruts.length < AMIS_MAX) bruts.push({});
+  const amis = bruts.map((a) => ({
+    prenom: nettoyerTexte(a.prenom),
+    email: nettoyerEmail(a.email),
+    telBrut: String(a.telephone ?? '').trim(),
+  }));
+  const remplis = amis.filter((a) => a.prenom || a.email || a.telBrut);
+  if (!remplis.length) return { erreurs, amis: [] };
+
+  const vus = [];
+  amis.forEach((a, i) => {
+    const n = i + 1;
+    if (!a.prenom) erreurs.push({ champ: `ami${n}_prenom`, message: `Prénom de l'ami(e) ${n} requis` });
+    if (!a.email) erreurs.push({ champ: `ami${n}_email`, message: `Email de l'ami(e) ${n} requis` });
+    else if (!emailValide(a.email)) erreurs.push({ champ: `ami${n}_email`, message: `Email de l'ami(e) ${n} invalide` });
+    else if (emailParticipant && a.email === emailParticipant) {
+      erreurs.push({ champ: `ami${n}_email`, message: "L'email d'un(e) ami(e) doit être différent du vôtre" });
+    } else if (vus.includes(a.email)) {
+      erreurs.push({ champ: `ami${n}_email`, message: 'Les 2 ami(e)s doivent avoir des emails différents' });
+    }
+    if (a.email) vus.push(a.email);
+    if (a.telBrut && !normaliserTelephone(a.telBrut)) {
+      erreurs.push({ champ: `ami${n}_telephone`, message: `Téléphone de l'ami(e) ${n} invalide` });
+    }
+  });
+  if (erreurs.length) return { erreurs, amis: [] };
+  return {
+    erreurs,
+    amis: amis.map((a) => ({ prenom: a.prenom, email: a.email, telephone: normaliserTelephone(a.telBrut) })),
+  };
 }
 
 /**
@@ -96,20 +165,8 @@ export function validerInscription(corps = {}) {
   if (!email) erreurs.push({ champ: 'email', message: 'Email requis' });
   else if (!emailValide(email)) erreurs.push({ champ: 'email', message: 'Email invalide' });
 
-  const amisBruts = lireAmis(corps);
-  const amis = [];
-  amisBruts.forEach((ami, i) => {
-    if (i >= AMIS_MAX) return;
-    if (!emailValide(ami)) {
-      erreurs.push({ champ: `ami${i + 1}`, message: `Email de l'ami(e) ${i + 1} invalide` });
-      return;
-    }
-    if (ami === email) {
-      erreurs.push({ champ: `ami${i + 1}`, message: "L'email d'un(e) ami(e) doit être différent du vôtre" });
-      return;
-    }
-    if (!amis.includes(ami)) amis.push(ami);
-  });
+  const blocAmis = validerAmis(corps, { emailParticipant: email });
+  erreurs.push(...blocAmis.erreurs);
 
   if (!vrai(corps.reglement)) {
     erreurs.push({ champ: 'reglement', message: 'Merci d’accepter le règlement' });
@@ -125,9 +182,8 @@ export function validerInscription(corps = {}) {
       telephone,
       phone_key: telephone ? telephone.slice(-9) : '',
       email,
-      ami_emails: amis,
+      amis: blocAmis.amis,
       avis,
-      tickets: calculerTickets({ avis }),
       source,
     },
   };

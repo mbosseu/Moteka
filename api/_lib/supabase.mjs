@@ -1,6 +1,7 @@
-// Acces a la table public.moteka_concours via l'API REST PostgREST de Supabase (sans dependance).
+// Acces aux tables public.moteka_concours et public.moteka_tickets via l'API REST PostgREST de Supabase (sans dependance).
 
 const TABLE = 'moteka_concours';
+const TABLE_TICKETS = 'moteka_tickets';
 
 function base() {
   return String(process.env.SUPABASE_URL || '').trim().replace(/\/$/, '');
@@ -33,7 +34,7 @@ async function requete(chemin, options = {}) {
   return data;
 }
 
-const COLONNES = 'id,prenom,nom,telephone,email,ami_emails,avis,tickets,source,created_at';
+const COLONNES = 'id,prenom,nom,telephone,email,amis,avis,tickets,source,created_at';
 
 /** Cherche un participant par cle telephone ou email. */
 export async function trouverDoublon({ phone_key, email }) {
@@ -67,11 +68,49 @@ export async function creerParticipant(donnees) {
   return Array.isArray(lignes) ? lignes[0] : lignes;
 }
 
-export async function marquerAvis(id) {
+/** Met a jour quelques colonnes du participant (amis, avis). */
+export async function majParticipant(id, champs) {
   const lignes = await requete(`${TABLE}?id=eq.${encodeURIComponent(id)}&select=${COLONNES}`, {
     method: 'PATCH',
     headers: { Prefer: 'return=representation' },
-    body: JSON.stringify({ avis: true, tickets: 2, updated_at: new Date().toISOString() }),
+    body: JSON.stringify({ ...champs, updated_at: new Date().toISOString() }),
   });
   return Array.isArray(lignes) ? lignes[0] : lignes;
+}
+
+/** Tickets du participant, du plus petit numero au plus grand. */
+export async function listerTickets(participantId) {
+  const lignes = await requete(
+    `${TABLE_TICKETS}?select=numero,motif,created_at&participant_id=eq.${encodeURIComponent(participantId)}&order=numero.asc`
+  );
+  return Array.isArray(lignes) ? lignes : [];
+}
+
+/**
+ * Attribue un ticket (numero tire de la sequence moteka_ticket_seq).
+ * Une seule fois par motif : si le ticket existe deja, on renvoie null.
+ */
+export async function ajouterTicket(participantId, motif) {
+  try {
+    const lignes = await requete(`${TABLE_TICKETS}?select=numero,motif,created_at`, {
+      method: 'POST',
+      headers: { Prefer: 'return=representation' },
+      body: JSON.stringify({ participant_id: participantId, motif }),
+    });
+    return Array.isArray(lignes) ? lignes[0] : lignes;
+  } catch (err) {
+    if (err.code === '23505') return null;
+    throw err;
+  }
+}
+
+/** Attribue dans l'ordre les motifs manquants, puis renvoie { nouveaux, tickets }. */
+export async function attribuerTickets(participantId, motifs) {
+  const nouveaux = [];
+  for (const motif of motifs) {
+    const t = await ajouterTicket(participantId, motif);
+    if (t) nouveaux.push(t);
+  }
+  const tickets = await listerTickets(participantId);
+  return { nouveaux, tickets };
 }

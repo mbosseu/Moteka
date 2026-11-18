@@ -1,5 +1,5 @@
 // Textes des mails : texte brut, court, ton personnel (meme approche que les mails David du concours).
-import { LIEN_AVIS_GOOGLE, formaterTelephone, prenomPropre } from './concours.mjs';
+import { LIBELLES_MOTIFS, LIEN_AVIS_GOOGLE, formaterTelephone, prenomPropre, ticketsAGagner } from './concours.mjs';
 
 export const NOM_EXPEDITEUR = 'David';
 const SIGNATURE = 'David de Boxing Center';
@@ -17,45 +17,83 @@ function nettoyerLien(lien) {
   return String(lien || '').replace(/\/$/, '');
 }
 
-export function mailConfirmation({ prenom, tickets, avis }) {
+/** "422, 423 et 424" a partir d'une liste de tickets ou de numeros. */
+export function listeNumeros(tickets = []) {
+  const n = tickets.map((t) => (typeof t === 'object' && t ? t.numero : t)).filter((v) => v !== undefined && v !== null);
+  return n.join(', ');
+}
+
+function motifsObtenus(tickets = []) {
+  return tickets.map((t) => (typeof t === 'object' && t ? t.motif : '')).filter(Boolean);
+}
+
+function lignesManque(tickets, lienPage) {
+  const reste = ticketsAGagner(motifsObtenus(tickets));
+  if (!reste.length) return ['Tu as le maximum : 3 tickets. Rien d’autre à faire.'];
+  const lignes = [`Tu peux encore gagner ${reste.length} ticket${reste.length > 1 ? 's' : ''} :`];
+  if (reste.includes('amis')) lignes.push('- invite 2 ami(e)s depuis la page du jeu');
+  if (reste.includes('avis')) lignes.push(`- laisse un avis Google au garage Moteka : ${LIEN_AVIS_GOOGLE}`);
+  const lien = nettoyerLien(lienPage);
+  if (lien) lignes.push(`Tout se fait ici : ${lien}`);
+  return lignes;
+}
+
+const LIGNE_TIRAGE =
+  'Tirage au sort chaque soir à partir du lundi 23 novembre, en story : la roulette sort un numéro, et si c’est le tien, tu grattes ton ticket pour découvrir ton lot Moteka.';
+
+export function mailConfirmation({ prenom, tickets = [], lienPage }) {
+  const nb = tickets.length;
   const lignes = [
-    'C’est David. C’est bon, ton inscription pour FIGHT & Furious est bien prise.',
+    'C’est David. C’est bon, ton inscription au jeu FIGHT & Furious est bien prise.',
     '',
-    `Tu as ${tickets} ticket${tickets > 1 ? 's' : ''} pour le tirage au sort.`,
-    'On tire au sort tous les jours à partir du lundi 23 novembre, jusqu’au gala du 11 décembre.',
+    `Tes tickets : ${listeNumeros(tickets)}`,
+    `(${nb} ticket${nb > 1 ? 's' : ''} pour le tirage, garde bien ces numéros)`,
+    '',
+    LIGNE_TIRAGE,
+    '',
+    ...lignesManque(tickets, lienPage),
   ];
-  if (!avis) {
-    lignes.push(
-      '',
-      'Petit plus : si tu laisses un avis Google au garage Moteka, tu passes à 2 tickets.',
-      'La fiche est ici :',
-      LIEN_AVIS_GOOGLE,
-      'Ensuite repasse sur la page pour le confirmer.'
-    );
-  }
-  lignes.push('', 'Si on te tire au sort, je te préviens directement.');
   return enveloppe({ prenom, lignes });
 }
 
-export function mailAmi({ prenomParrain, lienPage }) {
+export function mailNouveauTicket({ prenom, nouveaux = [], tickets = [], lienPage }) {
+  const motif = nouveaux[0] && nouveaux[0].motif;
+  const raison = motif === 'avis' ? 'Merci pour ton avis Google.' : motif === 'amis' ? 'Merci d’avoir invité tes ami(e)s.' : 'Bonne nouvelle.';
+  const lignes = [
+    `${raison} Tu gagnes un ticket de plus : ${listeNumeros(nouveaux)}.`,
+    '',
+    `Tous tes tickets : ${listeNumeros(tickets)}`,
+  ];
+  const reste = ticketsAGagner(motifsObtenus(tickets));
+  if (reste.length) lignes.push('', ...lignesManque(tickets, lienPage));
+  return enveloppe({ prenom, lignes, sujet: `Nouveau ticket : ${listeNumeros(nouveaux)}` });
+}
+
+export function mailAmi({ prenomParrain, prenomAmi, lienPage }) {
   const qui = prenomPropre(prenomParrain) || 'Un ami';
   return enveloppe({
-    prenom: '',
+    prenom: prenomAmi || '',
     sujet: `${qui} a pensé à toi`,
     lignes: [
       `C’est David, du Boxing Center. ${qui} m’a donné ton mail.`,
       '',
-      'On fait un week-end de boxe du 11 au 13 décembre avec le garage Moteka, et un tirage au sort tous les jours.',
-      'Si tu veux tenter ta chance aussi, c’est ici :',
+      'On fait un week-end de boxe du 11 au 13 décembre au garage Moteka, et un tirage au sort chaque soir à partir du 23 novembre.',
+      'Location 24 h d’une grosse voiture, révision complète et d’autres lots à gagner.',
+      'Si tu veux tenter ta chance aussi, l’inscription est gratuite :',
       nettoyerLien(lienPage),
     ],
   });
 }
 
-export function mailInterne({ participant, contexte = 'Nouvelle inscription' }) {
+export function mailInterne({ participant, tickets = [], contexte = 'Nouvelle inscription' }) {
   const p = participant || {};
-  const amis = Array.isArray(p.ami_emails) && p.ami_emails.length ? p.ami_emails.join(', ') : 'aucun';
+  const amis = Array.isArray(p.amis) && p.amis.length
+    ? p.amis.map((a) => [a.prenom, a.email, formaterTelephone(a.telephone)].filter(Boolean).join(' / ')).join(' ; ')
+    : 'aucun';
   const nomComplet = `${prenomPropre(p.prenom)} ${String(p.nom || '').toUpperCase()}`.trim();
+  const detail = tickets.length
+    ? tickets.map((t) => `${t.numero} (${LIBELLES_MOTIFS[t.motif] || t.motif})`).join(', ')
+    : 'aucun';
   return {
     fromName: 'Jeu FIGHT & Furious',
     subject: `${contexte} : ${nomComplet}`,
@@ -66,9 +104,9 @@ export function mailInterne({ participant, contexte = 'Nouvelle inscription' }) 
       `Nom : ${p.nom || ''}`,
       `Téléphone : ${formaterTelephone(p.telephone) || p.telephone || ''}`,
       `Email : ${p.email || ''}`,
-      `Ami(e)s : ${amis}`,
+      `Ami(e)s invité(e)s : ${amis}`,
       `Avis Google : ${p.avis ? 'oui' : 'non'}`,
-      `Tickets : ${p.tickets ?? ''}`,
+      `Tickets : ${detail}`,
       `Source : ${p.source || ''}`,
     ].join('\n'),
   };
