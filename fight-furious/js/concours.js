@@ -195,7 +195,7 @@
         if (data.deja) amisBloc.querySelectorAll("input").forEach(i => { i.value = ""; });
         montrerMerci(data.deja
           ? (data.message || "Vous êtes déjà inscrit(e) : voici vos tickets.")
-          : "Votre inscription est enregistrée. Vos numéros de tombola viennent de partir par email. Tirage au sort chaque soir dès le lundi 23 novembre.");
+          : "Votre inscription est enregistrée. Vos numéros de tombola viennent de partir par email. Tirage au sort chaque soir du lundi 23 au vendredi 27 novembre.");
         if (!motifs().includes("avis")) avisEtat.textContent = "";
       } else if (statut === 409 && data.doublon) {
         afficherErreur(data.message || "Vous êtes déjà inscrit(e).");

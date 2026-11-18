@@ -39,7 +39,7 @@ function lignesManque(tickets, lienPage) {
 }
 
 const LIGNE_TIRAGE =
-  'Tirage au sort chaque soir à partir du lundi 23 novembre, en story : la roulette sort un numéro, et si c’est le tien, tu grattes ton ticket pour découvrir ton lot Moteka.';
+  'Tirage au sort chaque soir du lundi 23 au vendredi 27 novembre, en story : la roulette sort un numéro, et si c’est le tien, tu grattes ton ticket pour découvrir ton lot Moteka.';
 
 export function mailConfirmation({ prenom, tickets = [], lienPage }) {
   const nb = tickets.length;
@@ -77,8 +77,8 @@ export function mailAmi({ prenomParrain, prenomAmi, lienPage }) {
     lignes: [
       `C’est David, du Boxing Center. ${qui} m’a donné ton mail.`,
       '',
-      'On fait un week-end de boxe du 11 au 13 décembre au garage Moteka, et un tirage au sort chaque soir à partir du 23 novembre.',
-      'Location 24 h d’une grosse voiture, révision complète et d’autres lots à gagner.',
+      'On fait un week-end de boxe du 11 au 13 décembre au garage Moteka, et un tirage au sort chaque soir du 23 au 27 novembre.',
+      'Location 24 h d’une grosse voiture, révision complète, vidange et d’autres lots à gagner.',
       'Si tu veux tenter ta chance aussi, l’inscription est gratuite :',
       nettoyerLien(lienPage),
     ],
