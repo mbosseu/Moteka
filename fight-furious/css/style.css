@@ -872,3 +872,21 @@ main > section { overflow-x: clip; }
   .pub-toast[data-variante="billet"]::after { display: none; }
 }
 @media (min-width: 861px) and (max-height: 760px) { .pub-toast-media { padding-bottom: 42%; } }
+
+/* mobile : grande carte, photo en haut, texte et bouton plus visibles */
+@media (max-width: 860px) {
+  .pub-toast { top: 72px; grid-template-columns: 1fr; gap: 0; padding: 0; transform: translateY(-24px) scale(.97); }
+  .pub-toast.est-visible { transform: none; }
+  .pub-toast-media { width: 100%; height: min(30vh, 200px); border-radius: 0; }
+  .pub-toast-texte { padding: 14px 16px 16px; }
+  .pub-toast-sur { font-size: 12px; }
+  .pub-toast-titre { font-size: 19px; line-height: 1.2; margin-bottom: 12px; }
+  .pub-toast-cta { height: 44px; width: 100%; justify-content: center; align-items: center; border: 0; border-radius: 8px; background: var(--rouge); font-size: 13px; }
+  .pub-toast[data-variante="famille"] .pub-toast-cta { background: var(--bleu); }
+  .pub-toast-fermer { position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; background: rgba(0, 0, 0, .6); color: #fff; font-size: 13px; }
+  .pub-toast::before { z-index: 1; }
+  .pub-toast[data-variante="billet"] { background: rgba(18, 18, 22, .96); }
+  .pub-toast[data-variante="billet"]::after { display: none; }
+  .pub-chrono span { min-width: 0; flex: 1; }
+}
+@media (max-width: 860px) and (max-height: 700px) { .pub-toast-media { height: 22vh; } .pub-toast-titre { font-size: 17px; } }
