@@ -569,7 +569,7 @@
       const j = joursRestants();
       montrerToast({
         sur: j > 1 ? "J-" + j + " avant le premier gong" : "C'est ce week-end",
-        titre: "Trois jours de boxe et l'inauguration du garage Moteka. Ne ratez pas ça.",
+        titre: "Trois soirs de boxe au garage Moteka, pour son inauguration. Ne ratez pas ça.",
         cta: "Prendre mon billet",
       });
     }, 1200) });
