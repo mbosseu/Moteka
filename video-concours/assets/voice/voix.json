@@ -1,0 +1,532 @@
+[
+ {
+  "id": "l01",
+  "texte": "Du vingt-trois au vingt-huit novembre... six soirs. Six lots. Un seul moteur.",
+  "duree": 4.98,
+  "mots": [
+   {
+    "text": "Du",
+    "start": 0.0,
+    "end": 0.182
+   },
+   {
+    "text": "vingt-trois",
+    "start": 0.193,
+    "end": 0.534
+   },
+   {
+    "text": "au",
+    "start": 0.545,
+    "end": 0.625
+   },
+   {
+    "text": "vingt-huit",
+    "start": 0.636,
+    "end": 0.932
+   },
+   {
+    "text": "novembre",
+    "start": 0.943,
+    "end": 1.386
+   },
+   {
+    "text": "six",
+    "start": 1.557,
+    "end": 1.705
+   },
+   {
+    "text": "soirs",
+    "start": 1.716,
+    "end": 2.148
+   },
+   {
+    "text": "Six",
+    "start": 2.939,
+    "end": 3.177
+   },
+   {
+    "text": "lots",
+    "start": 3.189,
+    "end": 3.427
+   },
+   {
+    "text": "Un",
+    "start": 4.211,
+    "end": 4.382
+   },
+   {
+    "text": "seul",
+    "start": 4.393,
+    "end": 4.598
+   },
+   {
+    "text": "moteur",
+    "start": 4.609,
+    "end": 5.166
+   }
+  ]
+ },
+ {
+  "id": "l02",
+  "texte": "Lundi, on démarre : vidange offerte.",
+  "duree": 1.875,
+  "mots": [
+   {
+    "text": "Lundi",
+    "start": 0.0,
+    "end": 0.399
+   },
+   {
+    "text": "on",
+    "start": 0.636,
+    "end": 0.679
+   },
+   {
+    "text": "démarre",
+    "start": 0.69,
+    "end": 1.045
+   },
+   {
+    "text": "vidange",
+    "start": 1.207,
+    "end": 1.53
+   },
+   {
+    "text": "offerte",
+    "start": 1.541,
+    "end": 2.026
+   }
+  ]
+ },
+ {
+  "id": "l03",
+  "texte": "Mardi : nettoyage complet, intérieur et extérieur.",
+  "duree": 2.59,
+  "mots": [
+   {
+    "text": "Mardi",
+    "start": 0.0,
+    "end": 0.392
+   },
+   {
+    "text": "nettoyage",
+    "start": 0.561,
+    "end": 0.964
+   },
+   {
+    "text": "complet",
+    "start": 0.975,
+    "end": 1.398
+   },
+   {
+    "text": "intérieur",
+    "start": 1.663,
+    "end": 2.066
+   },
+   {
+    "text": "et",
+    "start": 2.076,
+    "end": 2.108
+   },
+   {
+    "text": "extérieur",
+    "start": 2.119,
+    "end": 2.775
+   }
+  ]
+ },
+ {
+  "id": "l04",
+  "texte": "Mercredi : géométrie et parallélisme.",
+  "duree": 1.936,
+  "mots": [
+   {
+    "text": "Mercredi",
+    "start": 0.0,
+    "end": 0.571
+   },
+   {
+    "text": "géométrie",
+    "start": 0.787,
+    "end": 1.261
+   },
+   {
+    "text": "et",
+    "start": 1.272,
+    "end": 1.325
+   },
+   {
+    "text": "parallélisme",
+    "start": 1.336,
+    "end": 2.09
+   }
+  ]
+ },
+ {
+  "id": "l05",
+  "texte": "Jeudi : contrôle complet de ton véhicule.",
+  "duree": 1.915,
+  "mots": [
+   {
+    "text": "Jeudi",
+    "start": 0.0,
+    "end": 0.42
+   },
+   {
+    "text": "contrôle",
+    "start": 0.603,
+    "end": 0.948
+   },
+   {
+    "text": "complet",
+    "start": 0.959,
+    "end": 1.25
+   },
+   {
+    "text": "de",
+    "start": 1.261,
+    "end": 1.358
+   },
+   {
+    "text": "ton",
+    "start": 1.369,
+    "end": 1.487
+   },
+   {
+    "text": "véhicule",
+    "start": 1.498,
+    "end": 2.069
+   }
+  ]
+ },
+ {
+  "id": "l06",
+  "texte": "Vendredi, on passe la cinquième ! Vingt-quatre heures au volant d'une Golf huit R. Trois cent vingt chevaux.",
+  "duree": 5.848,
+  "mots": [
+   {
+    "text": "Vendredi",
+    "start": 0.0,
+    "end": 0.559
+   },
+   {
+    "text": "on",
+    "start": 0.833,
+    "end": 0.899
+   },
+   {
+    "text": "passe",
+    "start": 0.91,
+    "end": 1.129
+   },
+   {
+    "text": "la",
+    "start": 1.14,
+    "end": 1.239
+   },
+   {
+    "text": "cinquième",
+    "start": 1.25,
+    "end": 1.798
+   },
+   {
+    "text": "Vingt-quatre",
+    "start": 2.549,
+    "end": 3.053
+   },
+   {
+    "text": "heures",
+    "start": 3.064,
+    "end": 3.141
+   },
+   {
+    "text": "au",
+    "start": 3.152,
+    "end": 3.207
+   },
+   {
+    "text": "volant",
+    "start": 3.218,
+    "end": 3.448
+   },
+   {
+    "text": "d'une",
+    "start": 3.459,
+    "end": 3.601
+   },
+   {
+    "text": "Golf",
+    "start": 3.612,
+    "end": 3.864
+   },
+   {
+    "text": "huit",
+    "start": 3.875,
+    "end": 4.018
+   },
+   {
+    "text": "R",
+    "start": 4.029,
+    "end": 4.325
+   },
+   {
+    "text": "Trois",
+    "start": 5.082,
+    "end": 5.301
+   },
+   {
+    "text": "cent",
+    "start": 5.312,
+    "end": 5.443
+   },
+   {
+    "text": "vingt",
+    "start": 5.454,
+    "end": 5.575
+   },
+   {
+    "text": "chevaux",
+    "start": 5.586,
+    "end": 6.014
+   }
+  ]
+ },
+ {
+  "id": "l07",
+  "texte": "Et samedi... la finale. G T A six, sur PS cinq !",
+  "duree": 4.022,
+  "mots": [
+   {
+    "text": "Et",
+    "start": 0.0,
+    "end": 0.141
+   },
+   {
+    "text": "samedi",
+    "start": 0.153,
+    "end": 0.566
+   },
+   {
+    "text": "la",
+    "start": 0.778,
+    "end": 0.908
+   },
+   {
+    "text": "finale",
+    "start": 0.92,
+    "end": 1.403
+   },
+   {
+    "text": "G",
+    "start": 2.214,
+    "end": 2.426
+   },
+   {
+    "text": "T",
+    "start": 2.438,
+    "end": 2.591
+   },
+   {
+    "text": "A",
+    "start": 2.603,
+    "end": 2.674
+   },
+   {
+    "text": "six",
+    "start": 2.686,
+    "end": 3.075
+   },
+   {
+    "text": "sur",
+    "start": 3.299,
+    "end": 3.476
+   },
+   {
+    "text": "PS",
+    "start": 3.488,
+    "end": 3.747
+   },
+   {
+    "text": "cinq",
+    "start": 3.759,
+    "end": 4.16
+   }
+  ]
+ },
+ {
+  "id": "l08",
+  "texte": "C'est gratuit. Jusqu'à trois tickets : inscris-toi, invite deux amis, laisse un avis Google.",
+  "duree": 4.98,
+  "mots": [
+   {
+    "text": "C'est",
+    "start": 0.0,
+    "end": 0.201
+   },
+   {
+    "text": "gratuit",
+    "start": 0.212,
+    "end": 0.667
+   },
+   {
+    "text": "Jusqu'à",
+    "start": 1.391,
+    "end": 1.751
+   },
+   {
+    "text": "trois",
+    "start": 1.761,
+    "end": 1.92
+   },
+   {
+    "text": "tickets",
+    "start": 1.931,
+    "end": 2.27
+   },
+   {
+    "text": "inscris-toi",
+    "start": 2.492,
+    "end": 3.001
+   },
+   {
+    "text": "invite",
+    "start": 3.276,
+    "end": 3.52
+   },
+   {
+    "text": "deux",
+    "start": 3.53,
+    "end": 3.647
+   },
+   {
+    "text": "amis",
+    "start": 3.658,
+    "end": 3.954
+   },
+   {
+    "text": "laisse",
+    "start": 4.208,
+    "end": 4.41
+   },
+   {
+    "text": "un",
+    "start": 4.42,
+    "end": 4.463
+   },
+   {
+    "text": "avis",
+    "start": 4.473,
+    "end": 4.675
+   },
+   {
+    "text": "Google",
+    "start": 4.685,
+    "end": 5.13
+   }
+  ]
+ },
+ {
+  "id": "l09",
+  "texte": "Chaque soir, en story, la roulette tourne. Ce soir... c'est peut-être ton numéro.",
+  "duree": 4.865,
+  "mots": [
+   {
+    "text": "Chaque",
+    "start": 0.0,
+    "end": 0.29
+   },
+   {
+    "text": "soir",
+    "start": 0.301,
+    "end": 0.614
+   },
+   {
+    "text": "en",
+    "start": 0.837,
+    "end": 0.882
+   },
+   {
+    "text": "story",
+    "start": 0.893,
+    "end": 1.261
+   },
+   {
+    "text": "la",
+    "start": 1.562,
+    "end": 1.674
+   },
+   {
+    "text": "roulette",
+    "start": 1.685,
+    "end": 1.942
+   },
+   {
+    "text": "tourne",
+    "start": 1.953,
+    "end": 2.355
+   },
+   {
+    "text": "Ce",
+    "start": 3.12,
+    "end": 3.343
+   },
+   {
+    "text": "soir",
+    "start": 3.354,
+    "end": 3.7
+   },
+   {
+    "text": "c'est",
+    "start": 3.879,
+    "end": 4.001
+   },
+   {
+    "text": "peut-être",
+    "start": 4.013,
+    "end": 4.437
+   },
+   {
+    "text": "ton",
+    "start": 4.448,
+    "end": 4.571
+   },
+   {
+    "text": "numéro",
+    "start": 4.582,
+    "end": 5.028
+   }
+  ]
+ },
+ {
+  "id": "l10",
+  "texte": "Fight and Furious. Joue maintenant !",
+  "duree": 2.548,
+  "mots": [
+   {
+    "text": "Fight",
+    "start": 0.0,
+    "end": 0.342
+   },
+   {
+    "text": "and",
+    "start": 0.354,
+    "end": 0.495
+   },
+   {
+    "text": "Furious",
+    "start": 0.507,
+    "end": 1.179
+   },
+   {
+    "text": "Joue",
+    "start": 2.002,
+    "end": 2.214
+   },
+   {
+    "text": "maintenant",
+    "start": 2.226,
+    "end": 2.698
+   }
+  ]
+ }
+]

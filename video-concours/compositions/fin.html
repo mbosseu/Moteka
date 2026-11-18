@@ -1,0 +1,55 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; background: #0a0a0b; color: #f4f2ef; font-family: "Inter", sans-serif; }
+    .f-in { display: inline-block; }
+    #f-affiche-box { position: absolute; left: 0; right: 0; top: 1150px; height: 770px; overflow: hidden; }
+    #f-affiche { position: absolute; left: 0; top: 0; width: 1080px; height: 1350px; object-fit: cover; object-position: 50% 30%; opacity: .55; }
+    #f-affiche-voile { position: absolute; inset: 0; background: linear-gradient(180deg, #0a0a0b 0%, rgba(10,10,11,.4) 40%, rgba(10,10,11,.8) 100%); }
+    .f-bande { position: absolute; top: -300px; width: 240px; height: 2600px; background: #d11414; }
+    #f-logo { position: absolute; left: 140px; top: 230px; width: 800px; }
+    #f-logo img { width: 100%; display: block; }
+    .f-titre { position: absolute; left: 0; right: 0; text-align: center; font-family: "League Gothic", sans-serif; text-transform: uppercase; line-height: .9; }
+    #f-sous { position: absolute; left: 0; right: 0; top: 880px; text-align: center; font: 700 32px "Inter", sans-serif; letter-spacing: .16em; text-transform: uppercase; color: #9a9aa2; }
+    #f-cta { position: absolute; left: 0; right: 0; top: 960px; text-align: center; }
+    #f-cta .f-in { padding: 18px 56px 10px; background: #d11414; font: 400 128px/1 "League Gothic", sans-serif; text-transform: uppercase; clip-path: polygon(0 0, 100% 0, calc(100% - 26px) 100%, 0 100%); }
+    #f-url { position: absolute; left: 0; right: 0; top: 1140px; text-align: center; font: 600 38px "Inter", sans-serif; color: #f4f2ef; }
+    #f-logos { position: absolute; left: 0; right: 0; top: 1225px; display: flex; justify-content: center; align-items: center; gap: 34px; }
+    #f-logos .bc { height: 82px; }
+    #f-logos .mk { height: 50px; }
+    #f-logos span { font: 700 34px "Inter", sans-serif; color: #9a9aa2; }
+  </style>
+
+  <div id="root" data-composition-id="fin" data-width="1080" data-height="1920">
+    <div id="f-affiche-box" data-layout-ignore><img id="f-affiche" src="assets/img/affiche.jpg" alt=""><div id="f-affiche-voile"></div></div>
+    <div id="f-b1" class="f-bande" data-layout-ignore></div><div id="f-b2" class="f-bande" data-layout-ignore></div><div id="f-b3" class="f-bande" data-layout-ignore></div>
+
+    <div id="f-logo" class="clip" data-start="0" data-duration="5.55"><div class="f-in" style="display:block"><img src="assets/img/moteka-blanc.svg" alt="MOTEKA"></div></div>
+    <div id="f-t1" class="clip f-titre" style="top: 420px; font-size: 250px" data-start="0.05" data-duration="5.5"><span class="f-in">Fight &amp;</span></div>
+    <div id="f-t2" class="clip f-titre" style="top: 640px; font-size: 250px; color: #ff2a2a" data-start="0.2" data-duration="5.35"><span class="f-in">Furious</span></div>
+    <div id="f-sous" class="clip" data-start="0.7" data-duration="4.85"><span class="f-in">Jeu concours gratuit · 23–28 nov.</span></div>
+    <div id="f-cta" class="clip" data-start="2.05" data-duration="3.5"><span class="f-in">Joue maintenant →</span></div>
+    <div id="f-url" class="clip" data-start="2.3" data-duration="3.25"><span class="f-in" data-var-text="url">fight-and-furious.boxingcenter.fr</span></div>
+    <div id="f-logos" class="clip" data-start="2.6" data-duration="2.95">
+      <img class="bc" src="assets/img/boxing-center.png" alt="Boxing Center"><span>×</span><img class="mk" src="assets/img/moteka-blanc.svg" alt="MOTEKA">
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      // les trois bandes MOTEKA traversent l'image et portent le titre
+      [["#f-b1", 0], ["#f-b2", 0.06], ["#f-b3", 0.12]].forEach(([b, dt], i) =>
+        tl.fromTo(b, { x: -800 + i * 260, skewX: -34 }, { x: 2300 + i * 260, skewX: -34, duration: 0.85, ease: "power3.inOut" }, dt));
+      tl.fromTo("#f-logo .f-in", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.5, ease: "expo.out" }, 0.25);
+      const entre = (sel, t) => tl.fromTo(sel + " .f-in", { clipPath: "inset(0 100% 0 0)", x: 40 }, { clipPath: "inset(0 0% 0 0)", x: 0, duration: 0.24, ease: "expo.out" }, t);
+      entre("#f-t1", 0.05); entre("#f-t2", 0.2);
+      tl.fromTo("#f-t2 .f-in", { scale: 1.2 }, { scale: 1, duration: 0.2, ease: "back.out(2)" }, 0.2);
+      entre("#f-sous", 0.7);
+      tl.fromTo("#f-cta .f-in", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.26, ease: "back.out(2.2)" }, 2.05);
+      entre("#f-url", 2.3);
+      tl.fromTo("#f-logos", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 2.6);
+      tl.fromTo("#f-affiche", { y: 0 }, { y: -80, duration: 5.55, ease: "none" }, 0);
+      window.__timelines["fin"] = tl;
+    })();
+  </script>
+</template>

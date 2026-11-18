@@ -1,0 +1,51 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; background: #d11414; color: #f4f2ef; font-family: "Inter", sans-serif; }
+    .t-bande { position: absolute; top: -300px; width: 230px; height: 2600px; background: #0a0a0b; opacity: .14; }
+    .t-in { display: inline-block; }
+    .t-titre { position: absolute; left: 70px; right: 70px; font-family: "League Gothic", sans-serif; text-transform: uppercase; line-height: .92; }
+    .t-ticket { position: absolute; left: 110px; width: 860px; height: 200px; }
+    .t-papier { position: absolute; inset: 0; display: flex; background: #f4f2ef; color: #0a0a0b; border-radius: 10px; box-shadow: 0 18px 30px rgba(0,0,0,.35); overflow: hidden; }
+    .t-souche { width: 230px; flex: none; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #0a0a0b; color: #f4f2ef; border-right: 6px dashed #d11414; }
+    .t-souche small { font: 700 30px "Inter", sans-serif; letter-spacing: .2em; color: #ff2a2a; }
+    .t-souche b { font: 400 112px/1 "League Gothic", sans-serif; }
+    .t-corps { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 40px; }
+    .t-corps small { font: 700 28px "Inter", sans-serif; letter-spacing: .2em; color: #d11414; text-transform: uppercase; }
+    .t-corps b { font: 400 92px/1 "League Gothic", sans-serif; text-transform: uppercase; }
+  </style>
+
+  <div id="root" data-composition-id="tickets" data-width="1080" data-height="1920">
+    <div id="t-b1" class="t-bande" data-layout-ignore></div><div id="t-b2" class="t-bande" data-layout-ignore></div><div id="t-b3" class="t-bande" data-layout-ignore></div>
+
+    <div id="t-gratuit" class="clip t-titre" style="top: 300px; font-size: 250px" data-start="0.26" data-duration="1.55"><span class="t-in">C'est gratuit.</span></div>
+    <div id="t-trois" class="clip t-titre" style="top: 300px; font-size: 190px" data-start="1.81" data-duration="3.49"><span class="t-in">Jusqu'à <span style="color:#0a0a0b">3 tickets</span></span></div>
+
+    <div id="t-k1" class="clip t-ticket" style="top: 660px" data-start="2.14" data-duration="3.16">
+      <div class="t-papier"><div class="t-souche"><small>N°</small><b>100</b></div><div class="t-corps"><small>Ticket 1</small><b>Inscris-toi</b></div></div>
+    </div>
+    <div id="t-k2" class="clip t-ticket" style="top: 890px" data-start="2.93" data-duration="2.37">
+      <div class="t-papier"><div class="t-souche"><small>N°</small><b>101</b></div><div class="t-corps"><small>Ticket 2</small><b>Invite 2 ami(e)s</b></div></div>
+    </div>
+    <div id="t-k3" class="clip t-ticket" style="top: 1120px" data-start="4.12" data-duration="1.18">
+      <div class="t-papier"><div class="t-souche"><small>N°</small><b>102</b></div><div class="t-corps"><small>Ticket 3</small><b>Avis Google</b></div></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      // les bandes MOTEKA, posées en biais sur le fond rouge
+      [["#t-b1", 120], ["#t-b2", 420], ["#t-b3", 720]].forEach(([b, x], i) =>
+        tl.fromTo(b, { x: x - 1300, skewX: -34 }, { x, skewX: -34, duration: 0.55, ease: "power3.out" }, i * 0.05));
+      const entre = (sel, t) => tl.fromTo(sel + " .t-in", { clipPath: "inset(0 100% 0 0)", x: 40 }, { clipPath: "inset(0 0% 0 0)", x: 0, duration: 0.22, ease: "expo.out" }, t);
+      entre("#t-gratuit", 0.26);
+      tl.fromTo("#t-gratuit .t-in", { scale: 1.2, transformOrigin: "0% 50%" }, { scale: 1, duration: 0.18, ease: "back.out(2)" }, 0.26);
+      entre("#t-trois", 1.81);
+      // chaque ticket tombe et se pose, sur le mot qui le donne
+      [["#t-k1", 2.54], ["#t-k2", 3.33], ["#t-k3", 4.52]].forEach(([k, t], i) =>
+        tl.fromTo(k + " .t-papier", { y: -520, rotation: -14 + i * 9, opacity: 0 },
+          { y: 0, rotation: [-3, 2, -2][i], opacity: 1, duration: 0.45, ease: "back.out(1.6)" }, t - 0.4));
+      window.__timelines["tickets"] = tl;
+    })();
+  </script>
+</template>

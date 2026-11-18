@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fr"
+  data-composition-variables='[{"id":"url","type":"string","label":"Adresse du jeu","default":"fight-and-furious.boxingcenter.fr"},{"id":"accent","type":"color","label":"Rouge Moteka","default":"#d11414"}]'>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      :root { --ground: #0a0a0b; --ink: #f4f2ef; --accent: #d11414; --vif: #ff2a2a; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: var(--ground); }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ground); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="41.5" data-width="1080" data-height="1920">
+
+      <!-- scènes -->
+      <div id="compte" class="clip" data-composition-id="compte" data-composition-src="compositions/compte.html"
+        data-start="0" data-duration="25.45" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="tickets" class="clip" data-composition-id="tickets" data-composition-src="compositions/tickets.html"
+        data-start="25.45" data-duration="5.3" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="roulette" class="clip" data-composition-id="roulette" data-composition-src="compositions/roulette.html"
+        data-start="30.75" data-duration="5.2" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="fin" class="clip" data-composition-id="fin" data-composition-src="compositions/fin.html"
+        data-start="35.95" data-duration="5.55" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"
+        data-variable-values='{"url":"fight-and-furious.boxingcenter.fr"}'></div>
+
+      <!-- voix off (Henri, une prise par ligne) -->
+      <audio id="v01" class="clip" src="assets/voice/l01.wav" data-start="0.30" data-duration="4.98" data-track-index="10" data-volume="1" data-audio-group="voix"></audio>
+      <audio id="v02" class="clip" src="assets/voice/l02.wav" data-start="5.60" data-duration="1.88" data-track-index="10" data-volume="1" data-audio-group="voix"></audio>
+      <audio id="v03" class="clip" src="assets/voice/l03.wav" data-start="7.70" data-duration="2.59" data-track-index="10" data-volume="1" data-audio-group="voix"></audio>
+      <audio id="v04" class="clip" src="assets/voice/l04.wav" data-start="10.50" data-duration="1.94" data-track-index="10" data-volume="1" data-audio-group="voix"></audio>
+      <audio id="v05" class="clip" src="assets/voice/l05.wav" data-start="12.65" data-duration="1.91" data-track-index="10" data-volume="1" data-audio-group="voix"></audio>
+      <audio id="v06" class="clip" src="assets/voice/l06.wav" data-start="14.90" data-duration="5.85" data-track-index="10" data-volume="1" data-audio-group="voix"></audio>
+      <audio id="v07" class="clip" src="assets/voice/l07.wav" data-start="21.10" data-duration="4.02" data-track-index="10" data-volume="1" data-audio-group="voix"></audio>
+      <audio id="v08" class="clip" src="assets/voice/l08.wav" data-start="25.50" data-duration="4.98" data-track-index="10" data-volume="1" data-audio-group="voix"></audio>
+      <audio id="v09" class="clip" src="assets/voice/l09.wav" data-start="30.80" data-duration="4.86" data-track-index="10" data-volume="1" data-audio-group="voix"></audio>
+      <audio id="v10" class="clip" src="assets/voice/l10.wav" data-start="36.00" data-duration="2.55" data-track-index="10" data-volume="1" data-audio-group="voix"></audio>
+
+      <!-- musique : Bandolero, sous la voix, remonte sur la fin -->
+      <audio id="musique" class="clip" src="assets/music/bandolero.mp3" data-start="0" data-duration="41.5" data-track-index="11" data-volume="1"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0.42},{"t":0.3,"v":0.2},{"t":38.6,"v":0.2},{"t":39.2,"v":0.6},{"t":40.6,"v":0.6},{"t":41.5,"v":0}]}]}'></audio>
+
+      <!-- bruitages : chaque son a sa cause à l'image -->
+      <audio id="s-moteur1" class="clip" src="assets/sfx/moteur-montee.wav" data-start="0" data-duration="2.60" data-track-index="12" data-volume="0.8"></audio>
+      <audio id="s-impact1" class="clip" src="assets/sfx/impact.wav" data-start="3.79" data-duration="2.62" data-track-index="13" data-volume="0.9"></audio>
+      <audio id="s-v1" class="clip" src="assets/sfx/vitesse-1.wav" data-start="5.17" data-duration="0.90" data-track-index="12" data-volume="1.4"></audio>
+      <audio id="s-v2" class="clip" src="assets/sfx/vitesse-2.wav" data-start="7.27" data-duration="0.90" data-track-index="12" data-volume="1.4"></audio>
+      <audio id="s-v3" class="clip" src="assets/sfx/vitesse-3.wav" data-start="10.07" data-duration="0.90" data-track-index="12" data-volume="1.4"></audio>
+      <audio id="s-v4" class="clip" src="assets/sfx/vitesse-4.wav" data-start="12.22" data-duration="0.90" data-track-index="12" data-volume="1.4"></audio>
+      <audio id="s-whoosh1" class="clip" src="assets/sfx/whoosh.wav" data-start="14.06" data-duration="4.05" data-track-index="13" data-volume="0.9"></audio>
+      <audio id="s-v5" class="clip" src="assets/sfx/vitesse-5.wav" data-start="15.72" data-duration="0.90" data-track-index="12" data-volume="1.4"></audio>
+      <audio id="s-moteur2" class="clip" src="assets/sfx/moteur-montee.wav" data-start="20.40" data-duration="2.60" data-track-index="12" data-volume="0.8"></audio>
+      <audio id="s-montee" class="clip" src="assets/sfx/impact-montee.wav" data-start="21.36" data-duration="2.59" data-track-index="13" data-volume="1"></audio>
+      <audio id="s-v6" class="clip" src="assets/sfx/vitesse-6.wav" data-start="21.59" data-duration="0.90" data-track-index="14" data-volume="1.4"></audio>
+      <audio id="s-whoosh2" class="clip" src="assets/sfx/whoosh.wav" data-start="24.61" data-duration="4.05" data-track-index="12" data-volume="0.8"></audio>
+      <audio id="s-clic1" class="clip" src="assets/sfx/clic.mp3" data-start="27.95" data-duration="0.37" data-track-index="13" data-volume="1.6"></audio>
+      <audio id="s-clic2" class="clip" src="assets/sfx/clic.mp3" data-start="28.74" data-duration="0.37" data-track-index="13" data-volume="1.6"></audio>
+      <audio id="s-clic3" class="clip" src="assets/sfx/clic.mp3" data-start="29.93" data-duration="0.37" data-track-index="13" data-volume="1.6"></audio>
+      <audio id="s-whoosh3" class="clip" src="assets/sfx/whoosh.wav" data-start="29.91" data-duration="4.05" data-track-index="12" data-volume="0.8"></audio>
+      <audio id="s-clic4" class="clip" src="assets/sfx/clic.mp3" data-start="33.41" data-duration="0.37" data-track-index="14" data-volume="1.8"></audio>
+      <audio id="s-gong" class="clip" src="assets/sfx/gong.wav" data-start="35.85" data-duration="5.6" data-track-index="13" data-volume="1"></audio>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

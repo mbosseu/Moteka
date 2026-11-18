@@ -1,0 +1,95 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; background: #0a0a0b; color: #f4f2ef; font-family: "Inter", sans-serif; }
+    .r-in { display: inline-block; }
+    .r-titre { position: absolute; left: 70px; right: 70px; font-family: "League Gothic", sans-serif; text-transform: uppercase; line-height: .95; }
+    .r-label { position: absolute; left: 74px; right: 70px; font: 700 40px "Inter", sans-serif; letter-spacing: .18em; text-transform: uppercase; color: #ff2a2a; }
+    #r-scene { position: absolute; inset: 0; }
+    #r-roue-box { position: absolute; left: 90px; top: 380px; width: 900px; height: 900px; }
+    #r-roue-in { position: absolute; inset: 0; }
+    #r-roue-in svg, #r-index svg { width: 100%; height: 100%; overflow: visible; }
+    #r-index { position: absolute; left: 490px; top: 335px; width: 100px; height: 110px; }
+    #r-ticket { position: absolute; left: 110px; top: 960px; width: 860px; height: 270px; }
+    .r-papier { position: absolute; inset: 0; display: flex; background: #f4f2ef; color: #0a0a0b; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 34px rgba(0,0,0,.5); }
+    .r-souche { width: 250px; flex: none; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #d11414; color: #f4f2ef; border-right: 6px dashed #0a0a0b; }
+    .r-souche small { font: 700 28px "Inter", sans-serif; letter-spacing: .2em; }
+    .r-souche b { font: 400 130px/1 "League Gothic", sans-serif; }
+    .r-zone { position: relative; flex: 1; margin: 34px; border-radius: 10px; overflow: hidden; }
+    .r-lot { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: #0a0a0b; color: #f4f2ef; font: 400 120px/1 "League Gothic", sans-serif; text-transform: uppercase; }
+    .r-lot span { color: #ff2a2a; margin-left: 18px; }
+    #r-argent { position: absolute; inset: 0; background: repeating-linear-gradient(135deg, #c9c9cf 0 14px, #b3b3ba 14px 28px); display: flex; align-items: center; justify-content: center; font: 700 30px "Inter", sans-serif; letter-spacing: .2em; color: #6b6b73; }
+  </style>
+
+  <div id="root" data-composition-id="roulette" data-width="1080" data-height="1920">
+    <div id="r-scene">
+      <div id="r-label" class="clip r-label" style="top: 260px" data-start="0.94" data-duration="4.26"><span class="r-in">Chaque soir, en story</span></div>
+
+      <div id="r-roue-box" class="clip" data-start="0" data-duration="5.2">
+        <div id="r-roue-in">
+          <svg viewBox="0 0 1000 1000" aria-hidden="true"><g id="r-roue"></g>
+            <circle cx="500" cy="500" r="496" fill="none" stroke="#f4f2ef" stroke-width="8" />
+            <circle cx="500" cy="500" r="120" fill="#0a0a0b" stroke="#d11414" stroke-width="14" />
+            <text x="500" y="528" text-anchor="middle" font-family="League Gothic" font-size="84" fill="#f4f2ef">N°</text>
+          </svg>
+        </div>
+      </div>
+      <div id="r-index" class="clip" data-start="0" data-duration="5.2">
+        <svg viewBox="0 0 100 110" aria-hidden="true"><polygon points="0,0 100,0 50,110" fill="#f4f2ef" stroke="#0a0a0b" stroke-width="6" /></svg>
+      </div>
+
+      <div id="r-soir" class="clip r-titre" style="top: 735px; font-size: 100px" data-start="3.2" data-duration="2.0"><span class="r-in">Ce soir, c'est peut-être<br><span style="color:#ff2a2a">ton numéro.</span></span></div>
+
+      <div id="r-ticket" class="clip" data-start="2.95" data-duration="2.25">
+        <div class="r-papier">
+          <div class="r-souche"><small>TICKET</small><b>104</b></div>
+          <div class="r-zone">
+            <div class="r-lot" data-layout-allow-overlap>Ton lot<span>!</span></div>
+            <div id="r-argent" data-layout-allow-occlusion data-layout-allow-overlap>GRATTE ICI</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // roue : 12 secteurs numérotés 100 à 111 (décor fixe)
+      const NS = "http://www.w3.org/2000/svg", g = document.getElementById("r-roue"), C = 500, R = 492;
+      const couleurs = ["#d11414", "#0a0a0b", "#f4f2ef"];
+      for (let i = 0; i < 12; i++) {
+        const a0 = (i * 30 - 15) * Math.PI / 180, a1 = (i * 30 + 15) * Math.PI / 180;
+        const p = (a, r) => `${C + r * Math.sin(a)} ${C - r * Math.cos(a)}`;
+        const s = document.createElementNS(NS, "path");
+        s.setAttribute("d", `M${C} ${C} L${p(a0, R)} A${R} ${R} 0 0 1 ${p(a1, R)} Z`);
+        const fond = couleurs[i % 3];
+        s.setAttribute("fill", fond); s.setAttribute("stroke", "#0a0a0b"); s.setAttribute("stroke-width", "4");
+        g.appendChild(s);
+        const t = document.createElementNS(NS, "text"), am = i * 30 * Math.PI / 180;
+        t.setAttribute("x", C + 380 * Math.sin(am)); t.setAttribute("y", C - 380 * Math.cos(am) + 30);
+        t.setAttribute("text-anchor", "middle"); t.setAttribute("font-family", "League Gothic"); t.setAttribute("font-size", "88");
+        t.setAttribute("fill", fond === "#f4f2ef" ? "#0a0a0b" : "#f4f2ef");
+        t.setAttribute("transform", `rotate(${i * 30} ${C + 380 * Math.sin(am)} ${C - 380 * Math.cos(am) + 30})`);
+        t.textContent = 100 + i;
+        g.appendChild(t);
+      }
+
+      const tl = gsap.timeline({ paused: true });
+      // elle tourne vite, ralentit et s'arrête sur 104 (secteur 4) sous l'index
+      tl.fromTo("#r-roue", { rotation: 0, svgOrigin: "500 500" }, { rotation: 1680, svgOrigin: "500 500", duration: 2.7, ease: "power3.out" }, 0);
+      tl.fromTo("#r-index svg", { rotation: -18, transformOrigin: "50% 0%" }, { rotation: 0, duration: 0.25, ease: "back.out(3)" }, 2.7);
+      tl.fromTo("#r-label .r-in", { clipPath: "inset(0 100% 0 0)", x: 30 }, { clipPath: "inset(0 0% 0 0)", x: 0, duration: 0.22, ease: "expo.out" }, 0.94);
+      // la roue se range en haut, le ticket à gratter monte
+      tl.to("#r-roue-in", { scale: 0.42, y: -290, duration: 0.45, ease: "power3.inOut" }, 2.72);
+      tl.to("#r-index svg", { y: -20, scale: 0.6, transformOrigin: "50% 0%", duration: 0.45, ease: "power3.inOut" }, 2.72);
+      tl.fromTo("#r-ticket .r-papier", { y: 700, rotation: 6 }, { y: 0, rotation: -2, duration: 0.5, ease: "back.out(1.4)" }, 2.95);
+      // grattage en trois passes
+      tl.fromTo("#r-argent", { clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)" },
+        { clipPath: "polygon(45% 0%, 100% 0%, 100% 100%, 25% 100%)", duration: 0.28, ease: "power2.inOut" }, 3.3);
+      tl.to("#r-argent", { clipPath: "polygon(80% 0%, 100% 0%, 100% 100%, 62% 100%)", duration: 0.26, ease: "power2.inOut" }, 3.62);
+      tl.to("#r-argent", { clipPath: "polygon(100% 0%, 100% 0%, 100% 100%, 100% 100%)", duration: 0.22, ease: "power2.inOut" }, 3.92);
+      tl.fromTo("#r-ticket .r-lot", { scale: 0.9 }, { scale: 1, duration: 0.25, ease: "back.out(2)" }, 4.1);
+      tl.fromTo("#r-soir .r-in", { clipPath: "inset(0 100% 0 0)", x: 40 }, { clipPath: "inset(0 0% 0 0)", x: 0, duration: 0.22, ease: "expo.out" }, 3.2);
+      window.__timelines["roulette"] = tl;
+    })();
+  </script>
+</template>

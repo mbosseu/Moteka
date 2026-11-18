@@ -1,0 +1,182 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; background: #0a0a0b; font-family: "Inter", sans-serif; color: #f4f2ef; }
+    #c-cam { position: absolute; inset: 0; }
+    .c-fond-box { position: absolute; inset: 0; overflow: hidden; }
+    .c-in { display: inline-block; }
+    .c-fond { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; object-fit: cover; }
+    .c-voile { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,11,.86) 0%, rgba(10,10,11,.35) 26%, rgba(10,10,11,.45) 50%, rgba(10,10,11,.88) 62%, rgba(10,10,11,.62) 100%); }
+    .c-monde { position: absolute; inset: 0; }
+    #c-rouge { background: #d11414; }
+    #c-noir { background: #0a0a0b; }
+    .c-bande { position: absolute; top: -200px; width: 210px; height: 2400px; background: #0a0a0b; }
+    #c-flash { position: absolute; inset: 0; background: #ff2a2a; opacity: 0; }
+
+    #c-cadran { position: absolute; left: 90px; top: 250px; width: 900px; height: 900px; }
+    #c-cadran-in { position: absolute; inset: 0; }
+    #c-cadran svg { width: 100%; height: 100%; overflow: visible; }
+    #c-rapport { position: absolute; left: 0; right: 0; top: 330px; text-align: center; font-family: "League Gothic", sans-serif; font-size: 300px; line-height: 1; color: #f4f2ef; }
+    #c-rapport-etiquette { position: absolute; left: 0; right: 0; top: 640px; text-align: center; font: 700 30px "Inter", sans-serif; letter-spacing: .3em; color: #9a9aa2; }
+
+    .c-titre { position: absolute; left: 70px; right: 70px; font-family: "League Gothic", sans-serif; text-transform: uppercase; line-height: .92; color: #f4f2ef; }
+    .c-jour { position: absolute; left: 74px; right: 70px; font: 700 38px "Inter", sans-serif; letter-spacing: .18em; text-transform: uppercase; color: #ff2a2a; }
+    .c-noirtxt { color: #0a0a0b; }
+  </style>
+
+  <div id="root" data-composition-id="compte" data-width="1080" data-height="1920">
+    <div id="c-cam">
+      <!-- mondes : photos d'atelier (logo MOTEKA sur les tenues), puis couleurs pleines -->
+      <div id="c-f0" class="clip c-fond-box" data-start="0" data-duration="5.6"><img class="c-fond" src="assets/img/atelier.jpg" style="object-position: 12% 50%" alt=""></div>
+      <div id="c-f1" class="clip c-fond-box" data-start="5.6" data-duration="2.1"><img class="c-fond" src="assets/img/garage-atelier-portrait.jpg" style="object-position: 30% 50%" alt=""></div>
+      <div id="c-f2" class="clip c-fond-box" data-start="7.7" data-duration="2.8"><img class="c-fond" src="assets/img/garage-voiture.jpg" style="object-position: 72% 50%" alt=""></div>
+      <div id="c-f3" class="clip c-fond-box" data-start="10.5" data-duration="2.15"><img class="c-fond" src="assets/img/atelier.jpg" style="object-position: 48% 50%" alt=""></div>
+      <div id="c-f4" class="clip c-fond-box" data-start="12.65" data-duration="2.25"><img class="c-fond" src="assets/img/atelier.jpg" style="object-position: 76% 50%" alt=""></div>
+      <div id="c-voile" class="clip c-voile" data-start="0" data-duration="14.9"></div>
+
+      <div id="c-rouge" class="clip c-monde" data-start="14.9" data-duration="6.05">
+        <div id="c-b1" class="c-bande" data-layout-ignore></div><div id="c-b2" class="c-bande" data-layout-ignore></div><div id="c-b3" class="c-bande" data-layout-ignore></div>
+      </div>
+      <div id="c-noir" class="clip c-monde" data-start="20.95" data-duration="4.5"><div id="c-n1" class="c-bande" style="background:#d11414" data-layout-ignore></div><div id="c-n2" class="c-bande" style="background:#d11414" data-layout-ignore></div><div id="c-n3" class="c-bande" style="background:#d11414" data-layout-ignore></div></div>
+
+      <!-- le compte-tours du site -->
+      <div id="c-cadran" class="clip" data-start="0" data-duration="25.45"><div id="c-cadran-in">
+        <svg viewBox="0 0 1000 1000" aria-hidden="true">
+          <circle cx="500" cy="500" r="470" fill="#121215" />
+          <circle id="c-anneau" cx="500" cy="500" r="470" fill="none" stroke="#f4f2ef" stroke-opacity=".18" stroke-width="6" />
+          <path id="c-rouge-arc" fill="none" stroke="#ff2a2a" stroke-width="34" />
+          <g id="c-graduations"></g>
+          <g id="c-chiffres"></g>
+          <g id="c-aiguille">
+            <polygon points="491,520 509,520 503,110 497,110" fill="#ff2a2a" />
+          </g>
+          <circle cx="500" cy="500" r="44" fill="#0a0a0b" stroke="#ff2a2a" stroke-width="8" />
+          <text x="500" y="790" text-anchor="middle" fill="#9a9aa2" font-family="Inter" font-weight="700" font-size="36" letter-spacing="6">× 1000 TR/MIN</text>
+        </svg>
+        <div id="c-rapport">N</div>
+        <div id="c-rapport-etiquette">RAPPORT</div>
+      </div></div>
+      <div id="c-flash" data-layout-ignore></div>
+
+      <!-- accroche -->
+      <div id="c-dates" class="clip c-titre" style="top: 1150px; font-size: 150px" data-start="0" data-duration="1.86"><span class="c-in">Du 23 au 28 nov.</span></div>
+      <div id="c-soirs" class="clip c-titre" style="top: 1070px; font-size: 160px" data-start="1.86" data-duration="2.65"><span class="c-in">6 soirs.</span></div>
+      <div id="c-lots" class="clip c-titre" style="top: 1210px; font-size: 160px; color: #ff2a2a" data-start="3.24" data-duration="1.27"><span class="c-in">6 lots.</span></div>
+      <div id="c-moteur" class="clip c-titre" style="top: 1140px; font-size: 170px" data-start="4.51" data-duration="1.09"><span class="c-in">Un seul moteur.</span></div>
+
+      <!-- 1re à 4e : un lot par soir -->
+      <div id="c-j1" class="clip c-jour" style="top: 1065px" data-start="5.6" data-duration="2.1"><span class="c-in">Lundi 23 · 1re</span></div>
+      <div id="c-l1" class="clip c-titre" style="top: 1125px; font-size: 150px" data-start="5.6" data-duration="2.1"><span class="c-in">Vidange offerte</span></div>
+      <div id="c-j2" class="clip c-jour" style="top: 1005px" data-start="7.7" data-duration="2.8"><span class="c-in">Mardi 24 · 2e</span></div>
+      <div id="c-l2" class="clip c-titre" style="top: 1065px; font-size: 112px" data-start="7.7" data-duration="2.8"><span class="c-in">Nettoyage complet<br>intérieur &amp; extérieur</span></div>
+      <div id="c-j3" class="clip c-jour" style="top: 1005px" data-start="10.5" data-duration="2.15"><span class="c-in">Mercredi 25 · 3e</span></div>
+      <div id="c-l3" class="clip c-titre" style="top: 1065px; font-size: 112px" data-start="10.5" data-duration="2.15"><span class="c-in">Géométrie &amp;<br>parallélisme offerts</span></div>
+      <div id="c-j4" class="clip c-jour" style="top: 1005px" data-start="12.65" data-duration="2.25"><span class="c-in">Jeudi 26 · 4e</span></div>
+      <div id="c-l4" class="clip c-titre" style="top: 1065px; font-size: 112px" data-start="12.65" data-duration="2.25"><span class="c-in">Contrôle complet<br>de ton véhicule</span></div>
+
+      <!-- 5e : la Golf -->
+      <div id="c-j5" class="clip c-jour c-noirtxt" style="top: 860px" data-start="14.9" data-duration="6.05"><span class="c-in">Vendredi 27 · 5e · lot premium</span></div>
+      <div id="c-g1" class="clip c-titre" style="top: 910px; font-size: 330px" data-start="17.45" data-duration="1.06"><span class="c-in">24 h</span></div>
+      <div id="c-g2" class="clip c-titre" style="top: 930px; font-size: 280px" data-start="18.51" data-duration="1.47"><span class="c-in">Golf 8 R</span></div>
+      <div id="c-g3" class="clip c-titre c-noirtxt" style="top: 910px; font-size: 330px" data-start="19.98" data-duration="0.97"><span class="c-in"><span id="c-ch">0</span> ch</span></div>
+      <div id="c-gsous" class="clip c-jour" style="top: 1235px; color: #f4f2ef" data-start="17.45" data-duration="3.5"><span class="c-in">24 h au volant · 320 ch</span></div>
+
+      <!-- 6e : la finale -->
+      <div id="c-j6" class="clip c-jour" style="top: 770px" data-start="21.25" data-duration="4.2"><span class="c-in">Samedi 28 · 6e · la finale</span></div>
+      <div id="c-gta" class="clip c-titre" style="top: 800px; font-size: 400px; text-align: center; left: 0; right: 0" data-start="23.31" data-duration="2.14"><span class="c-in">GTA 6</span></div>
+      <div id="c-ps5" class="clip c-titre" style="top: 1180px; font-size: 90px; text-align: center; left: 0; right: 0; color: #ff2a2a" data-start="24.59" data-duration="0.86"><span class="c-in">sur PS5</span></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // cadran : graduations et chiffres (décor fixe, calculé une fois)
+      const NS = "http://www.w3.org/2000/svg", C = 500;
+      const ang = rpm => (-120 + 240 * rpm / 9000) * Math.PI / 180;
+      const pt = (a, r) => [C + r * Math.sin(a), C - r * Math.cos(a)];
+      const grad = document.getElementById("c-graduations"), chif = document.getElementById("c-chiffres");
+      for (let i = 0; i <= 90; i++) {
+        const a = ang(i * 100), long = i % 10 === 0, mi = i % 5 === 0;
+        const [x1, y1] = pt(a, 440), [x2, y2] = pt(a, long ? 380 : mi ? 405 : 420);
+        const l = document.createElementNS(NS, "line");
+        l.setAttribute("x1", x1); l.setAttribute("y1", y1); l.setAttribute("x2", x2); l.setAttribute("y2", y2);
+        l.setAttribute("stroke", i >= 70 ? "#ff2a2a" : "#f4f2ef"); l.setAttribute("stroke-width", long ? 9 : 4);
+        grad.appendChild(l);
+        if (long) {
+          const [tx, ty] = pt(a, 330), t = document.createElementNS(NS, "text");
+          t.setAttribute("x", tx); t.setAttribute("y", ty + 22); t.setAttribute("text-anchor", "middle");
+          t.setAttribute("font-family", "League Gothic"); t.setAttribute("font-size", "68");
+          t.setAttribute("fill", i >= 70 ? "#ff2a2a" : "#f4f2ef"); t.textContent = i / 10;
+          chif.appendChild(t);
+        }
+      }
+      const [ax, ay] = pt(ang(7000), 452), [bx, by] = pt(ang(9000), 452);
+      document.getElementById("c-rouge-arc").setAttribute("d", `M${ax} ${ay} A452 452 0 0 1 ${bx} ${by}`);
+
+      const tl = gsap.timeline({ paused: true });
+      const aig = "#c-aiguille", O = { svgOrigin: "500 500" };
+      const deg = rpm => -120 + 240 * rpm / 9000;
+      const regime = (t, rpm, d, ease = "power2.out") => tl.to(aig, { rotation: deg(rpm), duration: d, ease, ...O }, t);
+      gsap.set(aig, { rotation: deg(0), ...O });
+
+      // accroche : le moteur monte dans les tours
+      regime(0.05, 7000, 2.3, "power2.in");
+      [2.5, 2.9, 3.3, 3.7, 4.1].forEach((t, i) => regime(t, i % 2 ? 7200 : 6750, 0.4, "sine.inOut"));
+
+      // une entrée de titre : essuyage + décalage
+      const entre = (sel, t, x = 40) => tl.fromTo(sel + " .c-in", { clipPath: "inset(0 100% 0 0)", x }, { clipPath: "inset(0 0% 0 0)", x: 0, duration: 0.22, ease: "expo.out" }, t);
+      const claque = (sel, t) => tl.fromTo(sel + " .c-in", { scale: 1.25, transformOrigin: "0% 50%" }, { scale: 1, duration: 0.18, ease: "back.out(2)" }, t);
+      entre("#c-dates", 0); tl.set("#c-dates .c-in", { clipPath: "inset(0 0% 0 0)", x: 0 }, 0);
+      entre("#c-soirs", 1.86); entre("#c-lots", 3.24);
+      entre("#c-moteur", 4.51); claque("#c-moteur", 4.51);
+
+      // passage de vitesse : chiffre, éclair du cadran, aiguille qui retombe puis remonte
+      function vitesse(t, n, bas, haut, jusque) {
+        tl.set("#c-rapport", { textContent: n }, t);
+        tl.fromTo("#c-rapport", { scale: 1.35 }, { scale: 1, duration: 0.22, ease: "back.out(2.2)" }, t);
+        tl.fromTo("#c-anneau", { attr: { "stroke-opacity": 0.95 } }, { attr: { "stroke-opacity": 0.18 }, duration: 0.3, ease: "power2.out" }, t);
+        regime(t, bas, 0.14, "power3.out");
+        regime(t + 0.14, haut, jusque - t - 0.2, "power1.in");
+      }
+      vitesse(5.6, "1", 2500, 6800, 7.6);
+      vitesse(7.7, "2", 3000, 6900, 10.4);
+      vitesse(10.5, "3", 3200, 7000, 12.55);
+      vitesse(12.65, "4", 3400, 7100, 14.85);
+      [["#c-j1", "#c-l1", 5.6], ["#c-j2", "#c-l2", 7.7], ["#c-j3", "#c-l3", 10.5], ["#c-j4", "#c-l4", 12.65]].forEach(([j, l, t]) => {
+        entre(j, t, 24); entre(l, t + 0.08); claque(l, t + 0.08);
+      });
+      // la photo de fond pousse doucement pendant chaque soir
+      [["#c-f0", 0, 5.6], ["#c-f1", 5.6, 2.1], ["#c-f2", 7.7, 2.8], ["#c-f3", 10.5, 2.15], ["#c-f4", 12.65, 2.25]].forEach(([f, t, d]) =>
+        tl.fromTo(f + " img", { scale: 1.12 }, { scale: 1.02, duration: d, ease: "none" }, t));
+
+      // 5e : monde rouge, les trois bandes MOTEKA balaient l'image, le cadran monte
+      [["#c-b1", 0], ["#c-b2", 0.07], ["#c-b3", 0.14]].forEach(([b, dt], i) =>
+        tl.fromTo(b, { x: -700 + i * 250, skewX: -34, opacity: 1 }, { x: 380 + i * 300, skewX: -34, opacity: 0.16, duration: 0.7, ease: "power3.out" }, 14.9 + dt));
+      tl.to("#c-cadran-in", { scale: 0.62, y: -230, duration: 0.5, ease: "power3.inOut" }, 14.9);
+      regime(14.9, 6900, 0.5);
+      entre("#c-j5", 15.2, 24);
+      vitesse(16.15, "5", 3600, 7700, 20.35);
+      entre("#c-g1", 17.45); claque("#c-g1", 17.45); entre("#c-gsous", 17.6, 24);
+      entre("#c-g2", 18.51); claque("#c-g2", 18.51);
+      entre("#c-g3", 19.98); claque("#c-g3", 19.98);
+      const ch = { v: 0 };
+      tl.to(ch, { v: 320, duration: 0.6, ease: "power2.out", onUpdate: () => { document.getElementById("c-ch").textContent = Math.round(ch.v); } }, 19.98);
+
+      // 6e : la finale, dans le rouge
+      regime(20.4, 8900, 1.5, "power2.in");
+      tl.to("#c-cadran-in", { scale: 0.56, y: -300, duration: 0.5, ease: "power3.inOut" }, 20.95);
+      [["#c-n1", 0], ["#c-n2", 0.05], ["#c-n3", 0.1]].forEach(([b, dt], i) =>
+        tl.fromTo(b, { x: 1600 + i * 250, y: 900, skewX: -34, opacity: 1 }, { x: 200 + i * 300, y: 900, skewX: -34, opacity: 0.85, duration: 0.6, ease: "power3.out" }, 23.31 + dt));
+      entre("#c-j6", 21.25, 24);
+      vitesse(22.02, "6", 5200, 8800, 23.25);
+      gsap.set("#c-flash", { opacity: 0 });
+      tl.fromTo("#c-flash", { opacity: 0.95 }, { opacity: 0, duration: 0.35, ease: "power2.out", immediateRender: false }, 22.02);
+      [23.4, 23.7, 24.0, 24.3, 24.6, 24.9, 25.2].forEach((t, i) => regime(t, i % 2 ? 9000 : 8650, 0.3, "sine.inOut"));
+      tl.fromTo("#c-gta .c-in", { scale: 1.6, opacity: 0, transformOrigin: "50% 50%" }, { scale: 1, opacity: 1, duration: 0.2, ease: "back.out(1.8)" }, 23.31);
+      tl.fromTo("#c-flash", { opacity: 0.7 }, { opacity: 0, duration: 0.3, ease: "power2.out", immediateRender: false }, 23.31);
+      [12, -10, 8, -6, 4, 0].forEach((x, i) => tl.to("#c-cam", { x, y: -x * 0.6, duration: 0.05, ease: "none" }, 23.31 + i * 0.05));
+      entre("#c-ps5", 24.59, 24);
+
+      window.__timelines["compte"] = tl;
+    })();
+  </script>
+</template>
