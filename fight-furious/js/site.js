@@ -591,7 +591,7 @@
       cta: "Choisir ma place",
     });
     quand("#garage", {
-      sur: "Le lieu · Garage Moteka, Fenouillet", visuel: "assets/img/garage-voiture.jpg",
+      sur: "Le lieu · Garage Moteka, Fenouillet", visuel: "assets/img/garage-voiture.jpg?v=2",
       titre: "Le ring s'installe au garage Moteka, pour son inauguration.",
       cta: "Réserver ma place",
     });
@@ -606,7 +606,7 @@
       cta: "Réserver pour dimanche",
     });
     quand("#stand", {
-      sur: joursRestants() > 1 ? "J-" + joursRestants() + " avant le premier gong" : "C'est ce week-end", visuel: "assets/img/atelier.jpg",
+      sur: joursRestants() > 1 ? "J-" + joursRestants() + " avant le premier gong" : "C'est ce week-end", visuel: "assets/img/atelier.jpg?v=2",
       titre: "Trois jours de boxe au garage Moteka, pour son inauguration. Ne ratez pas ça.",
       cta: "Prendre mon billet",
     });
