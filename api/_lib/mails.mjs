@@ -39,7 +39,7 @@ function lignesManque(tickets, lienPage) {
 }
 
 const LIGNE_TIRAGE =
-  'Tirage au sort chaque soir du lundi 23 au vendredi 27 novembre, en story : la roulette sort un numéro, et si c’est le tien, tu grattes ton ticket pour découvrir ton lot Moteka.';
+  'Tirage au sort chaque soir du lundi 23 au samedi 28 novembre, en story : la roulette sort un numéro, et si c’est le tien, tu grattes ton ticket pour découvrir ton lot Moteka.';
 
 const LIGNE_AVIS_RECU =
   'Ton avis Google est bien reçu, merci : ta capture est enregistrée et ton ticket avis est compté. L’équipe vérifie les captures, garde bien ton avis en ligne.';
@@ -107,8 +107,8 @@ export function mailAmi({ prenomParrain, prenomAmi, lienPage }) {
     lignes: [
       `C’est David, du Boxing Center. ${qui} m’a donné ton mail.`,
       '',
-      'On fait un week-end de boxe du 11 au 13 décembre au garage Moteka, et un tirage au sort chaque soir du 23 au 27 novembre.',
-      'Location 24 h d’une grosse voiture, révision complète, vidange et d’autres lots à gagner.',
+      'On fait un week-end de boxe du 11 au 13 décembre au garage Moteka, et un tirage au sort chaque soir du 23 au 28 novembre.',
+      'À gagner : le jeu GTA 6 sur PS5, 24 h avec la Golf 8 R, un contrôle complet de ta voiture et d’autres lots.',
       'Si tu veux tenter ta chance aussi, l’inscription est gratuite :',
       `${nettoyerLien(lienPage)}/#concours`,
     ],

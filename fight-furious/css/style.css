@@ -627,6 +627,18 @@ em { font-style: normal; }
 .lot-nom { font: 600 19px/1.25 var(--titre); }
 .lot-par { font: 600 11px var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--gris); }
 .lot-bientot .lot-nom { color: var(--gris); font-style: italic; }
+.lot-nom small { display: block; margin-top: 3px; font: 500 12px/1.3 var(--texte); letter-spacing: .04em; color: var(--gris); }
+.lot-master {
+  position: relative; grid-template-columns: 34px 1fr auto; align-items: center;
+  padding: 18px 14px; margin-bottom: 6px; border: 1px solid rgba(255, 64, 160, .55);
+  background: linear-gradient(120deg, rgba(255, 64, 160, .16), rgba(120, 60, 255, .14) 55%, rgba(0, 220, 255, .10));
+  box-shadow: 0 0 28px rgba(255, 64, 160, .18);
+}
+.lot-master .lot-num { color: #ff5fb4; }
+.lot-master .lot-nom { font-size: 24px; }
+.lot-master .lot-nom small { color: #ffc2e3; text-transform: uppercase; letter-spacing: .14em; font-weight: 600; }
+.lot-visuel { width: 72px; height: auto; display: block; border-radius: 6px; filter: drop-shadow(0 6px 14px rgba(255, 64, 160, .35)); }
+@media (min-width: 700px) { .lot-visuel { width: 96px; } }
 .reglement { border: 1px solid var(--trait); border-radius: 4px; padding: 0 18px; font-size: 14px; color: #c9c6c1; }
 .reglement summary { cursor: pointer; padding: 14px 0; font: 600 13px var(--titre); letter-spacing: .18em; text-transform: uppercase; color: var(--blanc); }
 .reglement ol { margin: 0 0 16px; padding-left: 20px; display: grid; gap: 8px; }
