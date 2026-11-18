@@ -539,3 +539,10 @@ em { font-style: normal; }
 .affiche-officielle figcaption { display: flex; gap: 22px; align-items: center; font: 600 12px var(--titre); letter-spacing: .24em; text-transform: uppercase; color: #6a6a72; }
 .affiche-officielle figcaption a { color: var(--noir); text-decoration: none; border-bottom: 2px solid var(--rouge); padding-bottom: 2px; }
 .affiche-officielle figcaption a:hover { color: var(--rouge); }
+
+/* téléphone : sections pilotées par le défilement raccourcies (moins de glissés pour les traverser) */
+@media (max-width: 860px) {
+  .mots { height: 210vh; }
+  .mots-ecran { height: 100svh; }
+  .reveur { min-height: 75vh; }
+}
