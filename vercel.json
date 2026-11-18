@@ -2,12 +2,27 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     { "source": "/", "destination": "/fight-furious/index.html" },
-    { "source": "/:chemin((?!fight-furious/|api/).*)", "destination": "/fight-furious/:chemin" }
+    { "source": "/admin", "destination": "/admin/index.html" },
+    { "source": "/admin/tirage", "destination": "/admin/tirage.html" },
+    { "source": "/:chemin((?!fight-furious/|api/|admin/|admin$).*)", "destination": "/fight-furious/:chemin" }
   ],
   "headers": [
     {
       "source": "/fight-furious/assets/(.*)",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
+    },
+    {
+      "source": "/admin(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "same-origin" }
+      ]
+    },
+    {
+      "source": "/api/admin/(.*)",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     }
   ]
 }

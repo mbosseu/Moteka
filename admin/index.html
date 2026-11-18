@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Back-office jeu concours · FIGHT &amp; Furious</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/fight-furious/assets/logo/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+<header class="barre">
+  <div class="logos">
+    <img src="/fight-furious/assets/logo/boxing-center.png" alt="Boxing Center">
+    <span class="croix">x</span>
+    <img src="/fight-furious/assets/logo/moteka-blanc.svg" alt="Moteka" class="logo-moteka">
+  </div>
+  <p class="titre-barre">Jeu concours <b>FIGHT &amp; Furious</b></p>
+  <div class="compte" id="compte" hidden>
+    <span id="compte-nom"></span>
+    <button type="button" class="bouton bouton-contour" id="deconnexion">Déconnexion</button>
+  </div>
+</header>
+
+<main>
+  <section id="connexion" class="connexion" hidden>
+    <form id="form-connexion" class="carte" autocomplete="on">
+      <h1>Back-office</h1>
+      <p class="aide">Mêmes identifiants que le back-office de la boutique Boxing Center.</p>
+      <label>Email<input type="email" name="email" autocomplete="username" required></label>
+      <label>Mot de passe<input type="password" name="password" autocomplete="current-password" required></label>
+      <button type="submit" class="bouton bouton-rouge">Se connecter</button>
+      <p class="message" id="message-connexion" role="alert"></p>
+    </form>
+  </section>
+
+  <section id="tableau" hidden>
+    <div class="stats">
+      <div class="stat"><span id="stat-inscrits">0</span><small>inscrits</small></div>
+      <div class="stat"><span id="stat-tickets">0</span><small>tickets</small></div>
+      <div class="stat"><span id="stat-eligibles">0</span><small>tickets éligibles</small></div>
+      <div class="stat"><span id="stat-tirages">0</span><small>tirages</small></div>
+    </div>
+
+    <div class="carte tirage-soir">
+      <div>
+        <h2>Tirage du soir</h2>
+        <p id="etat-tirage" class="aide">Chargement...</p>
+      </div>
+      <div class="actions-tirage">
+        <label class="choix-lot">Lot
+          <select id="choix-lot"><option value="">Prochain lot dans l'ordre</option></select>
+        </label>
+        <a class="bouton bouton-rouge" id="lancer-tirage" href="/admin/tirage?mode=reel">Lancer le tirage du soir</a>
+        <a class="bouton bouton-contour" href="/admin/tirage?mode=demo" target="_blank" rel="noopener">Répétition (démo)</a>
+      </div>
+    </div>
+
+    <nav class="onglets" role="tablist">
+      <button type="button" role="tab" data-onglet="participants" aria-selected="true">Participants</button>
+      <button type="button" role="tab" data-onglet="lots" aria-selected="false">Lots</button>
+      <button type="button" role="tab" data-onglet="historique" aria-selected="false">Historique des tirages</button>
+    </nav>
+
+    <section class="panneau" id="panneau-participants">
+      <div class="outils">
+        <input type="search" id="recherche" placeholder="Rechercher : nom, email, téléphone, numéro de ticket" aria-label="Rechercher">
+        <a class="bouton bouton-contour" href="/api/admin/participants?format=csv" download>Export CSV</a>
+        <button type="button" class="bouton bouton-contour" id="rafraichir">Actualiser</button>
+      </div>
+      <p class="aide" id="compte-resultats"></p>
+      <div class="table-defile">
+        <table>
+          <thead><tr><th>Inscription</th><th>Participant</th><th>Contact</th><th>Tickets</th><th>Avis</th><th>Ami(e)s</th><th>Gain</th></tr></thead>
+          <tbody id="liste-participants"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panneau" id="panneau-lots" hidden>
+      <p class="aide">Les lots sont attribués dans l'ordre, sauf si vous en choisissez un avant de lancer le tirage. Un lot déjà gagné n'est plus proposé. Un tirage par soir du lundi 23 au vendredi 27 novembre 2026. Les lots 3 à 5 sont provisoires, à confirmer par Moteka.</p>
+      <div id="liste-lots" class="lots"></div>
+    </section>
+
+    <section class="panneau" id="panneau-historique" hidden>
+      <div class="table-defile">
+        <table>
+          <thead><tr><th>Date</th><th>Ticket</th><th>Gagnant</th><th>Contact</th><th>Lot</th><th></th></tr></thead>
+          <tbody id="liste-tirages"></tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="/admin/js/admin.js" defer></script>
+</body>
+</html>

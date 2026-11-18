@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#000000">
+<title>Tirage du soir · FIGHT &amp; Furious</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/fight-furious/assets/logo/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/css/tirage.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<div class="scene">
+  <div class="story" id="story">
+    <canvas id="toile" aria-label="Animation du tirage au sort"></canvas>
+    <div class="flash" id="flash"></div>
+
+    <header class="entete">
+      <p class="marque"><b>FIGHT</b> <i>&amp;</i> Furious</p>
+      <div class="logos">
+        <img src="/fight-furious/assets/logo/boxing-center.png" alt="Boxing Center">
+        <span>x</span>
+        <img src="/fight-furious/assets/logo/moteka-blanc.svg" alt="Moteka" class="logo-moteka">
+      </div>
+    </header>
+
+    <div class="badge-demo" id="badge-demo" hidden>Répétition</div>
+
+    <div class="titre-tirage" id="titre-tirage">
+      <p class="sur-titre">Jeu concours</p>
+      <h1>Tirage du soir</h1>
+      <p class="date" id="date-tirage"></p>
+    </div>
+
+    <p class="compteur" id="compteur"></p>
+
+    <div class="resultat" id="resultat" hidden>
+      <p class="felicitations">Félicitations</p>
+      <p class="gagnant" id="gagnant"></p>
+      <p class="ticket-gagnant" id="ticket-gagnant"></p>
+    </div>
+
+    <div class="consigne" id="consigne" hidden>
+      <p>Grattez le ticket pour découvrir le lot</p>
+    </div>
+
+    <div class="lot-final" id="lot-final" hidden>
+      <p class="sur-titre">Lot gagné</p>
+      <p class="nom-lot" id="nom-lot"></p>
+      <p class="offert">Offert par Moteka</p>
+    </div>
+
+    <p class="erreur-tirage" id="erreur-tirage" hidden></p>
+
+    <footer class="pied">Boxing Center x Moteka · Garage Moteka, Fenouillet</footer>
+
+    <div class="panneau" id="panneau">
+      <p class="mode" id="mode-libelle"></p>
+      <p class="info" id="info">Préparation...</p>
+      <label class="case"><input type="checkbox" id="opt-auto"> Grattage automatique (pour la vidéo)</label>
+      <label class="case"><input type="checkbox" id="opt-son" checked> Son</label>
+      <button type="button" class="bouton" id="lancer" disabled>Lancer le tirage</button>
+      <p class="raccourcis">Espace : lancer · A : gratter auto · F : plein écran · H : masquer les commandes</p>
+      <a class="retour" href="/admin">Retour au back-office</a>
+    </div>
+
+    <div class="fin" id="fin" hidden>
+      <button type="button" class="bouton petit" id="rejouer" hidden>Rejouer la démo</button>
+      <a class="bouton petit contour" href="/admin">Back-office</a>
+    </div>
+  </div>
+</div>
+<script type="module" src="/admin/js/tirage.js"></script>
+</body>
+</html>
