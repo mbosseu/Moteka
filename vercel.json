@@ -2,6 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     { "source": "/", "destination": "/fight-furious/index.html" },
+    { "source": "/api/admin/me", "destination": "/api/admin/login?action=me" },
+    { "source": "/api/admin/logout", "destination": "/api/admin/login?action=logout" },
     { "source": "/admin", "destination": "/admin/index.html" },
     { "source": "/admin/tirage", "destination": "/admin/tirage.html" },
     { "source": "/ticket", "destination": "/fight-furious/ticket.html" },
