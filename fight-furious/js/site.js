@@ -297,6 +297,8 @@
   lecteur.addEventListener("click", e => { if (e.target === lecteur) fermerFilm(); });
   addEventListener("keydown", e => { if (e.key === "Escape" && !lecteur.hidden) fermerFilm(); });
 
+  gsap.fromTo(".garage-une img", { scale: 1.18, yPercent: -6 }, { scale: 1, yPercent: 6, ease: "none", scrollTrigger: { trigger: ".garage-une", start: "top bottom", end: "bottom top", scrub: true } });
+  gsap.from(".garage-metiers li", { opacity: 0, y: 18, stagger: .06, duration: .7, ease: EO, scrollTrigger: { trigger: ".garage-metiers", start: "top 85%", once: true } });
   gsap.fromTo(".ecoute-image img", { scale: 1.2 }, { scale: 1, ease: "none", scrollTrigger: { trigger: ".ecoute", start: "top bottom", end: "bottom top", scrub: true } });
 
   /* ================= Carrousel du programme ================= */

@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261118190000">
+<link rel="stylesheet" href="css/style.css?v=20261118191500">
 </head>
 <body>
 
@@ -67,6 +67,7 @@
   <nav id="tiroir" class="tiroir" hidden>
     <a href="#haut">Démarrage</a>
     <a href="#gala"><em>01</em> Le gala</a>
+    <a href="#garage"><em>★</em> Le garage</a>
     <a href="#programme"><em>02</em> Programme</a>
     <a href="#disciplines"><em>03</em> Disciplines</a>
     <a href="#compte"><em>04</em> Compte à rebours</a>
@@ -180,11 +181,57 @@
           <li><b>Facile d'accès.</b> 14 rue Seveso à Fenouillet, accès direct depuis la rocade.</li>
         </ul>
         <div class="garage-actions">
-          <a class="bouton bouton-rouge" href="#stand">Découvrir le garage <span aria-hidden="true">→</span></a>
+          <a class="bouton bouton-rouge" href="#garage">Découvrir le garage <span aria-hidden="true">→</span></a>
           <a class="bouton bouton-contour" href="https://www.google.com/maps/dir/?api=1&amp;destination=MOTEKA%2C%2014%20rue%20Seveso%2C%2031150%20Fenouillet" target="_blank" rel="noopener">Itinéraire</a>
         </div>
       </div>
       <div class="ecoute-image"><img src="assets/img/atelier.jpg" alt="L'atelier d'un garage automobile, véhicule sur pont élévateur" loading="lazy"></div>
+    </div>
+  </section>
+
+  <!-- ===================== LE LIEU : GARAGE MOTEKA ===================== -->
+  <section id="garage" class="bloc garage" data-chapitre="Le garage">
+    <header class="bloc-tete">
+      <p class="numero"><em>Le lieu</em> Garage Moteka · Fenouillet</p>
+      <h2 class="balaye">Le ring s'installe au garage.</h2>
+    </header>
+    <figure class="garage-une">
+      <img src="assets/img/garage-voiture.jpg" alt="L'atelier du garage Moteka : ponts élévateurs et véhicule rouge capot ouvert" loading="lazy">
+      <figcaption>
+        <img src="assets/logo/moteka-blanc.svg" alt="Moteka" class="garage-une-logo">
+        <span>14 rue Seveso · 31150 Fenouillet · accès direct rocade</span>
+      </figcaption>
+    </figure>
+    <div class="garage-intro apparait">
+      <p class="garage-chapo">Pour son inauguration, Moteka ouvre son atelier au public et y accueille trois jours de boxe. Un centre automobile multimarques au nord de Toulouse, où l'on travaille comme dans un coin de ring : on observe, on explique, puis on agit.</p>
+      <dl class="garage-chiffres">
+        <div><dt>8</dt><dd>métiers, un seul interlocuteur</dd></div>
+        <div><dt>0&nbsp;€</dt><dd>pour le devis, chiffré par écrit avant toute intervention</dd></div>
+        <div><dt>VP + VU</dt><dd>toutes marques, particuliers et utilitaires</dd></div>
+      </dl>
+    </div>
+    <ul class="garage-metiers apparait" aria-label="Les métiers de l'atelier">
+      <li>Mécanique</li><li>Révision &amp; entretien</li><li>Pneumatique</li><li>Pare-brise</li>
+      <li>Dépannage</li><li>Nettoyage</li><li>Pièces auto</li><li>Achat-vente</li>
+    </ul>
+    <ul class="garage-engagements apparait" aria-label="Ce sur quoi vous pouvez compter">
+      <li><b>Devis écrit</b> avant toute intervention</li>
+      <li><b>Véhicule de prêt</b> sur demande, selon disponibilité</li>
+      <li><b>Pièces garanties</b> neuves ou d'occasion</li>
+      <li><b>Pneus sans rendez-vous</b> aux heures d'ouverture</li>
+    </ul>
+    <div class="garage-methode">
+      <div class="garage-methode-image apparait"><img src="assets/img/heros-boxe-atelier.jpg" alt="Un boxeur en garde dans l'atelier d'un garage" loading="lazy"></div>
+      <ol class="garage-etapes">
+        <li class="apparait"><span>01</span><h3>Diagnostic</h3><p>On regarde votre véhicule. Vous savez ce qui a été contrôlé, et pourquoi.</p></li>
+        <li class="apparait"><span>02</span><h3>Explication</h3><p>Sans jargon : ce qui est urgent, ce qui peut attendre. Vous choisissez.</p></li>
+        <li class="apparait"><span>03</span><h3>Prix ferme</h3><p>Chiffré par écrit avant de commencer. Pas de ligne surprise sur la facture.</p></li>
+        <li class="garage-actions apparait">
+          <a class="bouton bouton-rouge" href="https://www.moteka.fr/contact" target="_blank" rel="noopener">Devis gratuit <span aria-hidden="true">→</span></a>
+          <a class="bouton bouton-contour" href="tel:+33516472035">05 16 47 20 35</a>
+          <a class="bouton bouton-contour" href="https://www.google.com/maps/dir/?api=1&amp;destination=MOTEKA%2C%2014%20rue%20Seveso%2C%2031150%20Fenouillet" target="_blank" rel="noopener">Itinéraire</a>
+        </li>
+      </ol>
     </div>
   </section>
 
@@ -625,8 +672,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="js/son.js?v=20261118190000"></script>
-<script src="js/site.js?v=20261118190000"></script>
-<script src="js/concours.js?v=20261118190000"></script>
+<script src="js/son.js?v=20261118191500"></script>
+<script src="js/site.js?v=20261118191500"></script>
+<script src="js/concours.js?v=20261118191500"></script>
 </body>
 </html>
