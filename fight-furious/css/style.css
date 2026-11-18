@@ -855,3 +855,20 @@ main > section { overflow-x: clip; }
   .garage-engagements b { font-size: 15px; }
 }
 @media (max-width: 380px) { .garage-engagements { grid-template-columns: 1fr; } }
+
+/* pop-ups : la photo s'affiche toujours en entier ; un flou de la même image remplit les bords */
+.pub-toast-media { position: relative; overflow: hidden; border-radius: 4px; background: #111 var(--fond, none) center / cover no-repeat; width: 88px; height: 64px; }
+.pub-toast-media::before { content: ""; position: absolute; inset: -20px; background: inherit; filter: blur(14px) brightness(.55); }
+.pub-toast .pub-toast-media .pub-toast-visuel { position: relative; width: 100%; height: 100%; object-fit: contain; border-radius: 0; transform: none; box-shadow: none; filter: none; }
+.pub-toast { grid-template-columns: 88px 1fr auto; }
+@media (max-width: 860px) {
+  .pub-toast { grid-template-columns: 76px 1fr auto; }
+  .pub-toast-media { width: 76px; height: 56px; }
+}
+@media (min-width: 861px) {
+  .pub-toast { grid-template-columns: 1fr; }
+  .pub-toast-media { width: 100%; height: 0; padding-bottom: 56%; border-radius: 0; }
+  .pub-toast .pub-toast-media .pub-toast-visuel { position: absolute; inset: 0; }
+  .pub-toast[data-variante="billet"]::after { display: none; }
+}
+@media (min-width: 861px) and (max-height: 760px) { .pub-toast-media { padding-bottom: 42%; } }

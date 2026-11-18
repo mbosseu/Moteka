@@ -552,6 +552,7 @@
       const { sur, titre, cta, variante = "", extra = "", visuel = "assets/img/affiche.jpg" } = message;
       toast.dataset.variante = variante;
       toast.querySelector(".pub-toast-visuel").src = visuel;
+      toast.querySelector(".pub-toast-media").style.setProperty("--fond", `url("${visuel}")`);
       toast.querySelector(".pub-toast-sur").textContent = sur;
       toast.querySelector(".pub-toast-titre").textContent = titre;
       const zone = toast.querySelector(".pub-toast-extra");
