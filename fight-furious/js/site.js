@@ -99,7 +99,7 @@
   const motY = 0;
   gsap.set(".entre", { opacity: 0, filter: "blur(14px)", yPercent: 18 });
   gsap.set(".heros-titre .ligne", { yPercent: 120, opacity: 0, filter: "blur(14px)" });
-  gsap.set([".heros-logos", ".heros-texte", ".heros-film", ".heros-chiffres > div", ".perimetre", ".heros-defiler"], { opacity: 0 });
+  gsap.set([".heros-logos", ".heros-texte", ".heros-chiffres > div", ".perimetre", ".heros-defiler"], { opacity: 0 });
   gsap.set(herosCadre, { scale: .6, opacity: 0 });
   const entree = gsap.timeline({ defaults: { duration: 1.2, ease: EO } })
     .to(".allumage-logos", { opacity: 1, filter: "blur(0px)", yPercent: 0 }, .1)
@@ -178,7 +178,6 @@
       .fromTo(".heros-logos", { y: -10 }, { y: 0, opacity: 1, duration: .6 }, .8)
       .add(deverrouiller, .9)
       .fromTo(".heros-texte", { filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: .6 }, 1)
-      .to(".heros-film", { opacity: 1, duration: .8 }, 1.1)
       .fromTo(".heros-chiffres > div", { x: 20 }, { x: 0, opacity: 1, duration: .8, stagger: .08 }, 1.1)
       .fromTo(".perimetre", { y: -12 }, { y: 0, opacity: 1, duration: .8 }, 1.2)
       .to(".heros-defiler", { opacity: 1, duration: .8 }, 1.3)
