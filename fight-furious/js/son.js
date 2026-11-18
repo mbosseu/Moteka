@@ -1,9 +1,11 @@
-/* FIGHT & Furious · moteur sonore synthétisé (Web Audio, aucun fichier son).
-   Un moteur 6 cylindres dont le régime suit l'aiguille, une cloche de ring. */
+/* FIGHT & Furious · moteur sonore synthétisé (Web Audio) + musique de fond.
+   Un moteur 6 cylindres dont le régime suit l'aiguille, une cloche de ring,
+   et la musique (assets/audio/musique.mp3) lue en streaming sous le moteur. */
 window.Son = (() => {
-  let ctx = null, maitre, moteurGain, filtre, bruitGain, bruitFiltre, oscs = [], analyseur;
+  let ctx = null, maitre, moteurGain, filtre, bruitGain, bruitFiltre, oscs = [], analyseur, musiqueEl = null, musiqueGain;
   let coupe = false;
-  const etat = { rpm: 0, charge: 0, volume: 0 };
+  // musique : niveau voulu (0 = coupée) ; elle suit aussi le volume du moteur, donc se tait quand il se tait
+  const etat = { rpm: 0, charge: 0, volume: 0, musique: 0 };
 
   function courbe(k = 3) {
     const n = 1024, c = new Float32Array(n);
@@ -12,7 +14,7 @@ window.Son = (() => {
   }
 
   function init() {
-    if (ctx) return ctx.resume();
+    if (ctx) { jouerMusique(); return ctx.resume(); }
     ctx = new (window.AudioContext || window.webkitAudioContext)();
     maitre = ctx.createGain(); maitre.gain.value = coupe ? 0 : 1;
     const comp = ctx.createDynamicsCompressor();
@@ -41,8 +43,19 @@ window.Son = (() => {
     bruitGain = ctx.createGain(); bruitGain.gain.value = 0;
     bruit.connect(bruitFiltre).connect(bruitGain).connect(maitre); bruit.start();
 
+    // musique : élément audio branché dans le mixage (même bouton son, même compresseur que le moteur)
+    musiqueEl = new Audio("assets/audio/musique.mp3");
+    musiqueEl.loop = true; musiqueEl.preload = "auto";
+    musiqueGain = ctx.createGain(); musiqueGain.gain.value = 0;
+    ctx.createMediaElementSource(musiqueEl).connect(musiqueGain).connect(maitre);
+    jouerMusique();
+
     requestAnimationFrame(boucle);
     return ctx.resume();
+  }
+
+  function jouerMusique() {
+    if (musiqueEl && musiqueEl.paused && etat.musique > 0) musiqueEl.play().catch(() => {}); // refusé sans clic : on réessaiera au premier geste
   }
 
   // applique le régime en continu (avec un léger tremblement de ralenti)
@@ -57,6 +70,12 @@ window.Son = (() => {
     moteurGain.gain.setTargetAtTime(v, t, .05);
     bruitFiltre.frequency.setTargetAtTime(600 + rpm * .35, t, .05);
     bruitGain.gain.setTargetAtTime(etat.volume * (.04 + rpm / 9000 * .12 + etat.charge * .08), t, .05);
+    if (musiqueEl) {
+      const cible = etat.musique * Math.min(1, etat.volume / .45);
+      musiqueGain.gain.setTargetAtTime(cible, t, .35);
+      if (cible > .001) jouerMusique();
+      else if (!musiqueEl.paused && musiqueGain.gain.value < .002) musiqueEl.pause(); // silencieuse : on la met en pause (reprise au même endroit)
+    }
     requestAnimationFrame(boucle);
   }
 
@@ -101,5 +120,5 @@ window.Son = (() => {
     return a;
   }
 
-  return { init, etat, cloche, clic, couper, niveau, get pret() { return !!ctx; }, get actif() { return !!ctx && ctx.state === "running"; }, get coupe() { return coupe; } };
+  return { init, etat, cloche, clic, couper, niveau, get pret() { return !!ctx; }, get actif() { return !!ctx && ctx.state === "running"; }, get musiqueEnLecture() { return !!musiqueEl && !musiqueEl.paused; }, get coupe() { return coupe; } };
 })();

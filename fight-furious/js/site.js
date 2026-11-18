@@ -146,6 +146,7 @@
     entree.progress(1);
     bouton.classList.add("est-presse");
     setTimeout(() => bouton.classList.remove("est-presse"), 180);
+    regime.musique = .55; // la musique démarre avec le moteur
     Son.init();
     regime.volume = 1;
     // démarreur, explosion, coup d'accélérateur « FIGHT », retour au ralenti
@@ -226,8 +227,8 @@
   /* ================= Le moteur se tait en arrivant sur le film « Sous les projecteurs », repart si on remonte ================= */
   ScrollTrigger.create({
     trigger: ".film", start: "top 60%", end: "max", // actif jusqu'en bas : on ne peut pas « sauter » le déclencheur
-    onEnter: () => { moteurCoupe = true; gsap.killTweensOf(regime, "volume,rpm"); gsap.to(regime, { volume: 0, rpm: 0, duration: 1.4, ease: "power2.out", overwrite: "auto" }); },
-    onLeaveBack: () => { moteurCoupe = false; gsap.killTweensOf(regime, "volume"); if (demarre) gsap.to(regime, { volume: .45, duration: 1.2, overwrite: "auto" }); },
+    onEnter: () => { moteurCoupe = true; gsap.killTweensOf(regime, "volume,rpm,musique"); gsap.to(regime, { volume: 0, rpm: 0, musique: 0, duration: 1.4, ease: "power2.out", overwrite: "auto" }); },
+    onLeaveBack: () => { moteurCoupe = false; gsap.killTweensOf(regime, "volume,musique"); if (demarre) gsap.to(regime, { volume: .45, musique: .55, duration: 1.2, overwrite: "auto" }); },
   });
 
   /* ================= Mots : machine à écrire puis quatre mots ================= */
