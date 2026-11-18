@@ -112,6 +112,19 @@ td small { color: var(--gris); display: block; }
 .lot-ordre { font: 800 28px/1 var(--titre); color: var(--rouge-vif); }
 .etat { font: 600 11px var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--gris); }
 .etat.attribue { color: #ffd166; }
+.lot.masterclass { border-color: rgba(255, 64, 160, .6); box-shadow: 0 0 0 1px rgba(0, 220, 255, .25) inset; }
+.badge-masterclass { font: 700 11px var(--titre); letter-spacing: .14em; text-transform: uppercase; color: #ff6ec7; }
+
+.planning-soirs { flex: 1 1 100%; min-width: 0; }
+.planning-soirs h3 { margin: 6px 0 8px; font: 700 15px var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--gris); }
+.planning { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.planning li { padding: 10px 12px; border: 1px solid var(--trait); border-radius: 4px; background: rgba(255, 255, 255, .03); display: grid; gap: 4px; }
+.planning li b { font: 700 13px var(--titre); letter-spacing: .1em; text-transform: uppercase; }
+.planning li span { font-size: 13px; line-height: 1.3; }
+.planning li small { font: 600 11px var(--titre); letter-spacing: .12em; text-transform: uppercase; color: var(--gris); }
+.planning li.aujourdhui { border-color: var(--rouge); background: rgba(209, 20, 20, .12); }
+.planning li.tire small { color: #ffd166; }
+.planning li.masterclass span { color: #ff6ec7; font-weight: 600; }
 .case { display: flex; align-items: center; gap: 8px; text-transform: none; letter-spacing: 0; font: 400 14px var(--texte); color: var(--blanc); }
 .case input { width: auto; }
 

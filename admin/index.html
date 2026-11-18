@@ -52,7 +52,7 @@
       </div>
       <div class="actions-tirage">
         <label class="choix-lot">Lot
-          <select id="choix-lot"><option value="">Prochain lot dans l'ordre</option></select>
+          <select id="choix-lot"><option value="">Lot prévu ce soir (planning)</option></select>
         </label>
         <div class="choix-gagnant-bo">
           <label class="choix-lot choix-lot-pleine" for="filtre-gagnant-bo">Gagnant réel</label>
@@ -69,6 +69,11 @@
         </div>
         <a class="bouton bouton-rouge" id="lancer-tirage" href="/admin/tirage?mode=reel" aria-disabled="true">Ouvrir le tirage (plein écran)</a>
         <a class="bouton bouton-contour" id="lien-demo-tirage" href="/admin/tirage?mode=demo" target="_blank" rel="noopener" aria-disabled="true">Répétition (démo)</a>
+        <a class="bouton bouton-contour" id="lien-demo-gta" href="/admin/tirage?mode=demo&amp;lot=gta" target="_blank" rel="noopener" title="Répétition de l'animation spéciale du lot masterclass (rien n'est enregistré)">Démo lot GTA 6</a>
+      </div>
+      <div class="planning-soirs">
+        <h3>Planning des 6 soirs</h3>
+        <ol id="planning-tirages" class="planning"><li class="aide">Chargement...</li></ol>
       </div>
     </div>
 
@@ -99,7 +104,7 @@
     </section>
 
     <section class="panneau" id="panneau-lots" hidden>
-      <p class="aide">Les lots sont attribués dans l'ordre, sauf si vous en choisissez un avant de lancer le tirage. Un lot déjà gagné n'est plus proposé. Un tirage par soir du lundi 23 au vendredi 27 novembre 2026. Les lots 3 à 5 sont provisoires, à confirmer par Moteka.</p>
+      <p class="aide">Un tirage par soir du lundi 23 au samedi 28 novembre 2026 : 6 soirs, 6 lots. Par défaut, le soir N attribue le lot n° N (23 nov. : lot 1 ... samedi 28 nov. : lot 6, le jeu GTA 6, lot masterclass avec animation spéciale). Si ce lot est déjà gagné, c'est le prochain lot disponible. Vous pouvez aussi choisir un autre lot avant de lancer le tirage. Un lot déjà gagné n'est plus proposé.</p>
       <div id="liste-lots" class="lots"></div>
     </section>
 
@@ -122,6 +127,6 @@
   <div class="preuve-image"><img id="preuve-image" alt="Capture d'écran de l'avis Google envoyée par le participant"></div>
 </dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="/admin/js/admin.js?v=20261118185000" defer></script>
+<script src="/admin/js/admin.js?v=20261118220000" defer></script>
 </body>
 </html>

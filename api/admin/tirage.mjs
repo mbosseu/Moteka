@@ -9,13 +9,17 @@ import {
   dateDansPeriode,
   dateParis,
   dateValide,
+  estLotMasterclass,
   nomPublic,
+  planningTirages,
   resoudreTicketGagnant,
   ticketsEligibles,
 } from '../_lib/admin-tirage.mjs';
 
 function lotPublic(l) {
-  return l ? { id: l.id, ordre: l.ordre, nom: l.nom, description: l.description || '', image_url: l.image_url || null } : null;
+  return l
+    ? { id: l.id, ordre: l.ordre, nom: l.nom, description: l.description || '', image_url: l.image_url || null, masterclass: estLotMasterclass(l) }
+    : null;
 }
 
 export default async function handler(req, res) {
@@ -59,7 +63,8 @@ export default async function handler(req, res) {
         candidats,
         total_tickets: tickets.length,
         lots_restants: lots.filter((l) => l.actif !== false && !attribues.has(String(l.id))).map(lotPublic),
-        prochain_lot: lotPublic(choisirLot(lots, tirages).lot || null),
+        prochain_lot: lotPublic(choisirLot(lots, tirages, null, aujourdhui).lot || null),
+        planning: planningTirages(lots, tirages),
       });
     }
 
@@ -70,13 +75,13 @@ export default async function handler(req, res) {
     if (!dateDansPeriode(date)) {
       return repondre(res, 403, {
         ok: false,
-        message: 'Les tirages réels ont lieu uniquement du lundi 23 au vendredi 27 novembre 2026. Utilisez la répétition (démo) en dehors de ces dates.',
+        message: 'Les tirages réels ont lieu uniquement du lundi 23 au samedi 28 novembre 2026. Utilisez la répétition (démo) en dehors de ces dates.',
       });
     }
     if (tirages.some((t) => t.date_tirage === date)) {
       return repondre(res, 409, { ok: false, message: `Le tirage du ${date} a déjà eu lieu. Consultez l'historique.` });
     }
-    const { lot, erreur } = choisirLot(lots, tirages, corps.lot_id || null);
+    const { lot, erreur } = choisirLot(lots, tirages, corps.lot_id || null, date);
     if (erreur) return repondre(res, 409, { ok: false, message: erreur });
     const { ticket, erreur: errGagnant } = resoudreTicketGagnant(eligibles, {
       numero: corps.numero,

@@ -3,7 +3,7 @@
   'use strict';
 
   const $ = (s) => document.querySelector(s);
-  const etat = { participants: [], lots: [], tirages: [], tirageDuSoir: null, candidatsTirage: [] };
+  const etat = { participants: [], lots: [], planning: [], tirages: [], tirageDuSoir: null, candidatsTirage: [] };
   const DEMO_GAGNANTS = [
     { numero: 9001, prenom: 'Camille', nom: 'Martin', type: 'Classique' },
     { numero: 9002, prenom: 'Inès', nom: 'Benali', type: 'Accents' },
@@ -245,9 +245,10 @@
   function rendreLots() {
     $('#liste-lots').innerHTML = etat.lots
       .map(
-        (l) => `<form class="carte lot" data-id="${echapper(l.id)}">
+        (l) => `<form class="carte lot${l.masterclass ? ' masterclass' : ''}" data-id="${echapper(l.id)}">
           <div class="lot-tete">
             <span class="lot-ordre">${echapper(l.ordre)}</span>
+            ${l.masterclass ? '<span class="badge-masterclass">Lot masterclass</span>' : ''}
             <span class="etat ${l.attribue_le ? 'attribue' : ''}">${l.attribue_le ? `Gagné le ${echapper(dateFr(l.attribue_le))}` : l.actif ? 'Disponible' : 'Inactif'}</span>
           </div>
           <label>Nom<input name="nom" maxlength="120" required value="${echapper(l.nom)}"></label>
@@ -261,13 +262,35 @@
     const select = $('#choix-lot');
     const valeur = select.value;
     select.innerHTML =
-      '<option value="">Prochain lot dans l\'ordre</option>' +
+      '<option value="">Lot prévu ce soir (planning)</option>' +
       etat.lots
         .filter((l) => l.actif && !l.attribue_le)
         .map((l) => `<option value="${echapper(l.id)}">${echapper(l.ordre)}. ${echapper(l.nom)}</option>`)
         .join('');
     select.value = [...select.options].some((o) => o.value === valeur) ? valeur : '';
+    rendrePlanning();
     majLiensTirage();
+  }
+
+  /** Planning des 6 soirs (23 au 28 nov.) avec le lot prevu ou gagne. */
+  function rendrePlanning() {
+    const liste = $('#planning-tirages');
+    if (!liste) return;
+    const aujourdhui = etat.tirageDuSoir?.date || '';
+    liste.innerHTML = etat.planning.length
+      ? etat.planning
+          .map((p) => {
+            const masterclass = Boolean(p.lot && /\bGTA/i.test(p.lot.nom));
+            const classes = [p.date === aujourdhui ? 'aujourdhui' : '', p.statut === 'tire' ? 'tire' : '', masterclass ? 'masterclass' : ''].filter(Boolean).join(' ');
+            const statut = p.statut === 'tire' ? 'Tiré' : p.date === aujourdhui ? 'Ce soir' : 'Prévu';
+            return `<li class="${classes}">
+              <b>${echapper(dateFr(p.date))}</b>
+              <span>${p.lot ? `${echapper(p.lot.ordre)}. ${echapper(p.lot.nom)}` : 'Aucun lot disponible'}</span>
+              <small>${statut}${masterclass ? ' · lot masterclass' : ''}</small>
+            </li>`;
+          })
+          .join('')
+      : '<li class="aide">Planning indisponible.</li>';
   }
 
   $('#liste-lots').addEventListener('submit', async (e) => {
@@ -292,6 +315,7 @@
   async function chargerLots() {
     const data = await api('/api/admin/lots');
     etat.lots = data.lots || [];
+    etat.planning = data.planning || [];
     rendreLots();
   }
 
@@ -395,6 +419,13 @@
       demo.set('prenom', fictif.prenom);
       demo.set('nom', fictif.nom);
     }
+    // Demo de l'animation speciale GTA 6 : toujours disponible, avec le profil fictif choisi s'il y en a un.
+    const gta = new URLSearchParams({ mode: 'demo', lot: 'gta' });
+    const profil = fictif || DEMO_GAGNANTS[0];
+    gta.set('numero', String(profil.numero));
+    gta.set('prenom', profil.prenom);
+    gta.set('nom', profil.nom);
+    $('#lien-demo-gta').href = `/admin/tirage?${gta}`;
     $('#lancer-tirage').href = `/admin/tirage?${reel}`;
     $('#lien-demo-tirage').href = `/admin/tirage?${demo}`;
     $('#lien-demo-tirage').toggleAttribute('aria-disabled', !fictif);
@@ -424,6 +455,7 @@
   }
   $('#lancer-tirage').addEventListener('click', ouvrirSpectacle);
   $('#lien-demo-tirage').addEventListener('click', ouvrirSpectacle);
+  $('#lien-demo-gta').addEventListener('click', ouvrirSpectacle);
 
   async function chargerEtatTirage() {
     const data = await api('/api/admin/tirage');
@@ -431,13 +463,17 @@
     etat.candidatsTirage = data.candidats || [];
     remplirCandidatsTirage(etat.candidatsTirage);
     etat.tirageDuSoir = data;
-    const lot = data.prochain_lot ? data.prochain_lot.nom : 'aucun lot restant';
+    const lot = data.prochain_lot ? `${data.prochain_lot.nom}${data.prochain_lot.masterclass ? ' (lot masterclass, animation spéciale)' : ''}` : 'aucun lot restant';
+    if (Array.isArray(data.planning)) {
+      etat.planning = data.planning;
+      rendrePlanning();
+    }
     if (data.deja_tire) {
       $('#etat-tirage').textContent = `Le tirage du ${dateFr(data.date)} a déjà eu lieu (voir l'historique).`;
     } else if (horsPeriode) {
-      $('#etat-tirage').textContent = `${data.numeros.length} ticket(s) éligible(s) sur ${data.total_tickets}. Prochain lot : ${lot}. Choisissez le gagnant puis ouvrez le tirage. Hors période (23-27 nov.), la roue tourne en répétition : rien n'est enregistré.`;
+      $('#etat-tirage').textContent = `${data.numeros.length} ticket(s) éligible(s) sur ${data.total_tickets}. Prochain lot : ${lot}. Choisissez le gagnant puis ouvrez le tirage. Hors période (23-28 nov.), la roue tourne en répétition : rien n'est enregistré.`;
     } else {
-      $('#etat-tirage').textContent = `${data.numeros.length} ticket(s) éligible(s) sur ${data.total_tickets}. Prochain lot : ${lot}. Choisissez le gagnant : sur la page tirage, il ne restera qu’à tourner la roue.`;
+      $('#etat-tirage').textContent = `${data.numeros.length} ticket(s) éligible(s) sur ${data.total_tickets}. Lot prévu ce soir : ${lot}. Choisissez le gagnant : sur la page tirage, il ne restera qu’à tourner la roue.`;
     }
     majLiensTirage();
   }

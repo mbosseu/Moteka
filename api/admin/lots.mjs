@@ -1,9 +1,9 @@
-// GET /api/admin/lots : liste des lots (avec attribution).
+// GET /api/admin/lots : liste des lots (avec attribution) et planning des soirs de tirage (23 au 28 nov.).
 // PUT { id, nom?, description?, image_url?, actif? } : modification d'un lot.
 import { lireCorps } from '../_lib/http.mjs';
 import { accepter, erreurServeur, exigerSession, memeOrigine, repondre } from '../_lib/admin-http.mjs';
 import { lireLots, lireTirages, modifierLot } from '../_lib/admin-db.mjs';
-import { validerLot } from '../_lib/admin-tirage.mjs';
+import { estLotMasterclass, planningTirages, validerLot } from '../_lib/admin-tirage.mjs';
 
 export default async function handler(req, res) {
   if (!accepter(req, res, ['GET', 'PUT'])) return;
@@ -23,7 +23,8 @@ export default async function handler(req, res) {
     const attribution = new Map(tirages.map((t) => [String(t.lot_id), t.date_tirage]));
     return repondre(res, 200, {
       ok: true,
-      lots: lots.map((l) => ({ ...l, attribue_le: attribution.get(String(l.id)) || null })),
+      lots: lots.map((l) => ({ ...l, masterclass: estLotMasterclass(l), attribue_le: attribution.get(String(l.id)) || null })),
+      planning: planningTirages(lots, tirages),
     });
   } catch (err) {
     return erreurServeur(res, err, 'lots');

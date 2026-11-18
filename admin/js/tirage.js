@@ -7,7 +7,9 @@
  *   3. "Felicitations Prenom N. - ticket n. X" ;
  *   4. un ticket a gratter 3D arrive : on le gratte au doigt / a la souris (ou grattage automatique)
  *      et il revele le lot Moteka gagne.
+ *   5. lot masterclass (jeu GTA 6, finale du samedi 28) : sequence 3D speciale "Vice City" (tirage-gta.js).
  * Mode demo (?mode=demo) : tirage factice, rien n'est enregistre. Mode reel (?mode=reel) : POST /api/admin/tirage.
+ * Demo de la sequence GTA 6 : ?mode=demo&lot=gta (le ticket revele GTA 6), touche G pour la lancer directement.
  */
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -15,6 +17,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { creerSequenceGta } from './tirage-gta.js?v=20261118220000';
 
 /* ------------------------------------------------------------------ */
 /* Parametres                                                          */
@@ -46,7 +49,11 @@ const hasard = (a, b) => a + Math.random() * (b - a);
 const mobile = matchMedia('(pointer: coarse)').matches;
 
 const PRENOMS_DEMO = ['Camille', 'Lucas', 'Sarah', 'Mehdi', 'Julie', 'Thomas', 'Ines', 'Nicolas', 'Lea', 'Karim'];
-const LOT_DEMO = { nom: "Location 24 h d'une grosse voiture", description: 'Une grosse voiture à votre disposition pendant 24 heures, offerte par Moteka.' };
+const LOT_DEMO = { nom: 'Vidange offerte', description: 'Vidange de votre véhicule offerte par Moteka.' };
+const LOT_GTA_DEMO = { nom: 'Le jeu GTA 6 sur PS5', description: 'Lot masterclass de la finale du samedi, offert par Moteka.', masterclass: true };
+const DEMO_GTA = LOT_DEMANDE.toLowerCase() === 'gta';
+/** Lot masterclass (GTA 6) : animation speciale a la revelation. */
+const estMasterclass = (lot) => Boolean(lot && (lot.masterclass || /\bGTA/i.test(String(lot.nom || ''))));
 
 /* ------------------------------------------------------------------ */
 /* Ressources : polices et logos                                       */
@@ -144,7 +151,8 @@ const camera = new THREE.PerspectiveCamera(50, 9 / 16, 0.1, 120);
 scene.add(camera);
 
 const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
+const passeRendu = new RenderPass(scene, camera);
+composer.addPass(passeRendu);
 const bloom = new UnrealBloomPass(new THREE.Vector2(512, 512), 0.36, 0.5, 0.88);
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
@@ -158,7 +166,9 @@ function redimensionner() {
   composer.setSize(w, h);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
+  sequenceGta?.redimensionner(w, h);
 }
+let sequenceGta = null;
 new ResizeObserver(redimensionner).observe(story);
 
 /* ------------------------------------------------------------------ */
@@ -1064,6 +1074,55 @@ function son(type) {
       o.start(t + i * 0.11);
       o.stop(t + i * 0.11 + 1);
     });
+  } else if (type === 'montee') {
+    // montee de tension (balayage de dent de scie filtre)
+    const o = audio.createOscillator();
+    const f = audio.createBiquadFilter();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(110, t);
+    o.frequency.exponentialRampToValueAtTime(880, t + 0.7);
+    f.type = 'lowpass';
+    f.frequency.setValueAtTime(400, t);
+    f.frequency.exponentialRampToValueAtTime(6000, t + 0.7);
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(0.08, t + 0.5);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.85);
+    o.connect(f);
+    f.connect(gain);
+    o.start(t);
+    o.stop(t + 0.9);
+  } else if (type === 'gta') {
+    // arpege synthwave (la mineur) et basse
+    const notes = [220, 261.63, 329.63, 440, 523.25, 659.25, 880, 659.25, 523.25, 440, 523.25, 659.25];
+    notes.forEach((fr, i) => {
+      const o = audio.createOscillator();
+      const g = audio.createGain();
+      const f = audio.createBiquadFilter();
+      o.type = 'sawtooth';
+      o.frequency.value = fr;
+      f.type = 'lowpass';
+      f.frequency.value = 2400;
+      const d = t + i * 0.12;
+      g.gain.setValueAtTime(0.0001, d);
+      g.gain.exponentialRampToValueAtTime(0.06, d + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, d + 0.26);
+      o.connect(f);
+      f.connect(g);
+      g.connect(audio.destination);
+      o.start(d);
+      o.stop(d + 0.3);
+    });
+    const b = audio.createOscillator();
+    const gb = audio.createGain();
+    b.type = 'triangle';
+    b.frequency.setValueAtTime(55, t);
+    gb.gain.setValueAtTime(0.0001, t);
+    gb.gain.exponentialRampToValueAtTime(0.25, t + 0.05);
+    gb.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
+    b.connect(gb);
+    gb.connect(audio.destination);
+    b.start(t);
+    b.stop(t + 1.7);
   } else if (type === 'gratte') {
     const bruit = audio.createBufferSource();
     const buf = audio.createBuffer(1, audio.sampleRate * 0.06, audio.sampleRate);
@@ -1111,6 +1170,9 @@ function aujourdhui() {
 }
 
 function candidatChoisi() {
+  if (!NUMERO_CHOISI && MODE === 'demo' && DEMO_GTA) {
+    return { numero: 9001, prenom: 'Camille', nom: 'Martin', initiale: 'M', label: 'Camille Martin' };
+  }
   if (!NUMERO_CHOISI) return null;
   if (MODE === 'demo') {
     const n = Number(NUMERO_CHOISI);
@@ -1128,6 +1190,16 @@ function candidatChoisi() {
   return candidats.find((c) => String(c.numero) === NUMERO_CHOISI) || null;
 }
 
+/** Lot montre en repetition : ?lot=gta, un lot choisi dans le back-office, sinon le lot prevu ce soir. */
+function lotRepetition() {
+  if (DEMO_GTA) return LOT_GTA_DEMO;
+  if (LOT_DEMANDE) {
+    const l = (infoTirage?.lots_restants || []).find((x) => String(x.id) === LOT_DEMANDE);
+    if (l) return l;
+  }
+  return infoTirage?.prochain_lot || LOT_DEMO;
+}
+
 function tirageDepuisCandidat(c) {
   const initiale = c.initiale || String(c.nom || '').trim().charAt(0).toUpperCase();
   return {
@@ -1135,7 +1207,7 @@ function tirageDepuisCandidat(c) {
     prenom: c.prenom || '',
     initiale,
     date_tirage: aujourdhui(),
-    lot: infoTirage?.prochain_lot || LOT_DEMO,
+    lot: lotRepetition(),
   };
 }
 
@@ -1149,7 +1221,7 @@ function tirageDemo() {
     prenom,
     initiale: 'ABCDEFGHIJKLMNOPRSTV'[Math.floor(Math.random() * 20)],
     date_tirage: aujourdhui(),
-    lot: infoTirage?.prochain_lot || LOT_DEMO,
+    lot: lotRepetition(),
   };
 }
 
@@ -1183,7 +1255,7 @@ window.addEventListener('load', () => { entrerPleinEcran(); });
 /* ------------------------------------------------------------------ */
 /* Deroule de l'animation                                              */
 /* ------------------------------------------------------------------ */
-const P = { attente: 0, intro: 1, tourne: 2, ralenti: 3, arret: 4, ticketEntree: 5, grattage: 6, revele: 7, erreur: 8 };
+const P = { attente: 0, intro: 1, tourne: 2, ralenti: 3, arret: 4, ticketEntree: 5, grattage: 6, revele: 7, erreur: 8, gta: 9 };
 let phase = P.attente;
 let tPhase = 0;
 let angleRouleau = 0;
@@ -1376,12 +1448,94 @@ function revelerLot() {
   $('#lot-final').classList.add('visible');
   flash(0.55);
   son('fanfare');
+  if (estMasterclass(resultat.lot)) {
+    $('#lot-final .sur-titre').textContent = 'Lot masterclass';
+    $('#lot-final').classList.add('masterclass');
+  }
   const centre = pointMonde(new THREE.Vector3(0, 0, 0.5), ticket);
   lancerConfettis(centre.clone().add(new THREE.Vector3(0, 1.4, 0)), 260, 3.2);
   etincelles.emettre(pointMonde(new THREE.Vector3(zoneCx, zoneCy, 0.1), ticket), 160, { vitesse: 3.5, couleur: [1, 0.85, 0.5], duree: 1.4 });
-  setTimeout(() => {
-    $('#fin').hidden = false;
-  }, 2500);
+  if (!estMasterclass(resultat.lot)) {
+    setTimeout(() => {
+      if (phase === P.revele) $('#fin').hidden = false;
+    }, 2500);
+  }
+}
+
+/* --- sequence speciale du lot masterclass (GTA 6) --- */
+function demarrerGta() {
+  if (!sequenceGta) {
+    sequenceGta = creerSequenceGta({
+      environnement: scene.environment,
+      texPoint,
+      police: POLICE,
+      rappels: {
+        impact: () => {
+          flash(0.9);
+          secousse = 0.3;
+          son('impact');
+          son('gta');
+        },
+        titre: () => {
+          $('#gta-sur').classList.add('montre');
+        },
+        gagnant: () => {
+          const r = resultat || {};
+          $('#gta-lot').textContent = r.lot?.nom || LOT_GTA_DEMO.nom;
+          $('#gta-gagnant').textContent = `${r.prenom || ''}${r.initiale ? ` ${r.initiale}.` : ''}`.trim();
+          $('#gta-ticket').textContent = r.numero ? `Ticket n. ${r.numero}` : '';
+          $('#gta-bas').classList.add('montre');
+          flash(0.4);
+          son('fanfare');
+        },
+        fin: () => {
+          $('#fin').hidden = false;
+        },
+      },
+    });
+    sequenceGta.redimensionner(story.clientWidth || 9, story.clientHeight || 16);
+  }
+  changerPhase(P.gta);
+  for (const id of ['#lot-final', '#resultat', '#consigne', '#compteur', '#titre-tirage']) $(id).hidden = true;
+  $('#panneau').classList.add('cache');
+  $('#gta-final').hidden = false;
+  $('#gta-sur').classList.remove('montre');
+  $('#gta-bas').classList.remove('montre');
+  $('#flash').classList.add('neon');
+  flash(1.4);
+  bloom.threshold = 0.72;
+  bloom.radius = 0.62;
+  passeRendu.scene = sequenceGta.scene;
+  passeRendu.camera = sequenceGta.camera;
+  sequenceGta.demarrer();
+  initAudio();
+  son('montee');
+}
+
+function quitterGta() {
+  sequenceGta?.arreter();
+  passeRendu.scene = scene;
+  passeRendu.camera = camera;
+  bloom.threshold = 0.88;
+  bloom.radius = 0.5;
+  $('#flash').classList.remove('neon');
+  $('#gta-final').hidden = true;
+  $('#gta-sur').classList.remove('montre');
+  $('#gta-bas').classList.remove('montre');
+  for (const id of ['#compteur', '#titre-tirage']) $(id).hidden = false;
+  $('#lot-final').classList.remove('masterclass');
+  $('#lot-final .sur-titre').textContent = 'Lot gagné';
+}
+
+/** Repetition : lance directement la sequence GTA 6 (touche G), sans passer par la roue. */
+function repeterGta() {
+  if (MODE !== 'demo' || phase === P.gta) return;
+  const choisi = candidatChoisi() || { numero: 9001, prenom: 'Camille', nom: 'Martin', initiale: 'M' };
+  resultat = { ...tirageDepuisCandidat(choisi), lot: LOT_GTA_DEMO };
+  ticket.visible = false;
+  voile.material.opacity = 0;
+  $('#fin').hidden = true;
+  demarrerGta();
 }
 
 /* --- lancement --- */
@@ -1414,6 +1568,7 @@ async function lancer() {
 }
 
 function reinitialiser() {
+  quitterGta();
   ralenti = null;
   resultat = null;
   erreurTirage = null;
@@ -1578,7 +1733,20 @@ function boucle() {
       } else {
         matGrattage.opacity = Math.max(0, matGrattage.opacity - dt * 1.4);
         if (tPhase < 3 && Math.random() < 0.15) lancerConfettis(pointMonde(new THREE.Vector3(hasard(-1.5, 1.5), 2.6, 0.5), ticket), 6, 1);
+        // lot masterclass : flash puis bascule dans la sequence neon GTA 6
+        if (estMasterclass(resultat?.lot)) {
+          if (tPhase > 1.6 && tPhase - dt <= 1.6) {
+            secousse = 0.2;
+            son('montee');
+          }
+          if (tPhase > 1.6) flash(Math.min(1.2, (tPhase - 1.6) * 2.2));
+          if (tPhase > 2.15) demarrerGta();
+        }
       }
+      break;
+    }
+    case P.gta: {
+      sequenceGta.maj(dt);
       break;
     }
     case P.erreur: {
@@ -1621,7 +1789,7 @@ function boucle() {
   // flash et bloom
   flashNiveau = Math.max(0, flashNiveau - dt * 1.8);
   $('#flash').style.opacity = String(Math.min(1, flashNiveau * 0.9));
-  bloom.strength = 0.34 + flashNiveau * 1.35;
+  bloom.strength = (phase === P.gta ? 0.85 : 0.34) + flashNiveau * 1.35;
 
   composer.render();
   requestAnimationFrame(boucle);
@@ -1681,7 +1849,7 @@ async function preparer() {
   $('#compteur').innerHTML = `<b>${numeros.length}</b> ticket${numeros.length > 1 ? 's' : ''} en jeu`;
 
   const choisi = candidatChoisi();
-  if (!NUMERO_CHOISI || !choisi) {
+  if (!choisi) {
     pret = false;
     if ($('#info')) {
       $('#info').hidden = false;
@@ -1709,6 +1877,7 @@ async function preparer() {
   }
   if (params.get('auto') === '1') $('#opt-auto').checked = true;
   $('#rejouer').hidden = MODE === 'reel';
+  $('#raccourcis-demo').hidden = MODE === 'reel';
   $('#rejouer').addEventListener('click', reinitialiser);
   requestAnimationFrame(boucle);
 }
@@ -1726,6 +1895,7 @@ document.addEventListener('keydown', (e) => {
     basculerPleinEcran();
   } else if (e.key === 'h' || e.key === 'H') document.body.classList.toggle('sans-ui');
   else if ((e.key === 'r' || e.key === 'R') && MODE === 'demo') reinitialiser();
+  else if ((e.key === 'g' || e.key === 'G') && MODE === 'demo') repeterGta();
 });
 
 preparer();

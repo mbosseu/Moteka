@@ -10,7 +10,11 @@ import {
   dateDansPeriode,
   dateParis,
   dateValide,
+  estLotMasterclass,
   historiqueTirages,
+  ordrePrevu,
+  planningTirages,
+  soirsTirage,
   nomPublic,
   planDecisionAvis,
   statistiques,
@@ -177,9 +181,55 @@ test('choix du lot : ordre, lot demande, lots attribues ou inactifs exclus', () 
   assert.ok(choisirLot(lots, [{ lot_id: 'l1' }, { lot_id: 'l2' }, { lot_id: 'l4' }]).erreur);
 });
 
-test('periode des tirages : du 23 au 27 novembre 2026 inclus', () => {
-  for (const d of ['2026-11-23', '2026-11-25', '2026-11-27']) assert.equal(dateDansPeriode(d), true, d);
-  for (const d of ['2026-11-22', '2026-11-28', '2026-12-11', '2026-02-30', 'demain']) assert.equal(dateDansPeriode(d), false, d);
+test('periode des tirages : du 23 au 28 novembre 2026 inclus (6 soirs)', () => {
+  for (const d of ['2026-11-23', '2026-11-25', '2026-11-27', '2026-11-28']) assert.equal(dateDansPeriode(d), true, d);
+  for (const d of ['2026-11-22', '2026-11-29', '2026-12-11', '2026-02-30', 'demain']) assert.equal(dateDansPeriode(d), false, d);
+  assert.deepEqual(soirsTirage(), ['2026-11-23', '2026-11-24', '2026-11-25', '2026-11-26', '2026-11-27', '2026-11-28']);
+  assert.equal(ordrePrevu('2026-11-23'), 1);
+  assert.equal(ordrePrevu('2026-11-28'), 6);
+  assert.equal(ordrePrevu('2026-11-29'), null);
+});
+
+const lots6 = [
+  { id: 'v', ordre: 1, nom: 'Vidange offerte', actif: true },
+  { id: 'n', ordre: 2, nom: 'Nettoyage complet intérieur et extérieur de votre voiture', actif: true },
+  { id: 'g', ordre: 3, nom: 'Géométrie et parallélisme offerts', actif: true },
+  { id: 'c', ordre: 4, nom: 'Contrôle complet de votre véhicule', actif: true },
+  { id: 'r', ordre: 5, nom: '24 h de location de la Golf 8 R', actif: true },
+  { id: 'gta', ordre: 6, nom: 'Le jeu GTA 6 sur PS5', actif: true },
+];
+
+test('lot du soir : le lot dont l ordre correspond au jour, sinon le prochain disponible', () => {
+  assert.equal(choisirLot(lots6, [], null, '2026-11-23').lot.id, 'v');
+  assert.equal(choisirLot(lots6, [], null, '2026-11-25').lot.id, 'g');
+  assert.equal(choisirLot(lots6, [], null, '2026-11-28').lot.id, 'gta');
+  // lot du jour deja gagne (choix manuel un autre soir) : le suivant
+  assert.equal(choisirLot(lots6, [{ lot_id: 'g' }], null, '2026-11-25').lot.id, 'c');
+  // plus rien apres : on revient au premier disponible
+  assert.equal(choisirLot(lots6, [{ lot_id: 'gta' }], null, '2026-11-28').lot.id, 'v');
+  // choix manuel prioritaire
+  assert.equal(choisirLot(lots6, [], 'gta', '2026-11-23').lot.id, 'gta');
+  // hors periode : premier disponible
+  assert.equal(choisirLot(lots6, [], null, '2026-11-18').lot.id, 'v');
+});
+
+test('planning des 6 soirs avec le lot prevu', () => {
+  const vide = planningTirages(lots6, []);
+  assert.deepEqual(vide.map((p) => p.lot.id), ['v', 'n', 'g', 'c', 'r', 'gta']);
+  assert.equal(vide[5].date, '2026-11-28');
+  assert.ok(vide.every((p) => p.statut === 'prevu'));
+  // le 23, la GTA a ete donnee manuellement : le samedi recoit le prochain lot libre
+  const p = planningTirages(lots6, [{ date_tirage: '2026-11-23', lot_id: 'gta' }]);
+  assert.equal(p[0].statut, 'tire');
+  assert.equal(p[0].lot.id, 'gta');
+  assert.deepEqual(p.slice(1).map((x) => x.lot.id), ['n', 'g', 'c', 'r', 'v']);
+});
+
+test('lot masterclass : detection du jeu GTA 6', () => {
+  assert.equal(estLotMasterclass({ nom: 'Le jeu GTA 6 sur PS5' }), true);
+  assert.equal(estLotMasterclass({ nom: 'gta vi' }), true);
+  assert.equal(estLotMasterclass({ nom: 'Vidange offerte' }), false);
+  assert.equal(estLotMasterclass(null), false);
 });
 
 test('dates : jour de Paris et validation', () => {

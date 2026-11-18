@@ -8,8 +8,8 @@ export function dateParis(maintenant = new Date()) {
   return `${v('year')}-${v('month')}-${v('day')}`;
 }
 
-// Periode du jeu : un tirage par soir du lundi 23 au vendredi 27 novembre 2026 inclus.
-export const PERIODE_TIRAGES = { debut: '2026-11-23', fin: '2026-11-27' };
+// Periode du jeu : un tirage par soir du lundi 23 au samedi 28 novembre 2026 inclus (6 tirages, 6 lots).
+export const PERIODE_TIRAGES = { debut: '2026-11-23', fin: '2026-11-28' };
 
 /** Vrai si la date (AAAA-MM-JJ) est un soir de tirage autorise. */
 export function dateDansPeriode(date, periode = PERIODE_TIRAGES) {
@@ -67,11 +67,31 @@ export function resoudreTicketGagnant(eligibles, choix = {}) {
   return { erreur: 'Indiquez le gagnant (numéro de ticket ou participant).' };
 }
 
+/** Liste des soirs de tirage (AAAA-MM-JJ) de la periode, dans l'ordre. */
+export function soirsTirage(periode = PERIODE_TIRAGES) {
+  const soirs = [];
+  const d = new Date(`${periode.debut}T12:00:00Z`);
+  for (let i = 0; i < 31; i += 1) {
+    const iso = d.toISOString().slice(0, 10);
+    if (iso > periode.fin) break;
+    soirs.push(iso);
+    d.setUTCDate(d.getUTCDate() + 1);
+  }
+  return soirs;
+}
+
+/** Ordre du lot prevu pour un soir : 23 nov. -> 1 ... 28 nov. -> 6. Null hors periode. */
+export function ordrePrevu(date, periode = PERIODE_TIRAGES) {
+  const i = soirsTirage(periode).indexOf(String(date || ''));
+  return i < 0 ? null : i + 1;
+}
+
 /**
- * Lot a attribuer : celui demande (actif et pas encore attribue) ou, a defaut, le prochain lot actif
- * non attribue dans l'ordre. Renvoie { lot } ou { erreur }.
+ * Lot a attribuer : celui demande (actif et pas encore attribue) ou, a defaut, le lot prevu pour le soir
+ * (ordre = rang du soir dans la periode) s'il est disponible, sinon le prochain lot disponible dans l'ordre.
+ * Sans date (ou hors periode) : le premier lot disponible. Renvoie { lot } ou { erreur }.
  */
-export function choisirLot(lots, tirages, lotDemande = null) {
+export function choisirLot(lots, tirages, lotDemande = null, date = null, periode = PERIODE_TIRAGES) {
   const attribues = new Set((tirages || []).map((t) => String(t.lot_id)));
   const disponibles = (lots || [])
     .filter((l) => l.actif !== false && !attribues.has(String(l.id)))
@@ -82,7 +102,37 @@ export function choisirLot(lots, tirages, lotDemande = null) {
     return { lot };
   }
   if (!disponibles.length) return { erreur: 'Tous les lots ont déjà été attribués.' };
+  const ordre = date ? ordrePrevu(date, periode) : null;
+  if (ordre != null) {
+    const suivant = disponibles.find((l) => Number(l.ordre) >= ordre);
+    return { lot: suivant || disponibles[0] };
+  }
   return { lot: disponibles[0] };
+}
+
+/**
+ * Planning des soirs de tirage : pour chaque soir, le lot gagne (tirage enregistre) ou le lot prevu
+ * par defaut en tenant compte des lots deja attribues et des soirs precedents.
+ */
+export function planningTirages(lots, tirages, periode = PERIODE_TIRAGES) {
+  const parDate = new Map((tirages || []).map((t) => [String(t.date_tirage), t]));
+  const lotsParId = new Map((lots || []).map((l) => [String(l.id), l]));
+  const simules = [...(tirages || [])];
+  return soirsTirage(periode).map((date, i) => {
+    const t = parDate.get(date);
+    if (t) {
+      const l = lotsParId.get(String(t.lot_id));
+      return { date, ordre: i + 1, statut: 'tire', lot: l ? { id: l.id, ordre: l.ordre, nom: l.nom } : null };
+    }
+    const { lot } = choisirLot(lots, simules, null, date, periode);
+    if (lot) simules.push({ lot_id: lot.id, date_tirage: date });
+    return { date, ordre: i + 1, statut: 'prevu', lot: lot ? { id: lot.id, ordre: lot.ordre, nom: lot.nom } : null };
+  });
+}
+
+/** Vrai pour le lot masterclass (jeu GTA 6) : animation speciale a la revelation. */
+export function estLotMasterclass(lot) {
+  return /\bGTA/i.test(String(lot?.nom || ''));
 }
 
 /** "Prenom N." : ce qui peut etre montre a l'ecran pendant le direct. */
