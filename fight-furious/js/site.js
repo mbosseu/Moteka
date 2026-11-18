@@ -1,6 +1,9 @@
 /* FIGHT & Furious · Boxing Center × Moteka · animations */
 (() => {
   gsap.registerPlugin(ScrollTrigger);
+  // l'expérience commence toujours par l'écran d'allumage : pas de reprise de la position au rechargement
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  scrollTo(0, 0);
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -518,4 +521,85 @@
   document.addEventListener("visibilitychange", () => { if (Son.pret) Son.couper(document.hidden || boutonSon.getAttribute("aria-pressed") === "false"); });
   // la vidéo du héros ne tourne que lorsqu'elle se voit
   ScrollTrigger.create({ trigger: ".heros", start: "top bottom", end: "bottom top", onToggle: st => { if (!lance) return; if (!herosVideo.play) return; st.isActive ? herosVideo.play().catch(() => {}) : herosVideo.pause(); } });
+
+  /* ================= Incitations à réserver : 2 notifications au plus, une fenêtre de sortie, jamais insistantes ================= */
+  (() => {
+    const toast = $(".pub-toast"), modale = $(".pub-modale");
+    if (!toast || !modale) return;
+    const CLE = "ff-incitations";
+    const lire = () => { try { return JSON.parse(sessionStorage.getItem(CLE)) || {}; } catch (e) { return {}; } };
+    const ecrire = o => { try { sessionStorage.setItem(CLE, JSON.stringify(Object.assign(lire(), o))); } catch (e) {} };
+    const debut = Date.now();
+    const joursRestants = () => Math.max(0, Math.ceil((new Date("2026-12-11T19:00:00+01:00") - Date.now()) / 864e5));
+    const fini = () => lire().reserve || lire().billetsVus;
+    let minuterie = 0, toastOuvert = false;
+
+    function cacherToast() {
+      toast.classList.remove("est-visible"); toastOuvert = false; clearTimeout(minuterie);
+      setTimeout(() => { if (!toastOuvert) toast.hidden = true; }, 500);
+    }
+    function montrerToast(message, duree = 9000) {
+      // pendant l'intro, ou si une autre incitation est affichée, on réessaie un peu plus tard au lieu de perdre le message
+      if (!lance || toastOuvert || !modale.hidden) { setTimeout(() => montrerToast(message, duree), 2500); return; }
+      if (fini() || (lire().toasts || 0) >= 2) return;
+      const { sur, titre, cta } = message;
+      toast.querySelector(".pub-toast-sur").textContent = sur;
+      toast.querySelector(".pub-toast-titre").textContent = titre;
+      toast.querySelector(".pub-toast-cta").innerHTML = cta + ' <span aria-hidden="true">→</span>';
+      toast.style.setProperty("--pub-duree", duree + "ms");
+      toast.hidden = false; toastOuvert = true;
+      requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add("est-visible")));
+      ecrire({ toasts: (lire().toasts || 0) + 1 });
+      let reste = duree, t0 = Date.now();
+      const relancer = () => { clearTimeout(minuterie); t0 = Date.now(); minuterie = setTimeout(cacherToast, reste); };
+      toast.onmouseenter = () => { clearTimeout(minuterie); reste -= Date.now() - t0; };
+      toast.onmouseleave = relancer;
+      relancer();
+    }
+    toast.querySelector(".pub-toast-fermer").addEventListener("click", cacherToast);
+
+    // 1) en découvrant le programme : l'offre
+    ScrollTrigger.create({ trigger: "#programme", start: "top 55%", once: true, onEnter: () => setTimeout(() => montrerToast({
+      sur: "Vendredi 11 déc. · dès 19h",
+      titre: "Gala Boxe Amateur Élites : réservez votre place, accès dès 5 €.",
+      cta: "Réserver",
+    }), 1200) });
+    // 2) chez le partenaire Moteka : le compte à rebours
+    ScrollTrigger.create({ trigger: "#stand", start: "top 50%", once: true, onEnter: () => setTimeout(() => {
+      const j = joursRestants();
+      montrerToast({
+        sur: j > 1 ? "J-" + j + " avant le premier gong" : "C'est ce week-end",
+        titre: "Trois jours de boxe et l'inauguration du garage Moteka. Ne ratez pas ça.",
+        cta: "Prendre mon billet",
+      });
+    }, 1200) });
+    // en atteignant la billetterie, on ne relance plus personne
+    ScrollTrigger.create({ trigger: "#billets", start: "top 70%", onEnter: () => { ecrire({ billetsVus: true }); if (toastOuvert) cacherToast(); } });
+
+    // 3) fenêtre de sortie (ordinateur) : la souris quitte la page par le haut, une seule fois
+    function ouvrirModale() {
+      if (!lance || fini() || lire().modale || Date.now() - debut < 20000) return;
+      ecrire({ modale: true });
+      if (toastOuvert) cacherToast();
+      modale.querySelector("[data-pub-jours]").textContent = joursRestants();
+      modale.hidden = false;
+      requestAnimationFrame(() => requestAnimationFrame(() => modale.classList.add("est-visible")));
+      modale.querySelector(".pub-reserver").focus({ preventScroll: true });
+    }
+    function fermerModale() { modale.classList.remove("est-visible"); setTimeout(() => { modale.hidden = true; }, 350); }
+    if (matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      document.addEventListener("mouseout", e => { if (!e.relatedTarget && e.clientY <= 0) ouvrirModale(); });
+    }
+    modale.querySelector(".pub-modale-fermer").addEventListener("click", fermerModale);
+    modale.querySelector(".pub-plus-tard").addEventListener("click", fermerModale);
+    modale.addEventListener("click", e => { if (e.target === modale) fermerModale(); });
+    addEventListener("keydown", e => { if (e.key === "Escape" && !modale.hidden) fermerModale(); });
+
+    // tout clic vers la billetterie compte comme « réservé » : plus aucune incitation ensuite
+    $$('a[href="#billets"]').forEach(a => a.addEventListener("click", () => {
+      ecrire({ reserve: true });
+      if (toastOuvert) cacherToast();
+      if (!modale.hidden) fermerModale();
+    }));
+  })();
 })();

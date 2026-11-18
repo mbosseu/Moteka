@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261118103141">
+<link rel="stylesheet" href="css/style.css?v=20261118110142">
 </head>
 <body>
 
@@ -434,6 +434,35 @@
   <p class="pied-mention">© 2026 Boxing Center · FIGHT &amp; Furious · Propulsé par Moteka</p>
 </footer>
 
+<!-- ===================== INCITATIONS À RÉSERVER ===================== -->
+<aside class="pub-toast" role="status" aria-live="polite" hidden>
+  <img class="pub-toast-visuel" src="assets/img/affiche.jpg" alt="" width="64" height="80">
+  <div class="pub-toast-texte">
+    <p class="pub-toast-sur"></p>
+    <p class="pub-toast-titre"></p>
+    <a class="pub-toast-cta" href="#billets"></a>
+  </div>
+  <button class="pub-toast-fermer" type="button" aria-label="Fermer la notification">✕</button>
+  <i class="pub-toast-temps" aria-hidden="true"></i>
+</aside>
+
+<div class="pub-modale" role="dialog" aria-modal="true" aria-labelledby="pub-modale-titre" hidden>
+  <div class="pub-modale-carte">
+    <button class="pub-modale-fermer" type="button" aria-label="Fermer">✕</button>
+    <img class="pub-modale-visuel" src="assets/img/affiche.jpg" alt="Affiche FIGHT and Furious" width="1122" height="1402">
+    <div class="pub-modale-texte">
+      <p class="pub-modale-sur">Avant de partir</p>
+      <h2 id="pub-modale-titre">Le premier gong sonne dans <span data-pub-jours>—</span>&nbsp;jours.</h2>
+      <p>Gala Élites le vendredi 11 dès 19h, Boxing Trophy 20 le samedi, compétition de boxe éducative le dimanche. Et l'inauguration du garage Moteka.</p>
+      <p class="pub-modale-prix">Accès dès <b>5&nbsp;€</b> <span>· 15 € · 10 € · 5 €</span></p>
+      <div class="pub-modale-actions">
+        <a class="bouton bouton-rouge pub-reserver" href="#billets">Réserver ma place <span aria-hidden="true">→</span></a>
+        <button class="pub-plus-tard" type="button">Plus tard</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ===================== LECTEUR FILM ===================== -->
 <div class="lecteur" role="dialog" aria-modal="true" aria-label="Film du gala" hidden>
   <video class="lecteur-video" controls playsinline preload="none">
@@ -444,7 +473,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="js/son.js?v=20261118103141"></script>
-<script src="js/site.js?v=20261118103141"></script>
+<script src="js/son.js?v=20261118110142"></script>
+<script src="js/site.js?v=20261118110142"></script>
 </body>
 </html>
