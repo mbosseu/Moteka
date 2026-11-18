@@ -633,7 +633,7 @@ em { font-style: normal; }
 
 .concours-carte { background: var(--noir-2); border: 1px solid var(--trait); border-radius: 6px; padding: clamp(20px, 3vw, 36px); display: grid; gap: 28px; align-self: start; }
 .concours-form { display: grid; gap: 14px; }
-.concours-form-titre, .concours-avis-titre { margin: 0; font: 700 clamp(26px, 3vw, 34px)/1 var(--titre); text-transform: uppercase; }
+.concours-form-titre { margin: 0; font: 700 clamp(26px, 3vw, 34px)/1 var(--titre); text-transform: uppercase; }
 .champs-duo { display: grid; grid-template-columns: 1fr; gap: 14px; }
 .champ { display: grid; gap: 6px; }
 .champ > span { font: 600 12px var(--titre); letter-spacing: .18em; text-transform: uppercase; color: var(--gris); }
@@ -675,12 +675,25 @@ em { font-style: normal; }
 .tombola-num::before { content: "N° "; font-size: .4em; vertical-align: middle; letter-spacing: .1em; }
 .tombola-pied { font: 600 10px var(--titre); letter-spacing: .16em; text-transform: uppercase; color: #5a5650; border-top: 1px dashed rgba(20, 20, 20, .35); padding-top: 6px; width: 100%; }
 .concours-manque { margin: 0; font-size: 14px; color: var(--blanc); }
-.concours-avis { display: grid; gap: 12px; padding-top: 24px; border-top: 1px solid var(--trait); }
-.concours-avis-texte { margin: 0; font-size: 15px; color: #c9c6c1; }
+.concours-avis { display: grid; gap: 12px; margin: 6px 0 0; padding: 14px 16px 16px; border: 1px solid var(--trait); border-radius: 4px; }
+.concours-avis-titre { margin: 0; font: 600 13px var(--titre); letter-spacing: .16em; text-transform: uppercase; color: var(--blanc); }
+.concours-avis-titre b { color: var(--rouge-vif); margin-right: 6px; }
+.concours-avis-titre small { font: 600 11px var(--titre); letter-spacing: .16em; color: var(--gris); margin-left: 6px; }
+.concours-avis-texte { margin: 0; font-size: 14px; color: #c9c6c1; }
 .concours-avis-bouton { justify-self: start; }
-.concours-avis-confirmer { justify-self: start; font: 600 13px var(--titre); letter-spacing: .14em; text-transform: uppercase; border-bottom: 1px solid var(--rouge-vif); padding: 4px 0; }
+.concours-avis-fichier input { padding: 10px; font-size: 14px; cursor: pointer; }
+.concours-avis-fichier input::file-selector-button { margin-right: 12px; padding: 8px 12px; border: 1px solid var(--trait); border-radius: 3px; background: var(--noir-2); color: var(--blanc); font: 600 12px var(--titre); letter-spacing: .12em; text-transform: uppercase; cursor: pointer; }
+.concours-avis-apercu { display: grid; grid-template-columns: 72px 1fr; gap: 12px; align-items: center; }
+.concours-avis-apercu[hidden], .concours-avis-fichier[hidden], .concours-avis-envoyer[hidden] { display: none; }
+.concours-avis-miniature { width: 72px; height: 128px; object-fit: cover; object-position: top; border: 1px solid var(--trait); border-radius: 3px; background: var(--carte); }
+.concours-avis-nom { margin: 0 0 6px; font-size: 14px; color: var(--blanc); overflow-wrap: anywhere; }
+.concours-avis-retirer { font: 600 12px var(--titre); letter-spacing: .14em; text-transform: uppercase; border-bottom: 1px solid var(--rouge-vif); padding: 4px 0; color: var(--blanc); }
+.concours-avis-envoyer { justify-self: start; }
+.concours-avis-envoyer[disabled] { opacity: .6; pointer-events: none; }
 .concours-avis-etat { margin: 0; font-size: 14px; color: var(--blanc); min-height: 1em; }
-.concours-avis.est-fait .concours-avis-bouton { display: none; }
+.concours-avis-etat:empty { display: none; }
+.concours-avis.est-fait .concours-avis-bouton, .concours-avis.est-fait .concours-avis-texte { display: none; }
+.concours-avis-plus:empty { display: none; }
 @media (min-width: 560px) { .champs-duo { grid-template-columns: 1fr 1fr; } .concours-tickets { grid-template-columns: repeat(3, 1fr); } }
 @media (min-width: 980px) { .concours-grille { grid-template-columns: 1fr 1fr; gap: 64px; } }
 

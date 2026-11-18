@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/admin/css/admin.css">
+<link rel="stylesheet" href="/admin/css/admin.css?v=20261118214500">
 </head>
 <body>
 <header class="barre">
@@ -68,6 +68,13 @@
     <section class="panneau" id="panneau-participants">
       <div class="outils">
         <input type="search" id="recherche" placeholder="Rechercher : nom, email, téléphone, numéro de ticket" aria-label="Rechercher">
+        <select id="filtre-avis" aria-label="Filtrer par avis Google">
+          <option value="">Avis : tous</option>
+          <option value="a_verifier">Avis à vérifier</option>
+          <option value="valide">Avis validés</option>
+          <option value="refuse">Avis refusés</option>
+          <option value="aucun">Sans avis</option>
+        </select>
         <a class="bouton bouton-contour" href="/api/admin/participants?format=csv" download>Export CSV</a>
         <button type="button" class="bouton bouton-contour" id="rafraichir">Actualiser</button>
       </div>
@@ -95,7 +102,19 @@
     </section>
   </section>
 </main>
+<dialog id="dialogue-preuve" class="dialogue-preuve" aria-labelledby="preuve-titre">
+  <div class="preuve-tete">
+    <h2 id="preuve-titre">Preuve d'avis Google</h2>
+    <button type="button" class="bouton bouton-contour bouton-petit" data-fermer-preuve>Fermer</button>
+  </div>
+  <p class="aide" id="preuve-qui"></p>
+  <div class="preuve-image"><img id="preuve-image" alt="Capture d'écran de l'avis Google envoyée par le participant"></div>
+  <div class="preuve-actions">
+    <button type="button" class="bouton bouton-rouge" data-decision="valider">Valider</button>
+    <button type="button" class="bouton bouton-contour" data-decision="refuser">Refuser</button>
+  </div>
+</dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="/admin/js/admin.js" defer></script>
+<script src="/admin/js/admin.js?v=20261118214500" defer></script>
 </body>
 </html>

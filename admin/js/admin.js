@@ -41,6 +41,8 @@
     return d.toLocaleString('fr-FR', iso.length === 10 ? { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' } : { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
   };
   const MOTIFS = { inscription: 'inscription', amis: 'ami(e)s', avis: 'avis' };
+  const STATUTS_AVIS = { aucun: 'non', a_verifier: 'à vérifier', valide: 'validé', refuse: 'refusé' };
+  const statutAvis = (p) => p.avis_statut || (p.avis ? 'a_verifier' : 'aucun');
 
   /* ---------- Connexion ---------- */
   function afficherConnexion() {
@@ -98,14 +100,16 @@
   function rendreParticipants() {
     const q = normaliser($('#recherche').value.trim());
     const qChiffres = q.replace(/\D/g, '');
+    const filtreAvis = $('#filtre-avis').value;
     const liste = etat.participants.filter((p) => {
+      if (filtreAvis && statutAvis(p) !== filtreAvis) return false;
       if (!q) return true;
       const texte = normaliser(`${p.prenom} ${p.nom} ${p.email} ${p.source || ''}`);
       if (texte.includes(q)) return true;
       if (qChiffres && String(p.telephone || '').replace(/\D/g, '').includes(qChiffres)) return true;
       return qChiffres && p.tickets.some((t) => String(t.numero) === qChiffres);
     });
-    $('#compte-resultats').textContent = q ? `${liste.length} résultat(s) sur ${etat.participants.length}` : '';
+    $('#compte-resultats').textContent = q || filtreAvis ? `${liste.length} résultat(s) sur ${etat.participants.length}` : '';
     $('#liste-participants').innerHTML = liste.length
       ? liste
           .map((p) => {
@@ -115,7 +119,7 @@
               <td><strong>${echapper(p.prenom)} ${echapper(p.nom)}</strong></td>
               <td><a href="tel:${echapper(p.telephone)}">${echapper(p.telephone)}</a><small>${echapper(p.email)}</small></td>
               <td>${p.tickets.map((t) => `<span class="ticket">n. ${t.numero}<i>${echapper(MOTIFS[t.motif] || t.motif || '')}</i></span>`).join('') || '<small>aucun</small>'}</td>
-              <td>${p.avis ? '<span class="oui">oui</span>' : 'non'}</td>
+              <td>${celluleAvis(p)}</td>
               <td>${amis.length ? amis.map((a) => `<small>${echapper(a)}</small>`).join('') : '<small>-</small>'}</td>
               <td>${p.gain ? `<span class="gain">${echapper(p.gain.lot)}</span><small>${echapper(dateFr(p.gain.date_tirage))}, n. ${p.gain.numero}</small>` : ''}</td>
             </tr>`;
@@ -123,6 +127,77 @@
           .join('')
       : '<tr><td colspan="7" class="aide">Aucun participant.</td></tr>';
   }
+
+  function celluleAvis(p) {
+    const statut = statutAvis(p);
+    if (statut === 'aucun') return 'non';
+    const id = echapper(p.id);
+    const quand = p.avis_le ? `<small>${echapper(dateFr(p.avis_le))}</small>` : '';
+    const boutons = [
+      `<button type="button" class="bouton bouton-contour bouton-petit" data-voir-preuve="${id}">Voir la preuve</button>`,
+      statut !== 'valide' ? `<button type="button" class="bouton bouton-contour bouton-petit" data-avis="valider" data-id="${id}">Valider</button>` : '',
+      statut !== 'refuse' ? `<button type="button" class="bouton bouton-contour bouton-petit" data-avis="refuser" data-id="${id}">Refuser</button>` : '',
+    ].join('');
+    return `<span class="avis-statut avis-${statut}">${echapper(STATUTS_AVIS[statut] || statut)}</span>${quand}<span class="avis-actions">${boutons}</span>`;
+  }
+
+  /* ---------- Preuve d'avis Google ---------- */
+  const dialogue = $('#dialogue-preuve');
+  let preuveOuverte = '';
+
+  function ouvrirPreuve(id) {
+    const p = etat.participants.find((x) => String(x.id) === String(id));
+    if (!p) return;
+    preuveOuverte = p.id;
+    const statut = statutAvis(p);
+    $('#preuve-qui').textContent = `${p.prenom} ${p.nom} : ${STATUTS_AVIS[statut] || statut}${p.avis_le ? `, envoyée le ${dateFr(p.avis_le)}` : ''}`;
+    const img = $('#preuve-image');
+    img.removeAttribute('src');
+    img.src = `/api/admin/preuve?id=${encodeURIComponent(p.id)}&t=${Date.now()}`;
+    dialogue.querySelector('[data-decision="valider"]').hidden = statut === 'valide';
+    dialogue.querySelector('[data-decision="refuser"]').hidden = statut === 'refuse';
+    if (typeof dialogue.showModal === 'function') dialogue.showModal();
+    else window.open(img.src, '_blank', 'noopener');
+  }
+
+  $('#preuve-image').addEventListener('error', () => {
+    if (dialogue.open) toast('Preuve introuvable ou session expirée.', true);
+  });
+
+  function fermerPreuve() {
+    preuveOuverte = '';
+    $('#preuve-image').removeAttribute('src');
+    if (dialogue.open) dialogue.close();
+  }
+  dialogue.querySelector('[data-fermer-preuve]').addEventListener('click', fermerPreuve);
+  dialogue.addEventListener('click', (e) => { if (e.target === dialogue) fermerPreuve(); });
+  dialogue.addEventListener('close', () => { preuveOuverte = ''; });
+
+  async function deciderAvis(id, decision, bouton) {
+    if (decision === 'refuser' && !window.confirm('Refuser cette preuve ? Le ticket avis sera retiré et le participant recevra un mail pour en renvoyer une.')) return;
+    if (bouton) bouton.disabled = true;
+    try {
+      const data = await api('/api/admin/avis', { method: 'POST', body: JSON.stringify({ id, decision }) });
+      toast(data.message || (decision === 'refuser' ? 'Preuve refusée' : 'Preuve validée'));
+      fermerPreuve();
+      await Promise.allSettled([chargerParticipants(), chargerEtatTirage()]);
+    } catch (err) {
+      toast(err.message, true);
+    } finally {
+      if (bouton) bouton.disabled = false;
+    }
+  }
+
+  dialogue.querySelectorAll('[data-decision]').forEach((b) => {
+    b.addEventListener('click', () => { if (preuveOuverte) deciderAvis(preuveOuverte, b.dataset.decision, b); });
+  });
+
+  $('#liste-participants').addEventListener('click', (e) => {
+    const cible = e.target.closest('button');
+    if (!cible) return;
+    if (cible.dataset.voirPreuve) return ouvrirPreuve(cible.dataset.voirPreuve);
+    if (cible.dataset.avis && cible.dataset.id) deciderAvis(cible.dataset.id, cible.dataset.avis, cible);
+  });
 
   async function chargerParticipants() {
     const data = await api('/api/admin/participants');
@@ -139,6 +214,7 @@
     clearTimeout(minuterieRecherche);
     minuterieRecherche = setTimeout(rendreParticipants, 120);
   });
+  $('#filtre-avis').addEventListener('change', rendreParticipants);
   $('#rafraichir').addEventListener('click', () => toutCharger().then(() => toast('Données actualisées')));
 
   /* ---------- Lots ---------- */

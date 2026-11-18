@@ -127,7 +127,7 @@ export function csvParticipants(liste) {
       p.email,
       (p.tickets || []).map((t) => t.numero).join(' '),
       (p.tickets || []).length,
-      p.avis ? 'oui' : 'non',
+      statutAvisCourt(p),
       emailsAmis(p.amis),
       p.source,
       p.created_at,
@@ -184,4 +184,49 @@ export function validerLot(corps) {
   if ('actif' in corps) champs.actif = Boolean(corps.actif);
   if (!Object.keys(champs).length) return { erreur: 'Aucune modification.' };
   return { champs };
+}
+
+/* ---------- Preuve d'avis Google ---------- */
+
+const LIBELLES_STATUT_AVIS = { aucun: 'non', a_verifier: 'à vérifier', valide: 'validé', refuse: 'refusé' };
+
+/** Statut lisible de l'avis (liste, export). */
+export function statutAvisCourt(p = {}) {
+  if (p.avis_statut && LIBELLES_STATUT_AVIS[p.avis_statut]) return LIBELLES_STATUT_AVIS[p.avis_statut];
+  return p.avis ? 'oui' : 'non';
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Corps de POST /api/admin/avis : { id, decision: 'valider' | 'refuser' }. */
+export function validerDecisionAvis(corps = {}) {
+  const id = String(corps.id || '').trim();
+  const decision = String(corps.decision || '').trim();
+  if (!UUID.test(id)) return { erreur: 'Participant inconnu.' };
+  if (decision !== 'valider' && decision !== 'refuser') return { erreur: 'Décision inconnue (valider ou refuser).' };
+  return { id, decision };
+}
+
+/**
+ * Ce qu'il faut faire pour une decision sur la preuve d'avis.
+ * participant : { avis_statut }, ticket : ticket avis existant ou null, tirages : tirages gagnes par ce ticket.
+ * Renvoie { erreur, statut } ou { deja } ou { champs, supprimerTicket, ajouterTicket, mail }.
+ * Refuser retire le ticket avis, sauf s'il a deja gagne un tirage.
+ */
+export function planDecisionAvis({ decision, participant, ticket = null, tirages = [] }) {
+  if (!participant) return { statut: 404, erreur: 'Participant introuvable.' };
+  const actuel = participant.avis_statut || 'aucun';
+  if (actuel === 'aucun') return { statut: 409, erreur: 'Ce participant n’a envoyé aucune preuve d’avis.' };
+  if (decision === 'valider') {
+    if (actuel === 'valide' && ticket) return { deja: true };
+    return { champs: { avis: true, avis_statut: 'valide' }, supprimerTicket: false, ajouterTicket: !ticket, mail: false };
+  }
+  if (actuel === 'refuse' && !ticket) return { deja: true };
+  if (ticket && (tirages || []).length) {
+    return {
+      statut: 409,
+      erreur: `Le ticket avis n. ${ticket.numero} a déjà gagné un tirage : impossible de refuser la preuve. Annulez d’abord ce tirage si besoin.`,
+    };
+  }
+  return { champs: { avis: false, avis_statut: 'refuse' }, supprimerTicket: Boolean(ticket), ajouterTicket: false, mail: true };
 }

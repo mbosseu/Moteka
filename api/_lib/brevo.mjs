@@ -15,7 +15,11 @@ export function brevoConfigure() {
   return cle().startsWith('xkeysib-');
 }
 
-export async function envoyerMail({ to, subject, text, fromName, replyTo }) {
+/**
+ * Envoie un mail texte. attachments (facultatif) : [{ name: 'avis-google.jpg', content: '<base64>' }],
+ * extensions acceptees par Brevo (jpg, png...).
+ */
+export async function envoyerMail({ to, subject, text, fromName, replyTo, attachments }) {
   if (!to) throw new Error('Destinataire manquant');
   if (!brevoConfigure()) throw new Error('BREVO_API_KEY manquant');
   const nom = fromName || process.env.BREVO_SENDER_NAME || NOM_DEFAUT;
@@ -26,6 +30,8 @@ export async function envoyerMail({ to, subject, text, fromName, replyTo }) {
     subject: subject || 'Message Boxing Center',
     textContent: text,
   };
+  const pieces = (Array.isArray(attachments) ? attachments : []).filter((a) => a && a.name && a.content);
+  if (pieces.length) corps.attachment = pieces.map((a) => ({ name: String(a.name), content: String(a.content) }));
   const res = await fetch(API, {
     method: 'POST',
     headers: { 'api-key': cle(), 'Content-Type': 'application/json', Accept: 'application/json' },

@@ -90,6 +90,62 @@ export function ticketsAGagner(obtenus = []) {
   return MOTIFS.filter((m) => m !== 'inscription' && !obtenus.includes(m));
 }
 
+/* ---------- preuve d'avis Google (capture d'ecran) ---------- */
+
+export const PREUVE_MAX_OCTETS = 1.5 * 1024 * 1024;
+const PREUVE_OK = /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/]+={0,2})$/;
+export const STATUTS_AVIS = ['aucun', 'a_verifier', 'valide', 'refuse'];
+
+/** Taille reelle (en octets) d'un contenu base64. */
+export function octetsBase64(b64) {
+  const s = String(b64 || '');
+  const remplissage = s.endsWith('==') ? 2 : s.endsWith('=') ? 1 : 0;
+  return Math.floor((s.length * 3) / 4) - remplissage;
+}
+
+/**
+ * Valide la capture de l'avis : data URL image/jpeg, image/png ou image/webp en base64, 1,5 Mo au plus.
+ * Renvoie { preuve, type, base64, octets } ou { erreur }.
+ */
+export function validerPreuve(valeur) {
+  const brut = String(valeur ?? '').trim();
+  if (!brut) return { erreur: 'Ajoutez la capture d’écran de votre avis Google.' };
+  // garde-fou avant l'expression reguliere : une data URL de 1,5 Mo fait environ 2 millions de caracteres
+  if (brut.length > Math.ceil((PREUVE_MAX_OCTETS * 4) / 3) + 64) {
+    return { erreur: 'Capture trop lourde (1,5 Mo au maximum). Réessayez avec une autre image.' };
+  }
+  const m = PREUVE_OK.exec(brut);
+  if (!m || m[2].length % 4 !== 0) {
+    return { erreur: 'Capture illisible : envoyez une image JPEG, PNG ou WebP de votre avis Google.' };
+  }
+  const octets = octetsBase64(m[2]);
+  if (octets < 200) return { erreur: 'Capture illisible : envoyez une image JPEG, PNG ou WebP de votre avis Google.' };
+  if (octets > PREUVE_MAX_OCTETS) {
+    return { erreur: 'Capture trop lourde (1,5 Mo au maximum). Réessayez avec une autre image.' };
+  }
+  return { preuve: brut, type: `image/${m[1]}`, base64: m[2], octets };
+}
+
+/** Decoupe une data URL deja enregistree : { type, base64 } ou null. */
+export function lirePreuve(valeur) {
+  const m = PREUVE_OK.exec(String(valeur || ''));
+  return m ? { type: `image/${m[1]}`, base64: m[2] } : null;
+}
+
+/** Piece jointe Brevo pour la capture (JPEG ou PNG uniquement), ou null. */
+export function pieceJointePreuve(valeur, nom = 'avis-google') {
+  const p = lirePreuve(valeur);
+  if (!p) return null;
+  const ext = p.type === 'image/jpeg' ? 'jpg' : p.type === 'image/png' ? 'png' : '';
+  return ext ? { name: `${nom}.${ext}`, content: p.base64 } : null;
+}
+
+/** Vrai si le participant a deja une preuve d'avis prise en compte (en attente ou validee). */
+export function avisEnCours(participant) {
+  const s = participant && participant.avis_statut;
+  return s === 'a_verifier' || s === 'valide';
+}
+
 export function calculerTickets(options = {}) {
   return motifsTickets(options).length;
 }
@@ -172,7 +228,15 @@ export function validerInscription(corps = {}) {
     erreurs.push({ champ: 'reglement', message: 'Merci d’accepter le règlement' });
   }
 
-  const avis = vrai(corps.avis);
+  // ticket avis uniquement avec une capture valide (un simple avis: true n'est plus accepte)
+  const preuveBrute = String(corps.avis_preuve ?? corps.preuve ?? '').trim();
+  let avis_preuve = '';
+  if (preuveBrute) {
+    const p = validerPreuve(preuveBrute);
+    if (p.erreur) erreurs.push({ champ: 'avis_preuve', message: p.erreur });
+    else avis_preuve = p.preuve;
+  }
+  const avis = Boolean(avis_preuve);
   return {
     ok: erreurs.length === 0,
     erreurs,
@@ -184,6 +248,7 @@ export function validerInscription(corps = {}) {
       email,
       amis: blocAmis.amis,
       avis,
+      avis_preuve,
       source,
     },
   };

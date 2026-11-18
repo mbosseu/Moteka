@@ -34,7 +34,8 @@ async function requete(chemin, options = {}) {
   return data;
 }
 
-const COLONNES = 'id,prenom,nom,telephone,email,amis,avis,tickets,source,created_at';
+// avis_preuve (la capture, lourde) n'est jamais relue ici : elle n'est chargee qu'a la demande par le back-office.
+const COLONNES = 'id,prenom,nom,telephone,email,amis,avis,avis_statut,avis_le,tickets,source,created_at';
 
 /** Cherche un participant par cle telephone ou email. */
 export async function trouverDoublon({ phone_key, email }) {
@@ -68,7 +69,7 @@ export async function creerParticipant(donnees) {
   return Array.isArray(lignes) ? lignes[0] : lignes;
 }
 
-/** Met a jour quelques colonnes du participant (amis, avis). */
+/** Met a jour quelques colonnes du participant (amis, avis, avis_preuve, avis_statut, avis_le). */
 export async function majParticipant(id, champs) {
   const lignes = await requete(`${TABLE}?id=eq.${encodeURIComponent(id)}&select=${COLONNES}`, {
     method: 'PATCH',

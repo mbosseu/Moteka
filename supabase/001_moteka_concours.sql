@@ -3,6 +3,7 @@
 -- A executer dans l'editeur SQL Supabase (idempotent).
 --
 -- moteka_concours : un participant par ligne (telephone et email uniques).
+--                   avis Google : preuve (capture) obligatoire, verifiee ensuite dans le back-office.
 -- moteka_tickets  : un numero de tombola par ticket gagne, sequentiel a partir de 100,
 --                   un seul ticket par motif et par participant (inscription, amis, avis).
 
@@ -17,7 +18,13 @@ create table if not exists public.moteka_concours (
   email text not null unique,
   -- ami(e)s invite(e)s : [{ "prenom": "...", "email": "...", "telephone": "..." }, ...]
   amis jsonb not null default '[]'::jsonb check (jsonb_typeof(amis) = 'array'),
+  -- avis Google : vrai si une preuve (capture) a ete envoyee et n'a pas ete refusee
   avis boolean not null default false,
+  -- capture de l'avis en data URL (image/jpeg|png|webp base64). Ne jamais la selectionner dans une liste :
+  -- elle se charge a la demande (back-office, GET /api/admin/preuve?id=...).
+  avis_preuve text,
+  avis_le timestamptz,
+  avis_statut text not null default 'aucun' check (avis_statut in ('aucun', 'a_verifier', 'valide', 'refuse')),
   -- nombre de tickets, tenu a jour automatiquement depuis moteka_tickets
   tickets integer not null default 0 check (tickets between 0 and 3),
   source text,
@@ -27,6 +34,17 @@ create table if not exists public.moteka_concours (
 
 create index if not exists moteka_concours_created_idx
   on public.moteka_concours (created_at desc);
+
+-- si la table existait deja avant l'ajout de la preuve d'avis
+alter table public.moteka_concours add column if not exists avis_preuve text;
+alter table public.moteka_concours add column if not exists avis_le timestamptz;
+alter table public.moteka_concours add column if not exists avis_statut text not null default 'aucun';
+alter table public.moteka_concours drop constraint if exists moteka_concours_avis_statut_check;
+alter table public.moteka_concours add constraint moteka_concours_avis_statut_check
+  check (avis_statut in ('aucun', 'a_verifier', 'valide', 'refuse'));
+
+create index if not exists moteka_concours_avis_statut_idx
+  on public.moteka_concours (avis_statut);
 
 create sequence if not exists public.moteka_ticket_seq start 100;
 

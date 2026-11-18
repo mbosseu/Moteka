@@ -67,8 +67,9 @@ export async function compteAdminParEmail(email) {
   return Array.isArray(lignes) && lignes[0] ? lignes[0] : null;
 }
 
+// Jamais avis_preuve dans une liste : la capture (lourde) se charge a la demande via lirePreuveAvis().
 export const lireParticipants = () =>
-  toutLire('moteka_concours?select=id,prenom,nom,telephone,email,amis,avis,source,created_at&order=created_at.asc');
+  toutLire('moteka_concours?select=id,prenom,nom,telephone,email,amis,avis,avis_statut,avis_le,source,created_at&order=created_at.asc');
 
 export const lireTickets = () => toutLire('moteka_tickets?select=numero,participant_id,motif,created_at&order=numero.asc');
 
@@ -102,4 +103,60 @@ export async function enregistrerTirage(ligne) {
 
 export async function supprimerTirage(id) {
   await requete(`moteka_tirages?id=eq.${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+/* ---------- Preuve d'avis Google ---------- */
+
+/** Capture de l'avis d'un participant (data URL), chargee a la demande. */
+export async function lirePreuveAvis(id) {
+  const lignes = await requete(`moteka_concours?select=id,avis_preuve&id=eq.${encodeURIComponent(id)}&limit=1`);
+  return Array.isArray(lignes) && lignes[0] ? lignes[0] : null;
+}
+
+/** Participant pour une decision sur l'avis (sans la capture). */
+export async function lireParticipantAvis(id) {
+  const lignes = await requete(
+    `moteka_concours?select=id,prenom,nom,email,avis,avis_statut,avis_le&id=eq.${encodeURIComponent(id)}&limit=1`
+  );
+  return Array.isArray(lignes) && lignes[0] ? lignes[0] : null;
+}
+
+export async function majAvisParticipant(id, champs) {
+  const lignes = await requete(`moteka_concours?id=eq.${encodeURIComponent(id)}&select=id,avis,avis_statut,avis_le`, {
+    method: 'PATCH',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify({ ...champs, updated_at: new Date().toISOString() }),
+  });
+  return Array.isArray(lignes) ? lignes[0] || null : lignes;
+}
+
+export async function lireTicketAvis(participantId) {
+  const lignes = await requete(
+    `moteka_tickets?select=numero,participant_id,motif&participant_id=eq.${encodeURIComponent(participantId)}&motif=eq.avis&limit=1`
+  );
+  return Array.isArray(lignes) && lignes[0] ? lignes[0] : null;
+}
+
+export async function tiragesDuNumero(numero) {
+  const lignes = await requete(`moteka_tirages?select=id,date_tirage,numero&numero=eq.${encodeURIComponent(numero)}`);
+  return Array.isArray(lignes) ? lignes : [];
+}
+
+export async function supprimerTicketAvis(participantId) {
+  await requete(`moteka_tickets?participant_id=eq.${encodeURIComponent(participantId)}&motif=eq.avis`, { method: 'DELETE' });
+}
+
+/** Ajoute le ticket avis (validation d'une preuve auparavant refusee). Renvoie le ticket ou null s'il existe deja. */
+export async function ajouterTicketAvis(participantId) {
+  try {
+    const lignes = await requete('moteka_tickets?select=numero,motif', {
+      method: 'POST',
+      headers: { Prefer: 'return=representation' },
+      body: JSON.stringify({ participant_id: participantId, motif: 'avis' }),
+    });
+    return Array.isArray(lignes) ? lignes[0] : lignes;
+  } catch (err) {
+    if (err.code === '23505') return null;
+    throw err;
+  }
 }

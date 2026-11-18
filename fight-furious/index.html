@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261118201000">
+<link rel="stylesheet" href="css/style.css?v=20261118214500">
 </head>
 <body>
 
@@ -419,7 +419,7 @@
         <ol class="concours-tickets">
           <li class="ticket ticket-fort"><small>Ticket 1</small><b>Inscription</b><span>Prénom, nom, téléphone, email</span></li>
           <li class="ticket"><small>Ticket 2 (facultatif)</small><b>2 ami(e)s</b><span>Vous invitez 2 ami(e)s</span></li>
-          <li class="ticket"><small>Ticket 3 (facultatif)</small><b>Avis Google</b><span>Sur la fiche du garage Moteka</span></li>
+          <li class="ticket"><small>Ticket 3 (facultatif)</small><b>Avis Google</b><span>Capture de votre avis sur la fiche Moteka</span></li>
         </ol>
         <p class="concours-numeros">Chaque ticket porte un numéro de tombola (100, 101, 102...) attribué dans l'ordre des inscriptions. Vous le recevez par email.</p>
 
@@ -444,7 +444,7 @@
           <ol>
             <li>Jeu gratuit et sans obligation d'achat, organisé par Boxing Center (Toulouse) avec le garage Moteka (14 rue Seveso, 31150 Fenouillet).</li>
             <li>Ouvert à toute personne majeure résidant en France. Une seule inscription par personne (même téléphone ou même email).</li>
-            <li>L'inscription donne 1 ticket. Inviter 2 ami(e)s (prénom et email de chacun) donne 1 ticket de plus. Un avis Google laissé sur la fiche du garage Moteka donne 1 ticket de plus. Soit 3 tickets au maximum.</li>
+            <li>L'inscription donne 1 ticket. Inviter 2 ami(e)s (prénom et email de chacun) donne 1 ticket de plus. Un avis Google laissé sur la fiche du garage Moteka donne 1 ticket de plus, sur envoi d'une capture d'écran de l'avis publié ; une capture non conforme (avis introuvable, illisible ou d'une autre fiche) peut être refusée par l'organisateur, et le ticket correspondant est alors retiré. Soit 3 tickets au maximum.</li>
             <li>Chaque ticket reçoit un numéro de tombola unique, attribué dans l'ordre à partir de 100. Les ami(e)s invité(e)s peuvent ensuite s'inscrire eux-mêmes et obtenir leurs propres tickets.</li>
             <li>Un tirage au sort a lieu chaque soir du lundi 23 au vendredi 27 novembre 2026 inclus (5 tirages, un lot par soir), annoncé en story : une roulette désigne le numéro gagnant, puis un ticket à gratter révèle le lot. Un même participant ne peut gagner qu'un seul lot.</li>
             <li>Les gagnants sont prévenus par téléphone ou par email. Un lot non réclamé sous 7 jours est remis en jeu. Les lots ne sont ni échangeables ni remboursables.</li>
@@ -486,6 +486,23 @@
             </div>
           </details>
 
+          <div class="concours-avis">
+            <p class="concours-avis-titre"><b>Ticket 3</b> Avis Google <small>facultatif</small></p>
+            <p class="concours-avis-texte">Laissez un avis Google sur la fiche du garage Moteka, faites une capture d'écran de votre avis publié, puis chargez-la ici : vous gagnez 1 ticket de plus. Chaque capture est vérifiée par l'équipe.</p>
+            <button class="bouton bouton-contour concours-avis-bouton" type="button">Ouvrir la fiche Google</button>
+            <label class="champ concours-avis-fichier"><span>Chargez la capture d'écran de votre avis</span><input class="concours-avis-input" name="avis_preuve" type="file" accept="image/*"></label>
+            <div class="concours-avis-apercu" hidden>
+              <img class="concours-avis-miniature" alt="Aperçu de votre capture d'avis Google" width="72" height="128">
+              <div>
+                <p class="concours-avis-nom"></p>
+                <button class="concours-avis-retirer" type="button">Retirer l'image</button>
+              </div>
+            </div>
+            <p class="concours-avis-erreur concours-erreur" role="alert" hidden></p>
+            <button class="bouton bouton-rouge concours-avis-envoyer" type="button" hidden>Envoyer ma capture</button>
+            <p class="concours-avis-etat" role="status" aria-live="polite"></p>
+          </div>
+
           <label class="champ-piege" aria-hidden="true">Site web <input name="site_web" type="text" tabindex="-1" autocomplete="off"></label>
           <label class="case"><input name="reglement" type="checkbox" required><span>J'accepte le <a href="#reglement" class="lien-reglement">règlement du jeu</a> et je confirme être majeur(e).</span></label>
           <p class="concours-erreur concours-form-erreur" role="alert" hidden></p>
@@ -499,14 +516,7 @@
           <ul class="mes-tickets" aria-label="Mes numéros de tombola"></ul>
           <p class="concours-manque"></p>
           <div class="concours-amis-plus"></div>
-        </div>
-
-        <div class="concours-avis">
-          <p class="concours-avis-titre">Ticket 3 : avis Google</p>
-          <p class="concours-avis-texte">Laissez un avis Google sur la fiche du garage Moteka, puis revenez sur cette page : votre avis est compté et vous gagnez un ticket de plus.</p>
-          <button class="bouton bouton-contour concours-avis-bouton" type="button">Laisser un avis Google</button>
-          <button class="concours-avis-confirmer" type="button" hidden>J'ai publié mon avis</button>
-          <p class="concours-avis-etat" role="status" aria-live="polite"></p>
+          <div class="concours-avis-plus"></div>
         </div>
       </div>
     </div>
@@ -672,8 +682,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="js/son.js?v=20261118201000"></script>
-<script src="js/site.js?v=20261118201000"></script>
-<script src="js/concours.js?v=20261118201000"></script>
+<script src="js/son.js?v=20261118214500"></script>
+<script src="js/site.js?v=20261118214500"></script>
+<script src="js/concours.js?v=20261118214500"></script>
 </body>
 </html>

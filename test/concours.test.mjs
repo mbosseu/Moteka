@@ -7,11 +7,17 @@ import {
   motifsManquants,
   motifsTickets,
   normaliserTelephone,
+  octetsBase64,
+  pieceJointePreuve,
+  PREUVE_MAX_OCTETS,
   ticketsAGagner,
+  validerPreuve,
   validerAmis,
   validerInscription,
 } from '../api/_lib/concours.mjs';
-import { listeNumeros, mailAmi, mailConfirmation, mailInterne, mailNouveauTicket } from '../api/_lib/mails.mjs';
+import { libelleAvis, listeNumeros, mailAmi, mailAvisRefuse, mailConfirmation, mailInterne, mailNouveauTicket } from '../api/_lib/mails.mjs';
+
+const PREUVE = `data:image/jpeg;base64,${Buffer.alloc(600, 7).toString('base64')}`;
 
 test('normalisation des numeros francais', () => {
   for (const v of ['06 12 34 56 78', '06.12.34.56.78', '+33 6 12 34 56 78', '0033612345678', '33612345678', '612345678', '+33 (0)6 12 34 56 78']) {
@@ -77,8 +83,10 @@ test('inscription valide', () => {
   assert.equal(r.donnees.phone_key, '612345678');
   assert.deepEqual(r.donnees.amis, []);
   assert.deepEqual(motifsTickets(r.donnees), ['inscription']);
-  const complet = validerInscription({ ...base, amis: deuxAmis, avis: true });
+  const complet = validerInscription({ ...base, amis: deuxAmis, avis_preuve: PREUVE });
   assert.equal(complet.ok, true);
+  assert.equal(complet.donnees.avis, true);
+  assert.equal(complet.donnees.avis_preuve, PREUVE);
   assert.equal(complet.donnees.amis.length, 2);
   assert.deepEqual(motifsTickets(complet.donnees), ['inscription', 'amis', 'avis']);
 });
@@ -123,4 +131,55 @@ test('mails en texte brut', () => {
   assert.match(i.text, /06 12 34 56 78/);
   assert.match(i.text, /Paul \/ a@b\.fr/);
   assert.match(i.text, /422 \(Inscription\), 423/);
+});
+
+test('preuve d avis : data URL image en base64, 1,5 Mo au plus', () => {
+  const ok = validerPreuve(PREUVE);
+  assert.equal(ok.erreur, undefined);
+  assert.equal(ok.type, 'image/jpeg');
+  assert.equal(ok.octets, 600);
+  assert.equal(octetsBase64('YWJj'), 3);
+  assert.equal(octetsBase64('YWI='), 2);
+  for (const t of ['png', 'webp']) assert.equal(validerPreuve(PREUVE.replace('jpeg', t)).type, `image/${t}`);
+  for (const mauvais of ['', 'abc', PREUVE.replace('jpeg', 'gif'), PREUVE.replace('image/jpeg', 'text/html'), `${PREUVE}<script>`, 'data:image/jpeg;base64,QUJD']) {
+    assert.ok(validerPreuve(mauvais).erreur, mauvais.slice(0, 40));
+  }
+  const lourde = `data:image/jpeg;base64,${Buffer.alloc(PREUVE_MAX_OCTETS + 3, 1).toString('base64')}`;
+  assert.match(validerPreuve(lourde).erreur, /1,5 Mo/);
+  const limite = `data:image/jpeg;base64,${Buffer.alloc(PREUVE_MAX_OCTETS, 1).toString('base64')}`;
+  assert.equal(validerPreuve(limite).erreur, undefined);
+  assert.deepEqual(pieceJointePreuve(PREUVE), { name: 'avis-google.jpg', content: PREUVE.split(',')[1] });
+  assert.equal(pieceJointePreuve(PREUVE.replace('jpeg', 'png')).name, 'avis-google.png');
+  assert.equal(pieceJointePreuve(PREUVE.replace('jpeg', 'webp')), null);
+  assert.equal(pieceJointePreuve(''), null);
+});
+
+test('inscription : plus de ticket avis sans preuve, preuve invalide refusee', () => {
+  const sans = validerInscription({ ...base, avis: true });
+  assert.equal(sans.ok, true);
+  assert.equal(sans.donnees.avis, false);
+  assert.deepEqual(motifsTickets(sans.donnees), ['inscription']);
+  const invalide = validerInscription({ ...base, avis_preuve: 'data:image/gif;base64,AAAA' });
+  assert.equal(invalide.ok, false);
+  assert.equal(invalide.erreurs[0].champ, 'avis_preuve');
+});
+
+test('mails : avis recu, preuve refusee, statut interne', () => {
+  const avecAvis = mailConfirmation({ prenom: 'lea', tickets: [...tickets, { numero: 424, motif: 'avis' }] });
+  assert.match(avecAvis.text, /avis Google est bien reçu/);
+  assert.doesNotMatch(mailConfirmation({ prenom: 'lea', tickets }).text, /bien reçu/);
+  const n = mailNouveauTicket({ prenom: 'lea', nouveaux: [{ numero: 430, motif: 'avis' }], tickets: [{ numero: 430, motif: 'avis' }] });
+  assert.match(n.text, /bien reçu/);
+  const r = mailAvisRefuse({ prenom: 'lea', lienPage: 'https://exemple.fr/' });
+  assert.match(r.text, /^Salut Lea,/);
+  assert.match(r.text, /pas pu être retenue/);
+  assert.match(r.text, /renvoyer/);
+  assert.match(r.text, /https:\/\/exemple\.fr/);
+  assert.doesNotMatch(r.text, /</);
+  assert.equal(libelleAvis({ avis: true, avis_statut: 'a_verifier' }), 'preuve envoyée, à vérifier dans le back-office');
+  assert.equal(libelleAvis({}), 'non');
+  const i = mailInterne({ participant: { ...base, avis: true, avis_statut: 'a_verifier' }, tickets, preuveJointe: true });
+  assert.match(i.text, /Avis Google : preuve envoyée, à vérifier dans le back-office/);
+  assert.match(i.text, /pièce jointe/);
+  assert.doesNotMatch(mailInterne({ participant: base, tickets }).text, /pièce jointe/);
 });

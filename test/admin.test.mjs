@@ -12,7 +12,10 @@ import {
   dateValide,
   historiqueTirages,
   nomPublic,
+  planDecisionAvis,
   statistiques,
+  statutAvisCourt,
+  validerDecisionAvis,
   ticketsEligibles,
   tirerTicket,
   validerLot,
@@ -199,4 +202,33 @@ test('validation des lots', () => {
   assert.ok(validerLot({ image_url: 'javascript:alert(1)' }).erreur);
   assert.equal(validerLot({ image_url: '' }).champs.image_url, null);
   assert.equal(validerLot({ actif: 0 }).champs.actif, false);
+});
+
+test('preuve d avis : decision valider / refuser', () => {
+  const id = '6f1c2a3b-1234-4abc-8def-0123456789ab';
+  assert.deepEqual(validerDecisionAvis({ id, decision: 'refuser' }), { id, decision: 'refuser' });
+  assert.ok(validerDecisionAvis({ id: 'x', decision: 'refuser' }).erreur);
+  assert.ok(validerDecisionAvis({ id, decision: 'supprimer' }).erreur);
+
+  const ticket = { numero: 130, motif: 'avis' };
+  assert.equal(planDecisionAvis({ decision: 'refuser', participant: null }).statut, 404);
+  assert.equal(planDecisionAvis({ decision: 'refuser', participant: { avis_statut: 'aucun' } }).statut, 409);
+  const refus = planDecisionAvis({ decision: 'refuser', participant: { avis_statut: 'a_verifier' }, ticket });
+  assert.deepEqual(refus, { champs: { avis: false, avis_statut: 'refuse' }, supprimerTicket: true, ajouterTicket: false, mail: true });
+  // ticket avis deja gagnant : refus impossible
+  const gagne = planDecisionAvis({ decision: 'refuser', participant: { avis_statut: 'a_verifier' }, ticket, tirages: [{ numero: 130 }] });
+  assert.equal(gagne.statut, 409);
+  assert.match(gagne.erreur, /130/);
+  assert.deepEqual(planDecisionAvis({ decision: 'refuser', participant: { avis_statut: 'refuse' } }), { deja: true });
+  const valide = planDecisionAvis({ decision: 'valider', participant: { avis_statut: 'a_verifier' }, ticket });
+  assert.deepEqual(valide.champs, { avis: true, avis_statut: 'valide' });
+  assert.equal(valide.ajouterTicket, false);
+  // revalider une preuve refusee : le ticket avis revient
+  assert.equal(planDecisionAvis({ decision: 'valider', participant: { avis_statut: 'refuse' } }).ajouterTicket, true);
+  assert.deepEqual(planDecisionAvis({ decision: 'valider', participant: { avis_statut: 'valide' }, ticket }), { deja: true });
+
+  assert.equal(statutAvisCourt({ avis_statut: 'a_verifier' }), 'à vérifier');
+  assert.equal(statutAvisCourt({ avis_statut: 'refuse', avis: false }), 'refusé');
+  assert.equal(statutAvisCourt({ avis: true }), 'oui');
+  assert.equal(statutAvisCourt({}), 'non');
 });

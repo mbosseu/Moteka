@@ -1,5 +1,5 @@
 // Orchestration commune : identification d'un participant, tickets bonus (amis, avis) et mails associes.
-import { clePhone, motifsManquants, motifsTickets, nettoyerEmail } from './concours.mjs';
+import { avisEnCours, clePhone, motifsManquants, motifsTickets, nettoyerEmail, pieceJointePreuve } from './concours.mjs';
 import { attribuerTickets, listerTickets, majParticipant, trouverParId, trouverParTelEtEmail } from './supabase.mjs';
 import { brevoConfigure, envoyerMail } from './brevo.mjs';
 import { destinatairesInternes, mailAmi, mailInterne, mailNouveauTicket } from './mails.mjs';
@@ -45,20 +45,39 @@ export function invitationsAmis(participant, amis, req) {
   );
 }
 
+/** Colonnes a enregistrer quand une preuve d'avis valide est recue. */
+export function champsPreuveAvis(preuve, maintenant = new Date()) {
+  return { avis: true, avis_preuve: preuve, avis_statut: 'a_verifier', avis_le: maintenant.toISOString() };
+}
+
+/** Mails internes (avec la capture en piece jointe si elle est fournie). */
+export function notesInternes(participant, tickets, { contexte, preuve, replyTo } = {}) {
+  const piece = preuve ? pieceJointePreuve(preuve) : null;
+  const note = mailInterne({ participant, tickets, contexte, preuveJointe: Boolean(piece) });
+  return destinatairesInternes().map((to) =>
+    envoyerMail({ to, ...note, replyTo: replyTo || participant.email, ...(piece ? { attachments: [piece] } : {}) })
+  );
+}
+
 /**
- * Ajoute apres coup les ami(e)s et/ou l'avis d'un participant deja inscrit.
+ * Ajoute apres coup les ami(e)s et/ou la preuve d'avis d'un participant deja inscrit.
+ * avisPreuve : data URL deja validee (validerPreuve). Elle n'est prise que si aucune preuve n'est
+ * en attente ou validee (premiere preuve, ou nouvelle preuve apres un refus).
  * Chaque ticket bonus n'est attribue qu'une seule fois (contrainte unique participant_id + motif).
  * Renvoie { participant, tickets, nouveaux }.
  */
-export async function completerParticipation(participant, { amis = [], avis = false } = {}, req, contexte) {
+export async function completerParticipation(participant, { amis = [], avisPreuve = '' } = {}, req, contexte) {
   const avant = await listerTickets(participant.id);
   const obtenus = avant.map((t) => t.motif);
 
   const champs = {};
   const amisAjoutes = amis.length && !obtenus.includes('amis') ? amis : [];
   if (amisAjoutes.length) champs.amis = amisAjoutes;
-  if (avis && !participant.avis) champs.avis = true;
-  const maj = Object.keys(champs).length ? (await majParticipant(participant.id, champs)) || { ...participant, ...champs } : participant;
+  const preuveAjoutee = avisPreuve && !avisEnCours(participant) ? avisPreuve : '';
+  if (preuveAjoutee) Object.assign(champs, champsPreuveAvis(preuveAjoutee));
+  const maj = Object.keys(champs).length
+    ? (await majParticipant(participant.id, champs)) || { ...participant, ...champs, avis_preuve: undefined }
+    : participant;
 
   const droits = motifsTickets({ amis: maj.amis, avis: maj.avis });
   const manquants = motifsManquants(droits, obtenus);
@@ -72,9 +91,9 @@ export async function completerParticipation(participant, { amis = [], avis = fa
       envoyerMail({ to: maj.email, ...mailNouveauTicket({ prenom: maj.prenom, nouveaux, tickets, lienPage: lienPage(req) }) }),
       ...invitationsAmis(maj, amisAjoutes, req),
     ];
-    const titre = contexte || (nouveaux.some((t) => t.motif === 'avis') ? 'Avis Google confirmé' : 'Ami(e)s invité(e)s');
-    const note = mailInterne({ participant: complet, tickets, contexte: titre });
-    for (const to of destinatairesInternes()) taches.push(envoyerMail({ to, ...note, replyTo: maj.email }));
+    const avisNouveau = nouveaux.some((t) => t.motif === 'avis');
+    const titre = contexte || (avisNouveau ? 'Preuve d’avis Google reçue' : 'Ami(e)s invité(e)s');
+    taches.push(...notesInternes(complet, tickets, { contexte: titre, preuve: avisNouveau ? preuveAjoutee : '' }));
     await envoyerTous(taches);
   }
   return { participant: complet, tickets, nouveaux };

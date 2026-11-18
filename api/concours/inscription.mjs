@@ -1,25 +1,22 @@
 // POST /api/concours/inscription : inscription au jeu concours FIGHT & Furious x Moteka.
-// Ticket 1 a l'inscription, ticket 2 si 2 ami(e)s sont invite(e)s, ticket 3 si l'avis Google est deja fait.
+// Ticket 1 a l'inscription, ticket 2 si 2 ami(e)s sont invite(e)s, ticket 3 si la capture de l'avis Google est jointe (avis_preuve).
 import { motifsTickets, validerInscription } from '../_lib/concours.mjs';
 import { attribuerTickets, creerParticipant, supabaseConfigure, trouverDoublon } from '../_lib/supabase.mjs';
 import { brevoConfigure, envoyerMail } from '../_lib/brevo.mjs';
-import { destinatairesInternes, mailConfirmation, mailInterne } from '../_lib/mails.mjs';
+import { mailConfirmation } from '../_lib/mails.mjs';
 import { lienPage, lireCorps, repondre, verifierMethode } from '../_lib/http.mjs';
-import { completerParticipation, envoyerTous, invitationsAmis, ticketsPublics } from '../_lib/participation.mjs';
+import { champsPreuveAvis, completerParticipation, envoyerTous, invitationsAmis, notesInternes, ticketsPublics } from '../_lib/participation.mjs';
 
 const MESSAGE_DOUBLON =
   'Vous êtes déjà inscrit(e) au jeu avec ce numéro ou cet email. Pas besoin de recommencer : vos tickets comptent pour chaque tirage.';
 
-async function envoyerMails(participant, tickets, req) {
+async function envoyerMails(participant, tickets, req, preuve) {
   if (!brevoConfigure()) return { envoyes: 0, erreurs: ['brevo_non_configure'] };
   const taches = [
     envoyerMail({ to: participant.email, ...mailConfirmation({ prenom: participant.prenom, tickets, lienPage: lienPage(req) }) }),
     ...invitationsAmis(participant, participant.amis, req),
+    ...notesInternes({ ...participant, tickets: tickets.length }, tickets, { preuve }),
   ];
-  const interne = mailInterne({ participant: { ...participant, tickets: tickets.length }, tickets });
-  for (const dest of destinatairesInternes()) {
-    taches.push(envoyerMail({ to: dest, ...interne, replyTo: participant.email }));
-  }
   return envoyerTous(taches);
 }
 
@@ -46,7 +43,7 @@ export default async function handler(req, res) {
     if (existant) {
       // meme telephone ET meme email : c'est bien lui, on complete ses tickets bonus au besoin
       if (existant.email === donnees.email && String(existant.telephone || '').slice(-9) === donnees.phone_key) {
-        const r = await completerParticipation(existant, { amis: donnees.amis, avis: donnees.avis }, req);
+        const r = await completerParticipation(existant, { amis: donnees.amis, avisPreuve: donnees.avis_preuve }, req);
         return repondre(res, 200, {
           ok: true,
           deja: true,
@@ -54,6 +51,7 @@ export default async function handler(req, res) {
           tickets: ticketsPublics(r.tickets),
           nouveaux: ticketsPublics(r.nouveaux),
           avis: Boolean(r.participant.avis),
+          avis_statut: r.participant.avis_statut || 'aucun',
           message: r.nouveaux.length
             ? 'Vous étiez déjà inscrit(e) : vos nouveaux tickets sont ajoutés.'
             : 'Vous êtes déjà inscrit(e) : voici vos tickets.',
@@ -62,15 +60,18 @@ export default async function handler(req, res) {
       return repondre(res, 409, { ok: false, doublon: true, message: MESSAGE_DOUBLON });
     }
 
-    const { prenom, nom, telephone, phone_key, email, amis, avis, source } = donnees;
-    const participant = await creerParticipant({ prenom, nom, telephone, phone_key, email, amis, avis, source });
+    const { prenom, nom, telephone, phone_key, email, amis, avis_preuve, source } = donnees;
+    const ligne = { prenom, nom, telephone, phone_key, email, amis, source, ...(avis_preuve ? champsPreuveAvis(avis_preuve) : {}) };
+    const participant = await creerParticipant(ligne);
     const { tickets } = await attribuerTickets(participant.id, motifsTickets(donnees));
-    const mails = await envoyerMails({ ...donnees, ...participant }, tickets, req);
+    const { avis_preuve: _preuve, ...sansPreuve } = donnees;
+    const mails = await envoyerMails({ ...sansPreuve, ...participant }, tickets, req, avis_preuve);
     return repondre(res, 201, {
       ok: true,
       id: participant.id,
       tickets: ticketsPublics(tickets),
       avis: Boolean(participant.avis),
+      avis_statut: participant.avis_statut || 'aucun',
       mails: mails.envoyes,
       message: 'Inscription enregistrée.',
     });

@@ -119,3 +119,21 @@ td small { color: var(--gris); display: block; }
   .titre-barre { display: none; }
   .actions-tirage, .actions-tirage .bouton, .choix-lot { width: 100%; }
 }
+
+/* ---------- Avis Google : statut et preuve ---------- */
+.avis-statut { font-weight: 600; }
+.avis-a_verifier { color: #ffd166; }
+.avis-valide { color: var(--vert); }
+.avis-refuse { color: var(--rouge-vif, #e53935); }
+.avis-actions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.dialogue-preuve {
+  width: min(560px, calc(100% - 32px)); max-height: calc(100% - 32px); padding: 16px; border: 1px solid var(--trait);
+  border-radius: 6px; background: var(--noir-2); color: var(--blanc);
+}
+.dialogue-preuve::backdrop { background: rgba(0, 0, 0, .7); }
+.preuve-tete { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.preuve-tete h2 { margin: 0; font-size: 18px; }
+.preuve-image { margin: 10px 0; background: #000; border-radius: 4px; text-align: center; }
+.preuve-image img { display: block; max-width: 100%; max-height: 65vh; margin: 0 auto; }
+.preuve-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.preuve-actions [hidden] { display: none; }
