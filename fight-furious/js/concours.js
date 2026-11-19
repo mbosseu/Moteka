@@ -34,6 +34,16 @@
   let etat = lire();
   if (!Array.isArray(etat.tickets)) delete etat.tickets;
   if (etat.avisAvant) { delete etat.avisAvant; try { localStorage.setItem(CLE, JSON.stringify(etat)); } catch (e) {} }
+
+  function sourceInscription() {
+    const q = (new URLSearchParams(location.search).get("src") || "").toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 12);
+    if (q) {
+      ecrire({ src: q });
+      etat = lire();
+      return q;
+    }
+    return etat.src || "site";
+  }
   let preuve = ""; // capture compressée (data URL JPEG), jamais stockée dans localStorage
   let preparationPreuve = null;
   let envoiAvisEnCours = false;
@@ -203,7 +213,7 @@
       amis: amisRemplis(amis) ? amis : [],
       reglement: form.elements.reglement.checked,
       site_web: form.elements.site_web.value,
-      source: new URLSearchParams(location.search).get("src") || "site",
+      source: sourceInscription(),
     };
     envoyer.disabled = true;
     envoyer.textContent = "Envoi en cours";
