@@ -17,16 +17,16 @@
   <div id="root" data-composition-id="tickets" data-width="1080" data-height="1920">
     <div id="t-b1" class="t-bande" data-layout-ignore></div><div id="t-b2" class="t-bande" data-layout-ignore></div><div id="t-b3" class="t-bande" data-layout-ignore></div>
 
-    <div id="t-gratuit" class="clip t-titre" style="top: 330px; font-size: 170px" data-start="0" data-duration="5.333"><span class="t-in">Comment jouer ?</span></div>
-    <div id="t-trois" class="clip t-titre" style="top: 1250px; font-size: 130px; line-height: 1" data-start="2.667" data-duration="2.666"><span class="t-in">Jusqu'à <span style="color:#0a0a0b">3 chances</span><br>de gagner !</span></div>
+    <div id="t-gratuit" class="clip t-titre" style="top: 330px; font-size: 170px" data-start="0" data-duration="7.333"><span class="t-in">Comment jouer ?</span></div>
+    <div id="t-trois" class="clip t-titre" style="top: 1250px; font-size: 130px; line-height: 1" data-start="4.9" data-duration="2.433"><span class="t-in">Jusqu'à <span style="color:#0a0a0b;display:inline-block">3 chances</span><br>de gagner !</span></div>
 
-    <div id="t-k1" class="clip t-ticket" style="top: 560px" data-start="0.267" data-duration="5.066">
+    <div id="t-k1" class="clip t-ticket" style="top: 560px" data-start="1.243" data-duration="6.09">
       <div class="t-papier"><div class="t-souche"><small>N°</small><b>100</b></div><div class="t-corps"><small>Ticket 1</small><b>Inscris-toi</b></div></div>
     </div>
-    <div id="t-k2" class="clip t-ticket" style="top: 780px" data-start="0.933" data-duration="4.4">
+    <div id="t-k2" class="clip t-ticket" style="top: 780px" data-start="2.063" data-duration="5.27">
       <div class="t-papier"><div class="t-souche"><small>N°</small><b>101</b></div><div class="t-corps"><small>Ticket 2</small><b>Invite 2 ami(e)s</b></div></div>
     </div>
-    <div id="t-k3" class="clip t-ticket" style="top: 1000px" data-start="1.6" data-duration="3.733">
+    <div id="t-k3" class="clip t-ticket" style="top: 1000px" data-start="3.413" data-duration="3.92">
       <div class="t-papier"><div class="t-souche"><small>N°</small><b>102</b></div><div class="t-corps"><small>Ticket 3</small><b>Laisse un avis Google</b></div></div>
     </div>
   </div>
@@ -40,10 +40,11 @@
       const entre = (sel, t) => tl.fromTo(sel + " .t-in", { clipPath: "inset(0 100% 0 0)", x: 40 }, { clipPath: "inset(0 0% 0 0)", x: 0, duration: 0.22, ease: "expo.out" }, t);
       entre("#t-gratuit", 0);
       tl.fromTo("#t-gratuit .t-in", { scale: 1.2, transformOrigin: "0% 50%" }, { scale: 1, duration: 0.18, ease: "back.out(2)" }, 0);
-      entre("#t-trois", 2.667);
-      tl.fromTo("#t-trois .t-in", { scale: 1.2, transformOrigin: "0% 50%" }, { scale: 1, duration: 0.2, ease: "back.out(2)" }, 2.667);
+      entre("#t-trois", 4.9);
+      tl.fromTo("#t-trois .t-in", { scale: 1.2, transformOrigin: "0% 50%" }, { scale: 1, duration: 0.2, ease: "back.out(2)" }, 4.9);
+      tl.fromTo("#t-trois .t-in span", { scale: 1.6 }, { scale: 1, duration: 0.2, ease: "back.out(2.5)" }, 5.25);
       // chaque ticket tombe et se pose, sur le mot qui le donne
-      [["#t-k1", 0.667], ["#t-k2", 1.333], ["#t-k3", 2.0]].forEach(([k, t], i) =>
+      [["#t-k1", 1.643], ["#t-k2", 2.463], ["#t-k3", 3.813]].forEach(([k, t], i) =>
         tl.fromTo(k + " .t-papier", { y: -520, rotation: -14 + i * 9, opacity: 0 },
           { y: 0, rotation: [-3, 2, -2][i], opacity: 1, duration: 0.45, ease: "back.out(1.6)" }, t - 0.4));
       window.__timelines["tickets"] = tl;

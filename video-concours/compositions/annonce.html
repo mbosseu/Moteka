@@ -11,54 +11,65 @@
     .a-lot { flex: 1; font: 400 84px/1 "League Gothic", sans-serif; text-transform: uppercase; }
     .a-top .a-jour { color: #ff2a2a; }
     .a-top .a-lot { color: #ff2a2a; }
+    #a-mk { position: absolute; left: 200px; width: 680px; }
+    #a-mk .a-in { background: #0a0a0b; padding: 34px 40px; }
+    #a-mk img { width: 100%; display: block; }
   </style>
 
   <div id="root" data-composition-id="annonce" data-width="1080" data-height="1920">
-    <!-- 1. gratuit -->
-    <div id="a-m1" class="clip a-monde" data-start="0" data-duration="2.667" style="background:#d11414">
+    <!-- Temps locaux calés sur les mots de la voix (v3 commence à 0,533, v4 à 6,763) -->
+    <!-- 1. le jeu, puis gratuit -->
+    <div id="a-m1" class="clip a-monde" data-start="0" data-duration="7.0" style="background:#d11414">
       <div id="a-b1" class="a-bande" data-layout-ignore></div><div id="a-b2" class="a-bande" data-layout-ignore></div><div id="a-b3" class="a-bande" data-layout-ignore></div>
     </div>
-    <div id="a-cent" class="clip a-titre" style="top: 400px; font-size: 380px; text-align: center" data-start="0" data-duration="2.667"><span class="a-in">100 %</span></div>
-    <div id="a-grat" class="clip a-titre" style="top: 750px; font-size: 290px; text-align: center; color: #f4f2ef" data-start="0.05" data-duration="2.617"><span class="a-in">gratuit</span></div>
-    <div id="a-qui" class="clip a-titre" style="top: 1080px; font-size: 84px; text-align: center; line-height: 1.05" data-start="0.667" data-duration="2.0"><span class="a-in">Le jeu concours<br>Fight &amp; Furious × Moteka</span></div>
+    <div id="a-jeu" class="clip a-label" style="top: 420px; color: #f4f2ef" data-start="0.883" data-duration="3.784"><span class="a-in">Le grand jeu concours</span></div>
+    <div id="a-ff" class="clip a-titre" style="top: 500px; font-size: 250px" data-start="1.59" data-duration="3.077"><span class="a-in">Fight &amp;<br><span style="color:#0a0a0b">Furious</span></span></div>
+    <div id="a-avec" class="clip a-label" style="top: 1000px; color: #f4f2ef; text-align: center; left: 100px" data-start="2.94" data-duration="1.727"><span class="a-in">avec le garage</span></div>
+    <div id="a-mk" class="clip" style="top: 1070px" data-start="3.52" data-duration="1.147"><div class="a-in" style="display:block"><img src="assets/img/moteka-blanc.svg" alt="MOTEKA"></div></div>
+
+    <div id="a-cent" class="clip a-titre" style="top: 400px; font-size: 380px; text-align: center" data-start="4.667" data-duration="2.333"><span class="a-in">100 %</span></div>
+    <div id="a-grat" class="clip a-titre" style="top: 750px; font-size: 290px; text-align: center; color: #0a0a0b" data-start="5.2" data-duration="1.8"><span class="a-in" style="background:#f4f2ef;color:#d11414;padding:20px 40px 0">gratuit</span></div>
+    <div id="a-qui" class="clip a-titre" style="top: 1130px; font-size: 84px; text-align: center; line-height: 1.05" data-start="5.4" data-duration="1.6"><span class="a-in">Fight &amp; Furious × Moteka</span></div>
 
     <!-- 2. les dates -->
-    <div id="a-date-l" class="clip a-label" style="top: 330px" data-start="2.667" data-duration="2.667"><span class="a-in">Du lundi au samedi</span></div>
-    <div id="a-date" class="clip a-titre" style="top: 400px; font-size: 250px" data-start="2.667" data-duration="2.667"><span class="a-in">23 → 28<br><span style="color:#ff2a2a">novembre</span></span></div>
-    <div id="a-soir1" class="clip a-titre" style="top: 920px; font-size: 130px" data-start="3.333" data-duration="2.0"><span class="a-in">1 tirage au sort</span></div>
-    <div id="a-soir2" class="clip a-titre" style="top: 1055px; font-size: 130px" data-start="4.0" data-duration="1.333"><span class="a-in">1 cadeau</span></div>
-    <div id="a-soir3" class="clip a-titre" style="top: 1190px; font-size: 130px; color: #ff2a2a" data-start="4.0" data-duration="1.333"><span class="a-in">chaque soir</span></div>
+    <div id="a-date-l" class="clip a-label" style="top: 330px" data-start="7.0" data-duration="4.333"><span class="a-in">Du lundi au samedi</span></div>
+    <div id="a-date" class="clip a-titre" style="top: 400px; font-size: 250px" data-start="7.0" data-duration="4.333"><span class="a-in">23 → 28<br><span style="color:#ff2a2a">novembre</span></span></div>
+    <div id="a-soir1" class="clip a-titre" style="top: 920px; font-size: 130px" data-start="8.613" data-duration="2.72"><span class="a-in">1 tirage au sort</span></div>
+    <div id="a-soir3" class="clip a-titre" style="top: 1055px; font-size: 130px; color: #ff2a2a" data-start="9.25" data-duration="2.083"><span class="a-in">chaque soir</span></div>
+    <div id="a-soir2" class="clip a-titre" style="top: 1190px; font-size: 130px" data-start="10.36" data-duration="0.973"><span class="a-in">+ 1 cadeau !</span></div>
 
-    <!-- 3. les six lots, un par temps -->
-    <div id="a-liste-l" class="clip a-label" style="top: 320px" data-start="5.333" data-duration="5.334"><span class="a-in">Chaque soir, un cadeau</span></div>
-    <div id="a-r1" class="clip a-ligne" style="top: 390px" data-start="5.333" data-duration="5.334"><span class="a-jour">Lun 23</span><span class="a-lot">Vidange offerte</span></div>
-    <div id="a-r2" class="clip a-ligne" style="top: 540px" data-start="6.0" data-duration="4.667"><span class="a-jour">Mar 24</span><span class="a-lot">Nettoyage int. + ext.</span></div>
-    <div id="a-r3" class="clip a-ligne" style="top: 690px" data-start="6.667" data-duration="4.0"><span class="a-jour">Mer 25</span><span class="a-lot">Géométrie</span></div>
-    <div id="a-r4" class="clip a-ligne" style="top: 840px" data-start="7.333" data-duration="3.334"><span class="a-jour">Jeu 26</span><span class="a-lot">Contrôle complet</span></div>
-    <div id="a-r5" class="clip a-ligne a-top" style="top: 990px" data-start="8.0" data-duration="2.667"><span class="a-jour">Ven 27</span><span class="a-lot">Golf 8 R · 24 h</span></div>
-    <div id="a-r6" class="clip a-ligne a-top" style="top: 1140px" data-start="8.667" data-duration="2.0"><span class="a-jour">Sam 28</span><span class="a-lot">GTA 6 · PS5</span></div>
+    <!-- 3. les six lots, un par temps (musique seule) -->
+    <div id="a-liste-l" class="clip a-label" style="top: 320px" data-start="11.333" data-duration="4.667"><span class="a-in">Chaque soir, un cadeau</span></div>
+    <div id="a-r1" class="clip a-ligne" style="top: 390px" data-start="11.333" data-duration="4.667"><span class="a-jour">Lun 23</span><span class="a-lot">Vidange offerte</span></div>
+    <div id="a-r2" class="clip a-ligne" style="top: 540px" data-start="12.0" data-duration="4.0"><span class="a-jour">Mar 24</span><span class="a-lot">Nettoyage int. + ext.</span></div>
+    <div id="a-r3" class="clip a-ligne" style="top: 690px" data-start="12.667" data-duration="3.333"><span class="a-jour">Mer 25</span><span class="a-lot">Géométrie</span></div>
+    <div id="a-r4" class="clip a-ligne" style="top: 840px" data-start="13.333" data-duration="2.667"><span class="a-jour">Jeu 26</span><span class="a-lot">Contrôle complet</span></div>
+    <div id="a-r5" class="clip a-ligne a-top" style="top: 990px" data-start="14.0" data-duration="2.0"><span class="a-jour">Ven 27</span><span class="a-lot">Golf 8 R · 24 h</span></div>
+    <div id="a-r6" class="clip a-ligne a-top" style="top: 1140px" data-start="14.667" data-duration="1.333"><span class="a-jour">Sam 28</span><span class="a-lot">GTA 6 · PS5</span></div>
   </div>
 
   <script>
     (function () {
       const tl = gsap.timeline({ paused: true });
-      const entre = (sel, t) => tl.fromTo(sel + " .a-in", { clipPath: "inset(0 100% 0 0)", x: 40 }, { clipPath: "inset(0 0% 0 0)", x: 0, duration: 0.22, ease: "expo.out" }, t);
+      const entre = (sel, t) => tl.fromTo(sel + " .a-in", { clipPath: "inset(0 100% 0 0)", x: 40 }, { clipPath: "inset(0 0% 0 0)", x: 0, duration: 0.2, ease: "expo.out" }, t);
+      const claque = (sel, t, s) => tl.fromTo(sel + " .a-in", { scale: s || 1.3 }, { scale: 1, duration: 0.2, ease: "back.out(2)" }, t);
       [["#a-b1", 80], ["#a-b2", 430], ["#a-b3", 780]].forEach(([b, x], i) =>
         tl.fromTo(b, { x: x - 1300, skewX: -34 }, { x, skewX: -34, duration: 0.45, ease: "power3.out" }, i * 0.05));
-      tl.fromTo("#a-cent .a-in", { scale: 1.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.25, ease: "back.out(2)" }, 0);
-      entre("#a-grat", 0.05);
-      tl.fromTo("#a-grat .a-in", { scale: 1.3 }, { scale: 1, duration: 0.2, ease: "back.out(2)" }, 0.05);
-      entre("#a-qui", 0.667);
-      entre("#a-date-l", 2.7);
-      entre("#a-date", 2.667);
-      tl.fromTo("#a-date .a-in", { scale: 1.2, transformOrigin: "0% 50%" }, { scale: 1, duration: 0.2, ease: "back.out(2)" }, 2.667);
-      entre("#a-soir1", 3.333); entre("#a-soir2", 4.0); entre("#a-soir3", 4.05);
-      entre("#a-liste-l", 5.35);
-      ["#a-r1", "#a-r2", "#a-r3", "#a-r4", "#a-r5", "#a-r6"].forEach((r, i) => {
-        const t = 5.333 + i * 0.667;
-        tl.fromTo(r, { x: -1100 }, { x: 0, duration: 0.24, ease: "expo.out" }, t);
-      });
-      tl.fromTo(["#a-r5 .a-lot", "#a-r6 .a-lot"], { scale: 1.25, transformOrigin: "0% 50%" }, { scale: 1, duration: 0.25, ease: "back.out(2)", stagger: 0.667 }, 8.0);
+      entre("#a-jeu", 0.883);
+      entre("#a-ff", 1.59); claque("#a-ff", 1.59, 1.25);
+      entre("#a-avec", 2.94);
+      tl.fromTo("#a-mk .a-in", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.3, ease: "expo.out" }, 3.52);
+      // « cent pour cent gratuit » : le 100 % claque sur le temps fort
+      tl.fromTo("#a-cent .a-in", { scale: 1.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.22, ease: "back.out(2)" }, 4.667);
+      entre("#a-grat", 5.2); claque("#a-grat", 5.2, 1.4);
+      entre("#a-qui", 5.4);
+      entre("#a-date-l", 7.03);
+      entre("#a-date", 7.0); claque("#a-date", 7.0, 1.2);
+      entre("#a-soir1", 8.613); entre("#a-soir3", 9.25); entre("#a-soir2", 10.36); claque("#a-soir2", 10.36, 1.3);
+      entre("#a-liste-l", 11.35);
+      ["#a-r1", "#a-r2", "#a-r3", "#a-r4", "#a-r5", "#a-r6"].forEach((r, i) =>
+        tl.fromTo(r, { x: -1100 }, { x: 0, duration: 0.24, ease: "expo.out" }, 11.333 + i * 0.667));
+      tl.fromTo(["#a-r5 .a-lot", "#a-r6 .a-lot"], { scale: 1.25, transformOrigin: "0% 50%" }, { scale: 1, duration: 0.25, ease: "back.out(2)", stagger: 0.667 }, 14.0);
       window.__timelines["annonce"] = tl;
     })();
   </script>
