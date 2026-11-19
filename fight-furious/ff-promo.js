@@ -1,124 +1,109 @@
 /**
- * Bandeau FIGHT & Furious pour les sites Boxing Center.
- * Codes src (courts, dans ?src=) :
- *   cbx combat-boxe.com
- *   mdb materiel-de-boxe.fr
- *   btq boutique.boxingcenter.fr
- *   gal gala.boxingcenter.fr
- *   stg stage-boxeur (Les Vacances des Boxeurs)
- *   trp Boxing Trophy
- *   tmb toulouse-minimes-boxing-club.fr
- *   bcc boxingcenter.fr
- *   ff  fight-and-furious.boxingcenter.fr (direct)
+ * Section + bandeau persistants FIGHT & Furious.
+ * Pas de fermeture : le bloc reste dans la page et le bandeau reste en bas.
+ * Si une section .ff-section est deja dans le HTML, le script n'en ajoute pas une deuxieme.
  *
- * Usage : <script src="https://fight-and-furious.boxingcenter.fr/ff-promo.js" data-src="cbx" defer></script>
- * Option : data-focus="concours" pour ancrer le jeu concours.
+ * Codes src : cbx, mdb, btq, gal, stg, trp, tmb, bcc, ff
  */
 (function () {
   'use strict';
   var EVENT = 'https://fight-and-furious.boxingcenter.fr';
   var BILLETS = 'https://boutique.boxingcenter.fr/billetterie';
-  var CLE = 'ff-promo-off-v2';
 
   if (typeof location === 'undefined') return;
   if (/(^|\.)fight-and-furious\.boxingcenter\.fr$/i.test(location.hostname)) return;
-  if (document.getElementById('ff-promo')) return;
   if (/^\/(admin|billet|checkout|inscription|paiement|contrat|success)(\/|$)/i.test(location.pathname)) return;
 
-  try {
-    if (sessionStorage.getItem(CLE) === '1') return;
-  } catch (e) {
-    /* ignore */
-  }
-
   var el = document.currentScript;
-  var src = '';
+  var src = 'web';
   var focus = '';
   if (el) {
-    src = String(el.getAttribute('data-src') || '')
+    src = String(el.getAttribute('data-src') || 'web')
       .toLowerCase()
       .replace(/[^a-z0-9_-]/g, '')
-      .slice(0, 12);
+      .slice(0, 12) || 'web';
     focus = String(el.getAttribute('data-focus') || '').toLowerCase();
   }
-  if (!src) src = 'web';
 
   var eventUrl = EVENT + '/?src=' + encodeURIComponent(src);
   if (focus === 'concours') eventUrl += '#concours';
   var billetsUrl = BILLETS + '?src=' + encodeURIComponent(src);
+  var concoursUrl = EVENT + '/?src=' + encodeURIComponent(src) + '#concours';
 
   function css() {
     if (document.getElementById('ff-promo-css')) return;
     var s = document.createElement('style');
     s.id = 'ff-promo-css';
     s.textContent =
-      '#ff-promo-veil{position:fixed;inset:0;z-index:2147482999;background:rgba(0,0,0,.55)}' +
-      '#ff-promo{position:fixed;z-index:2147483000;left:0;right:0;bottom:0;width:100%;max-width:none;margin:0;background:#0a0a0a;color:#fff;border:0;border-top:6px solid #e11d2e;border-radius:16px 16px 0 0;padding:20px 16px 18px;padding-bottom:max(18px,env(safe-area-inset-bottom));font-family:system-ui,-apple-system,Segoe UI,sans-serif;box-shadow:0 -16px 48px rgba(0,0,0,.55)}' +
-      '#ff-promo[hidden],#ff-promo-veil[hidden]{display:none}' +
-      '#ff-promo .ff-promo__kicker{margin:0 0 6px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#e11d2e;font-weight:700}' +
-      '#ff-promo .ff-promo__title{margin:0 0 8px;font-size:clamp(26px,7vw,36px);line-height:1.05;font-weight:800;letter-spacing:.02em}' +
-      '#ff-promo .ff-promo__txt{margin:0 0 16px;font-size:16px;line-height:1.4;color:#f4f4f5;max-width:36em}' +
-      '#ff-promo .ff-promo__row{display:flex;flex-wrap:wrap;gap:10px}' +
-      '#ff-promo a.ff-promo__btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 18px;border-radius:10px;font-size:16px;font-weight:700;text-decoration:none;flex:1 1 160px;box-sizing:border-box}' +
+      'body.ff-promo-on{padding-bottom:76px}' +
+      '.ff-section{background:#0a0a0a;color:#fff;padding:36px 16px;border-top:6px solid #e11d2e;border-bottom:6px solid #e11d2e}' +
+      '.ff-section__in{max-width:1100px;margin:0 auto}' +
+      '.ff-section__k{margin:0 0 8px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#e11d2e;font-weight:700}' +
+      '.ff-section h2,.ff-section__t{margin:0 0 10px;font-size:clamp(28px,6vw,42px);line-height:1.05;font-weight:800;color:#fff}' +
+      '.ff-section p,.ff-section__p{margin:0 0 18px;font-size:16px;line-height:1.45;color:#f4f4f5;max-width:38em}' +
+      '.ff-section__row{display:flex;flex-wrap:wrap;gap:10px}' +
+      '.ff-section a.ff-btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:10px;font-size:16px;font-weight:700;text-decoration:none;box-sizing:border-box}' +
+      '.ff-section a.ff-btn--on{background:#e11d2e;color:#fff}' +
+      '.ff-section a.ff-btn--ghost{background:#fff;color:#111}' +
+      '.ff-section a.ff-btn--line{background:transparent;color:#fff;border:2px solid #fff}' +
+      '#ff-promo{position:fixed;z-index:2147483000;left:0;right:0;bottom:0;background:#0a0a0a;color:#fff;border-top:4px solid #e11d2e;padding:10px 12px;padding-bottom:max(10px,env(safe-area-inset-bottom));font-family:system-ui,-apple-system,Segoe UI,sans-serif;display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between}' +
+      '#ff-promo .ff-promo__copy{margin:0;font-size:14px;font-weight:700;line-height:1.3}' +
+      '#ff-promo .ff-promo__copy span{display:block;font-size:12px;font-weight:500;color:#d4d4d8}' +
+      '#ff-promo .ff-promo__row{display:flex;flex-wrap:wrap;gap:8px}' +
+      '#ff-promo a.ff-promo__btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 14px;border-radius:8px;font-size:14px;font-weight:700;text-decoration:none}' +
       '#ff-promo a.ff-promo__btn--on{background:#e11d2e;color:#fff}' +
       '#ff-promo a.ff-promo__btn--ghost{background:#fff;color:#111}' +
-      '#ff-promo .ff-promo__close{position:absolute;top:8px;right:8px;width:48px;height:48px;border:0;background:#1f1f1f;color:#fff;font-size:26px;line-height:1;cursor:pointer;border-radius:10px}' +
-      '@media (min-width:760px){#ff-promo{left:50%;right:auto;bottom:24px;transform:translateX(-50%);width:min(560px,calc(100% - 32px));border:2px solid #e11d2e;border-radius:16px;padding:28px 24px 22px}}' +
-      '@media (prefers-reduced-motion:reduce){#ff-promo,#ff-promo-veil{transition:none}}';
+      '@media (min-width:760px){.ff-section{padding:48px 24px}#ff-promo{padding:12px 24px}}' +
+      '@media print{.ff-section,#ff-promo{display:none!important}body.ff-promo-on{padding-bottom:0}}';
     document.head.appendChild(s);
   }
 
-  function fermer() {
-    var box = document.getElementById('ff-promo');
-    var veil = document.getElementById('ff-promo-veil');
-    if (box) box.remove();
-    if (veil) veil.remove();
-    try {
-      sessionStorage.setItem(CLE, '1');
-    } catch (e) {
-      /* ignore */
-    }
+  function sectionHtml() {
+    return (
+      '<div class="ff-section__in">' +
+      '<p class="ff-section__k">11 au 13 decembre 2026</p>' +
+      '<h2 class="ff-section__t">FIGHT &amp; Furious</h2>' +
+      '<p class="ff-section__p">Gala de boxe Boxing Center x Moteka. Billets en ligne et jeu concours avec tirages jusqu\'au 28 novembre.</p>' +
+      '<div class="ff-section__row">' +
+      '<a class="ff-btn ff-btn--on" href="' + eventUrl.replace(/"/g, '') + '">Voir l\'evenement</a>' +
+      '<a class="ff-btn ff-btn--ghost" href="' + billetsUrl.replace(/"/g, '') + '">Acheter un billet</a>' +
+      '<a class="ff-btn ff-btn--line" href="' + concoursUrl.replace(/"/g, '') + '">Jeu concours</a>' +
+      '</div></div>'
+    );
   }
 
-  function injecter() {
+  function injecterSection() {
+    if (document.querySelector('.ff-section')) return;
+    var sec = document.createElement('section');
+    sec.className = 'ff-section';
+    sec.id = 'fight-and-furious';
+    sec.setAttribute('aria-label', 'FIGHT and Furious');
+    sec.innerHTML = sectionHtml();
+    var foot = document.querySelector('footer');
+    if (foot && foot.parentNode) foot.parentNode.insertBefore(sec, foot);
+    else document.body.appendChild(sec);
+  }
+
+  function injecterBandeau() {
     if (document.getElementById('ff-promo')) return;
-    css();
-    var veil = document.createElement('div');
-    veil.id = 'ff-promo-veil';
-    veil.setAttribute('aria-hidden', 'true');
-    var box = document.createElement('aside');
-    box.id = 'ff-promo';
-    box.setAttribute('role', 'dialog');
-    box.setAttribute('aria-modal', 'true');
-    box.setAttribute('aria-label', 'FIGHT and Furious');
-    box.innerHTML =
-      '<button type="button" class="ff-promo__close" aria-label="Fermer">x</button>' +
-      '<p class="ff-promo__kicker">11 au 13 decembre 2026</p>' +
-      '<p class="ff-promo__title">FIGHT &amp; Furious</p>' +
-      '<p class="ff-promo__txt">Gala Boxing Center x Moteka. Billets en ligne et jeu concours avec tirages. Cliquez pour ouvrir l\'evenement.</p>' +
+    var bar = document.createElement('div');
+    bar.id = 'ff-promo';
+    bar.setAttribute('role', 'complementary');
+    bar.setAttribute('aria-label', 'FIGHT and Furious');
+    bar.innerHTML =
+      '<p class="ff-promo__copy">FIGHT &amp; Furious<span>Gala 11-13 dec. 2026 · billets et concours</span></p>' +
       '<div class="ff-promo__row">' +
-      '<a class="ff-promo__btn ff-promo__btn--on" href="' +
-      eventUrl.replace(/"/g, '') +
-      '">Voir l\'evenement</a>' +
-      '<a class="ff-promo__btn ff-promo__btn--ghost" href="' +
-      billetsUrl.replace(/"/g, '') +
-      '">Acheter un billet</a>' +
+      '<a class="ff-promo__btn ff-promo__btn--on" href="' + eventUrl.replace(/"/g, '') + '">Evenement</a>' +
+      '<a class="ff-promo__btn ff-promo__btn--ghost" href="' + billetsUrl.replace(/"/g, '') + '">Billets</a>' +
       '</div>';
-    document.body.appendChild(veil);
-    document.body.appendChild(box);
-    box.querySelector('.ff-promo__close').addEventListener('click', fermer);
-    veil.addEventListener('click', fermer);
-  }
-
-  var delay = 400;
-  try {
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) delay = 0;
-  } catch (e) {
-    delay = 400;
+    document.body.appendChild(bar);
+    document.body.classList.add('ff-promo-on');
   }
 
   function go() {
-    setTimeout(injecter, delay);
+    css();
+    injecterSection();
+    injecterBandeau();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go);
   else go();
