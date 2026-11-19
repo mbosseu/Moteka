@@ -1,0 +1,62 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; background: #0a0a0b; color: #f4f2ef; font-family: "Inter", sans-serif; }
+    .l-in { display: inline-block; }
+    .l-titre { position: absolute; left: 100px; right: 100px; font-family: "League Gothic", sans-serif; text-transform: uppercase; line-height: .9; }
+    .l-label { position: absolute; left: 104px; right: 100px; font: 700 40px "Inter", sans-serif; letter-spacing: .18em; text-transform: uppercase; color: #ff2a2a; }
+    .l-monde { position: absolute; inset: 0; overflow: hidden; }
+    #l-golf-box { position: absolute; left: 0; right: 0; top: 330px; height: 900px; overflow: hidden; }
+    #l-golf { position: absolute; left: -90px; top: -180px; width: 1260px; height: 1260px; object-fit: cover; }
+    #l-golf-voile { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,11,.7) 0%, rgba(10,10,11,0) 22%, rgba(10,10,11,0) 70%, #0a0a0b 100%); }
+    .l-bande { position: absolute; top: -300px; width: 220px; height: 2600px; background: #d11414; }
+    #l-gta-box { position: absolute; left: 320px; top: 400px; width: 440px; height: 550px; }
+    #l-gta { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; box-shadow: 0 30px 60px rgba(0,0,0,.6); display: block; }
+    .l-pastille { position: absolute; padding: 14px 30px 8px; background: #f4f2ef; color: #0a0a0b; font: 400 76px/1 "League Gothic", sans-serif; text-transform: uppercase; }
+  </style>
+
+  <div id="root" data-composition-id="lots" data-width="1080" data-height="1920">
+    <!-- 1. la Golf 8 R -->
+    <div id="l-m1" class="clip l-monde" data-start="0" data-duration="6.65">
+      <div id="l-golf-box"><img id="l-golf" src="assets/img/golf-8r.jpg" alt=""><div id="l-golf-voile"></div></div>
+    </div>
+      <div id="l-q" class="clip l-label" style="top: 290px" data-start="0" data-duration="6.65"><span class="l-in">Tu veux gagner…</span></div>
+      <div id="l-g1" class="clip l-titre" style="top: 1130px; font-size: 210px" data-start="1.317" data-duration="5.333"><span class="l-in">Une Golf 8 R</span></div>
+      <div id="l-g2" class="clip l-titre" style="top: 1330px; font-size: 140px; color: #ff2a2a" data-start="2.65" data-duration="4.0"><span class="l-in">pendant 24 h</span></div>
+      <div id="l-g3" class="clip l-pastille" style="left: 690px; top: 1355px" data-start="3.983" data-duration="2.667"><span class="l-in">320 ch</span></div>
+
+    <!-- 2. GTA 6 sur PS5 -->
+    <div id="l-m2" class="clip l-monde" data-start="6.65" data-duration="2.667" style="background:#d11414">
+      <div id="l-b1" class="l-bande" style="background:#0a0a0b" data-layout-ignore></div><div id="l-b2" class="l-bande" style="background:#0a0a0b" data-layout-ignore></div>
+    </div>
+      <div id="l-ou" class="clip l-titre" style="top: 290px; font-size: 120px" data-start="6.65" data-duration="2.667"><span class="l-in">… ou</span></div>
+      <div id="l-gta-box" class="clip" data-start="6.65" data-duration="2.667"><img id="l-gta" src="assets/img/lot-gta6.png" alt="GTA 6"></div>
+      <div id="l-t1" class="clip l-titre" style="top: 1000px; font-size: 230px; text-align: center" data-start="6.65" data-duration="2.667"><span class="l-in">GTA 6</span></div>
+      <div id="l-t2" class="clip l-titre" style="top: 1235px; font-size: 130px; text-align: center; color: #f4f2ef" data-start="7.317" data-duration="2.0"><span class="l-in" style="background:#0a0a0b;padding:10px 34px 0">sur PS5</span></div>
+  </div>
+
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const entre = (sel, t) => tl.fromTo(sel + " .l-in", { clipPath: "inset(0 100% 0 0)", x: 40 }, { clipPath: "inset(0 0% 0 0)", x: 0, duration: 0.22, ease: "expo.out" }, t);
+      // la Golf arrive en claquant sur le premier temps fort, puis avance doucement
+      entre("#l-q", 0.1);
+      tl.fromTo("#l-golf", { scale: 1.35, x: 120 }, { scale: 1, x: 0, duration: 0.5, ease: "expo.out" }, 1.317);
+      tl.fromTo("#l-golf-box", { clipPath: "inset(50% 0 50% 0)" }, { clipPath: "inset(0% 0 0% 0)", duration: 0.3, ease: "expo.out" }, 1.27);
+      tl.to("#l-golf", { scale: 1.08, duration: 4.8, ease: "none" }, 1.85);
+      entre("#l-g1", 1.317);
+      tl.fromTo("#l-g1 .l-in", { scale: 1.25, transformOrigin: "0% 50%" }, { scale: 1, duration: 0.2, ease: "back.out(2)" }, 1.317);
+      entre("#l-g2", 2.65);
+      tl.fromTo("#l-g3", { scale: 0, rotation: -20 }, { scale: 1, rotation: -6, duration: 0.3, ease: "back.out(2.5)" }, 3.983);
+      // GTA 6 : la jaquette tombe sur le temps fort
+      [["#l-b1", 140], ["#l-b2", 760]].forEach(([b, x], i) =>
+        tl.fromTo(b, { x: x - 1300, skewX: -34 }, { x, skewX: -34, duration: 0.45, ease: "power3.out" }, 6.65 + i * 0.05));
+      tl.fromTo("#l-gta", { y: -900, rotation: -18 }, { y: 0, rotation: 4, duration: 0.45, ease: "back.out(1.5)" }, 6.65);
+      tl.to("#l-gta", { scale: 1.05, duration: 2.2, ease: "none" }, 7.1);
+      entre("#l-ou", 6.65);
+      entre("#l-t1", 6.7);
+      tl.fromTo("#l-t1 .l-in", { scale: 1.3, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.2, ease: "back.out(2)" }, 6.7);
+      entre("#l-t2", 7.317);
+      window.__timelines["lots"] = tl;
+    })();
+  </script>
+</template>
