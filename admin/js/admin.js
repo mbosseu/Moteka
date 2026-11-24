@@ -277,15 +277,17 @@
   function rendrePlanning() {
     const liste = $('#planning-tirages');
     if (!liste) return;
-    const aujourdhui = etat.tirageDuSoir?.date || '';
+    const aujourdhui = etat.tirageDuSoir?.aujourdhui || etat.tirageDuSoir?.date || '';
+    const choisi = $('#choix-date')?.value || '';
+    remplirChoixDate();
     liste.innerHTML = etat.planning.length
       ? etat.planning
           .map((p) => {
             const masterclass = Boolean(p.lot && /\bGTA/i.test(p.lot.nom));
             const premium = Boolean(p.lot && !masterclass && /\bgolf\b/i.test(p.lot.nom));
-            const classes = [p.date === aujourdhui ? 'aujourdhui' : '', p.statut === 'tire' ? 'tire' : '', masterclass ? 'masterclass' : '', premium ? 'premium' : ''].filter(Boolean).join(' ');
+            const classes = [p.date === aujourdhui ? 'aujourdhui' : '', p.date === choisi ? 'choisi' : '', p.statut === 'tire' ? 'tire' : '', masterclass ? 'masterclass' : '', premium ? 'premium' : ''].filter(Boolean).join(' ');
             const statut = p.statut === 'tire' ? 'Tiré' : p.date === aujourdhui ? 'Ce soir' : 'Prévu';
-            return `<li class="${classes}">
+            return `<li class="${classes}" data-date="${echapper(p.date)}" title="Choisir ce jour pour le tirage">
               <b>${echapper(dateFr(p.date))}</b>
               <span>${p.lot ? `${echapper(p.lot.ordre)}. ${echapper(p.lot.nom)}` : 'Aucun lot disponible'}</span>
               <small>${statut}${masterclass ? ' · lot masterclass' : ''}${premium ? ' · lot premium' : ''}</small>
@@ -294,6 +296,36 @@
           .join('')
       : '<li class="aide">Planning indisponible.</li>';
   }
+
+  /** Selecteur du jour du tirage : les 6 soirs du planning, aujourd'hui par defaut. */
+  function remplirChoixDate() {
+    const sel = $('#choix-date');
+    if (!sel || !etat.planning.length) return;
+    const courant = sel.value;
+    const auj = etat.tirageDuSoir?.aujourdhui || '';
+    sel.innerHTML = "<option value=''>Aujourd'hui</option>" +
+      etat.planning
+        .map((p) => {
+          const statut = p.statut === 'tire' ? ' - déjà tiré' : p.date === auj ? ' - ce soir' : '';
+          const lot = p.lot ? ` : ${p.lot.nom}` : '';
+          return `<option value="${echapper(p.date)}">${echapper(dateFr(p.date))}${echapper(lot)}${statut}</option>`;
+        })
+        .join('');
+    sel.value = [...sel.options].some((o) => o.value === courant) ? courant : '';
+  }
+
+  $('#choix-date').addEventListener('change', () => {
+    chargerEtatTirage().catch((err) => toast(err.message, true));
+  });
+
+  $('#planning-tirages').addEventListener('click', (e) => {
+    const li = e.target.closest('li[data-date]');
+    if (!li) return;
+    const sel = $('#choix-date');
+    sel.value = li.dataset.date === (etat.tirageDuSoir?.aujourdhui || '') ? '' : li.dataset.date;
+    if (![...sel.options].some((o) => o.value === sel.value)) sel.value = '';
+    sel.dispatchEvent(new Event('change'));
+  });
 
   $('#liste-lots').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -408,8 +440,13 @@
     const lot = $('#choix-lot').value;
     const numero = $('#choix-gagnant-bo').value;
     const demoId = $('#choix-gagnant-demo').value;
+    const date = $('#choix-date').value;
     const reel = new URLSearchParams({ mode: 'reel' });
     const demo = new URLSearchParams({ mode: 'demo' });
+    if (date) {
+      reel.set('date', date);
+      demo.set('date', date);
+    }
     if (lot) {
       reel.set('lot', lot);
       demo.set('lot', lot);
@@ -465,7 +502,8 @@
   $('#lien-demo-golf').addEventListener('click', ouvrirSpectacle);
 
   async function chargerEtatTirage() {
-    const data = await api('/api/admin/tirage');
+    const date = $('#choix-date').value;
+    const data = await api(`/api/admin/tirage${date ? `?date=${encodeURIComponent(date)}` : ''}`);
     const horsPeriode = data.dans_periode === false;
     etat.candidatsTirage = data.candidats || [];
     remplirCandidatsTirage(etat.candidatsTirage);
@@ -480,7 +518,8 @@
     } else if (horsPeriode) {
       $('#etat-tirage').textContent = `${data.numeros.length} ticket(s) éligible(s) sur ${data.total_tickets}. Prochain lot : ${lot}. Choisissez le gagnant puis ouvrez le tirage. Hors période (23-28 nov.), la roue tourne en répétition : rien n'est enregistré.`;
     } else {
-      $('#etat-tirage').textContent = `${data.numeros.length} ticket(s) éligible(s) sur ${data.total_tickets}. Lot prévu ce soir : ${lot}. Choisissez le gagnant : sur la page tirage, il ne restera qu’à tourner la roue.`;
+      const quand = data.date === data.aujourdhui ? 'ce soir' : `le ${dateFr(data.date)}`;
+      $('#etat-tirage').textContent = `${data.numeros.length} ticket(s) éligible(s) sur ${data.total_tickets}. Lot prévu ${quand} : ${lot}. Choisissez le gagnant : sur la page tirage, il ne restera qu’à tourner la roue.`;
     }
     majLiensTirage();
   }

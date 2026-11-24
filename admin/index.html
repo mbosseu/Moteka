@@ -51,8 +51,11 @@
         <p id="etat-tirage" class="aide">Chargement...</p>
       </div>
       <div class="actions-tirage">
+        <label class="choix-lot">Jour du tirage
+          <select id="choix-date"><option value="">Aujourd'hui</option></select>
+        </label>
         <label class="choix-lot">Lot
-          <select id="choix-lot"><option value="">Lot prévu ce soir (planning)</option></select>
+          <select id="choix-lot"><option value="">Lot prévu ce jour-là (planning)</option></select>
         </label>
         <div class="choix-gagnant-bo">
           <label class="choix-lot choix-lot-pleine" for="filtre-gagnant-bo">Gagnant réel</label>
@@ -128,6 +131,6 @@
   <div class="preuve-image"><img id="preuve-image" alt="Capture d'écran de l'avis Google envoyée par le participant"></div>
 </dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="/admin/js/admin.js?v=20261118233000" defer></script>
+<script src="/admin/js/admin.js?v=20261124120000" defer></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-// GET /api/admin/tirage : etat du tirage du soir (numeros des tickets eligibles pour la roulette, lots restants).
+// GET /api/admin/tirage?date=AAAA-MM-JJ : etat du tirage du soir choisi (aujourd'hui par defaut) (numeros des tickets eligibles pour la roulette, lots restants).
 // POST /api/admin/tirage { lot_id?, date?, numero?, participant_id? } : enregistre le gagnant choisi (ticket eligible).
 import { lireCorps } from '../_lib/http.mjs';
 import { accepter, erreurServeur, exigerSession, memeOrigine, repondre } from '../_lib/admin-http.mjs';
@@ -33,6 +33,8 @@ export default async function handler(req, res) {
     const aujourdhui = dateParis();
 
     if (req.method === 'GET') {
+      const demandee = String(req.query?.date || new URL(req.url || '/', 'http://x').searchParams.get('date') || '');
+      const soir = dateValide(demandee) ? demandee : aujourdhui;
       const attribues = new Set(tirages.map((t) => String(t.lot_id)));
       const participants = await lireParticipants();
       const parId = new Map(participants.map((p) => [String(p.id), p]));
@@ -56,15 +58,16 @@ export default async function handler(req, res) {
         .sort((a, b) => a.numero - b.numero);
       return repondre(res, 200, {
         ok: true,
-        date: aujourdhui,
-        deja_tire: tirages.some((t) => t.date_tirage === aujourdhui),
-        dans_periode: dateDansPeriode(aujourdhui),
+        date: soir,
+        aujourdhui,
+        deja_tire: tirages.some((t) => t.date_tirage === soir),
+        dans_periode: dateDansPeriode(soir),
         periode: PERIODE_TIRAGES,
         numeros: eligibles.map((t) => Number(t.numero)),
         candidats,
         total_tickets: tickets.length,
         lots_restants: lots.filter((l) => l.actif !== false && !attribues.has(String(l.id))).map(lotPublic),
-        prochain_lot: lotPublic(choisirLot(lots, tirages, null, aujourdhui).lot || null),
+        prochain_lot: lotPublic(choisirLot(lots, tirages, null, soir).lot || null),
         planning: planningTirages(lots, tirages),
       });
     }

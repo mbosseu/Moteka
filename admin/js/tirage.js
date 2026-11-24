@@ -28,6 +28,8 @@ import { creerSequenceGolf } from './tirage-golf.js?v=20261118233000';
 const params = new URLSearchParams(location.search);
 const MODE = params.get('mode') === 'reel' ? 'reel' : 'demo';
 const LOT_DEMANDE = params.get('lot') || '';
+// Jour du tirage choisi dans le back-office (?date=AAAA-MM-JJ), aujourd'hui par defaut.
+const DATE_DEMANDEE = /^\d{4}-\d{2}-\d{2}$/.test(params.get('date') || '') ? params.get('date') : '';
 const NUMERO_CHOISI = params.get('numero') || '';
 const PRENOM_CHOISI = params.get('prenom') || '';
 const NOM_CHOISI = params.get('nom') || '';
@@ -1175,6 +1177,7 @@ async function api(chemin, options = {}) {
 }
 
 function aujourdhui() {
+  if (DATE_DEMANDEE) return DATE_DEMANDEE;
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 }
 
@@ -1643,7 +1646,7 @@ async function lancer() {
   erreurTirage = null;
   if (MODE === 'reel' && infoTirage?.dans_periode !== false) {
     try {
-      const corps = { numero: choisi.numero };
+      const corps = { numero: choisi.numero, date: aujourdhui() };
       if (LOT_DEMANDE) corps.lot_id = LOT_DEMANDE;
       const data = await api('/api/admin/tirage', { method: 'POST', body: JSON.stringify(corps) });
       resultat = data.tirage;
@@ -1912,7 +1915,7 @@ async function preparer() {
   libelle.className = `mode ${MODE === 'reel' ? 'reel' : 'demo'}`;
   $('#badge-demo').hidden = MODE === 'reel';
   if (params.get('auto') === '1') $('#opt-auto').checked = true;
-  $('#date-tirage').textContent = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  $('#date-tirage').textContent = new Date(`${aujourdhui()}T12:00:00`).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
   const [bc, moteka] = await Promise.all([
     chargerImage('/fight-furious/assets/logo/boxing-center.png'),
@@ -1930,7 +1933,7 @@ async function preparer() {
 
   let pret = true;
   try {
-    infoTirage = await api('/api/admin/tirage');
+    infoTirage = await api(`/api/admin/tirage?date=${encodeURIComponent(aujourdhui())}`);
     numeros = infoTirage.numeros || [];
     candidats = infoTirage.candidats || [];
   } catch (err) {
@@ -1961,7 +1964,7 @@ async function preparer() {
   } else if (MODE === 'reel' && pret) {
     if (infoTirage.deja_tire) {
       pret = false;
-      majInfo("Le tirage d'aujourd'hui a déjà eu lieu.");
+      majInfo(DATE_DEMANDEE ? `Le tirage du ${new Date(`${DATE_DEMANDEE}T12:00:00`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })} a déjà eu lieu.` : "Le tirage d'aujourd'hui a déjà eu lieu.");
     } else if (!numeros.length) {
       pret = false;
     } else if (!infoTirage.prochain_lot && infoTirage.dans_periode !== false) {

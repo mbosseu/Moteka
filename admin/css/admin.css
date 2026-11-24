@@ -125,6 +125,8 @@ td small { color: var(--gris); display: block; }
 .planning li span { font-size: 13px; line-height: 1.3; }
 .planning li small { font: 600 11px var(--titre); letter-spacing: .12em; text-transform: uppercase; color: var(--gris); }
 .planning li.aujourdhui { border-color: var(--rouge); background: rgba(209, 20, 20, .12); }
+.planning li { cursor: pointer; }
+.planning li.choisi { outline: 2px solid #fff; outline-offset: -2px; }
 .planning li.tire small { color: #ffd166; }
 .planning li.masterclass span { color: #ff6ec7; font-weight: 600; }
 .planning li.premium span { color: #ff4040; font-weight: 600; }
