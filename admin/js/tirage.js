@@ -1303,6 +1303,9 @@ function numeroAuHasard(exclure) {
 }
 
 function majFaces() {
+  // Le rouleau tourne vraiment : la face en face de la camera est celle ou angleRouleau + k * PAS = 0,
+  // donc a l'arret c'est bien faces[kGagnant] (le numero du ticket gagnant) qui est visible.
+  rouleau.rotation.x = angleRouleau;
   for (let k = 0; k < NB_FACES; k += 1) {
     const f = faces[k];
     const a = mod(angleRouleau + k * PAS, TAU);
